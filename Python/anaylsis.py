@@ -17,7 +17,7 @@ from lib.experiment import *
 from lib.util import *
 
 
-def buildExperiment(maxData, curryData):
+def buildExperiment(maxDataPaths, curryDataPaths):
     """
         Construct an analyzable experiment using max and curry generated data
 
@@ -34,17 +34,17 @@ def buildExperiment(maxData, curryData):
     debug = False
 
     # parse data files
-    trials, blockOrdering = parseMaxData(maxData)
-    curry_data = parseCurryData(curryData)
+    raw_trial_data, blockOrdering = parseMaxData(maxDataPaths)
+    raw_curry_data = parseCurryData(curryDataPaths)
 
     if debug:
 
         print "blockOrdering"
         print blockOrdering
         print "trials"
-        print trials[-1]
+        print raw_trial_data[-1]
 
-    trials = removeBadTrials(trials, curry_data)
+    raw_trial_data = removeBadTrials(raw_trial_data, raw_curry_data)
 
     # create notes
     # build phrases
@@ -58,7 +58,7 @@ def buildExperiment(maxData, curryData):
 
     return experiment
 
-def parseMaxData(maxData):
+def parseMaxData(maxDataPaths):
     """
         Argument(s):
 
@@ -70,11 +70,11 @@ def parseMaxData(maxData):
                 blockOrdering: (int array) Array of block ordering
     """
 
-    numTrials = len(maxData)
+    numTrials = len(maxDataPaths)
 
     trials = []
 
-    for trial in maxData:
+    for trial in maxDataPaths:
 
         trialData = readCollFile(trial)
         trials.append(trialData)
@@ -134,7 +134,7 @@ def readCollFile(filename):
 
     return trial
 
-def parseCurryData(curryData):
+def parseCurryData(curryDataPaths):
     """
         Argument(s):
 
@@ -146,7 +146,16 @@ def parseCurryData(curryData):
                 blockOrdering: (int array) Array of block ordering
     """
 
-    return 0
+    numBlocks = len(curryDataPaths)
+
+    blocks = []
+
+    for block in curryDataPaths:
+
+        blockData = readCurryFile(block)
+        blocks.append(blockData)
+
+    return blocks
 
 
 def readCurryFile(filename):
@@ -202,10 +211,10 @@ if __name__ == '__main__':
         curryDataLocation = "../Data/CurryLogs/" + sys.argv[1]
 
         # store the max coll file locations in an array
-        maxData = [y for x in os.walk(maxDataLocation) for y in glob(os.path.join(x[0], '*.txt'))]
+        maxDataPaths = [y for x in os.walk(maxDataLocation) for y in glob(os.path.join(x[0], '*.txt'))]
 
         # store the curry file locations in an array
-        curryData = [y for x in os.walk(curryDataLocation) for y in glob(os.path.join(x[0], '*.ceo'))]
+        curryDataPaths = [y for x in os.walk(curryDataLocation) for y in glob(os.path.join(x[0], '*.ceo'))]
 
         try:
 
@@ -222,12 +231,12 @@ if __name__ == '__main__':
 
     if test_file_structure:
 
-        print "len(trialData)"
-        print len(maxData)
-        print "len(curryData)"
-        print len(curryData)
+        print "len(maxDataPaths)"
+        print len(maxDataPaths)
+        print "len(curryDataPaths)"
+        print len(curryDataPaths)
         print "ExperimentParams.subjectInitials"
         print ExperimentParams.subjectInitials
 
 
-    experiment = buildExperiment(maxData, curryData)
+    experiment = buildExperiment(maxDataPaths, curryDataPaths)
