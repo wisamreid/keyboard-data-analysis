@@ -14,10 +14,13 @@ validate and verify their concurance
 """
 from numpy import *
 from lib.experiment import *
+from lib.util import *
 
 
 def buildExperiment(maxData, curryData):
     """
+        Construct an analyzable experiment using max and curry generated data
+
         Argument(s):
 
                 maxData: (string array) array of max generated coll file paths
@@ -28,10 +31,20 @@ def buildExperiment(maxData, curryData):
                 experiment: (Experiment) an experiment object ready for analysis
     """
 
+    debug = False
+
     # parse data files
     trials, blockOrdering = parseMaxData(maxData)
+    curry_data = parseCurryData(curryData)
 
-    # get block ordering
+    if debug:
+
+        print "blockOrdering"
+        print blockOrdering
+        print "trials"
+        print trials[-1]
+
+    trials = removeBadTrials(trials, curry_data)
 
     # create notes
     # build phrases
@@ -53,33 +66,24 @@ def parseMaxData(maxData):
 
         Return:
 
-                trials: (array[trial number](note object array)) array of trials containing note objects
+                trials: (array of arrays) trials[trial number](note object array) array of trials containing note objects
+                blockOrdering: (int array) Array of block ordering
     """
-
-    blockOrdering = 0
 
     numTrials = len(maxData)
 
+    trials = []
+
     for trial in maxData:
-        trial = readCollFile(trial)
-        print trial
 
+        trialData = readCollFile(trial)
+        trials.append(trialData)
 
-    return 0, blockOrdering
+    blockOrdering = trials.pop(0)
+    # remove call file indexes
+    blockOrdering = [v for i, v in enumerate(blockOrdering) if i % 2 == 1]
 
-
-def isGoodTrial():
-    """
-        Argument(s):
-
-            not sure: (type) stuff
-
-        Return(s):
-
-            decision: (int) 0 or 1
-    """
-
-    return 0
+    return trials, blockOrdering
 
 
 def readCollFile(filename):
@@ -117,6 +121,7 @@ def readCollFile(filename):
 
     if not count%numNoteParams:
         noteCount = count/numNoteParams
+
     else:
         noteCount = "coll file is improperly formatted"
         print noteCount
@@ -129,10 +134,41 @@ def readCollFile(filename):
 
     return trial
 
+def parseCurryData(curryData):
+    """
+        Argument(s):
 
-def readCurryData(filename):
+                curryData: (string array) array of curry generated file paths
 
-        return "Hello Curry"
+        Return:
+
+                trials: (array of arrays) trials[trial number](note object array) array of trials containing note objects
+                blockOrdering: (int array) Array of block ordering
+    """
+
+    return 0
+
+
+def readCurryFile(filename):
+
+    return 0
+
+def removeBadTrials(trials, curryData):
+    """
+        Argument(s):
+
+            trials: (array of arrays) coll file data
+
+        Return(s):
+
+            decision: (array of arrays) containing only valid trial data
+    """
+
+    valid = ones(len(trials), dtype=bool)
+
+
+
+    return 0
 
 
 def analyzeBlock():

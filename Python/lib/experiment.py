@@ -68,7 +68,7 @@ class Trial:
 
     def __init__(self, phrases):
         """
-        Trial takes in an array of phrases
+        Trial takes in an array of constituent phrases
 
         Argument(s):
 
@@ -86,7 +86,7 @@ class Phrase:
 
     def __init__(self, notes, isPreBoundary = False, isDeviant = False):
         """
-        Phrase takes in an array of notes
+        Phrase takes in an array of constituent notes
         """
 
         self.notes = notes
