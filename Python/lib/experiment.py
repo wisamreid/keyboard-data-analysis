@@ -1,8 +1,11 @@
 """
-audiofile.py -- Analysis of midi keyboard data.
+experiment.py -- Analysis of midi keyboard data.
 -----------------------------------------------------------------------
 Written By: Wisam Reid
 -----------------------------------------------------------------------
+
+Defines an Experiment Object made of Subject, Block, Trial, Phrase, and Note objects
+
 """
 
 class ExperimentParams:
