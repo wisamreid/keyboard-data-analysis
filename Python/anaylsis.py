@@ -7,50 +7,40 @@ Written By: Wisam Reid
 from numpy import *
 from lib.experiment import *
 
-class Analysis(Experiment):
-    """
-    An abstract class defining handlers expected for a experiment data
-    """
 
-    def setup(self):
+def readTrialData(filename):
 
-        # load up a ExperimentParams object
-        myParams=ExperimentParams()
-        myParams.triggerCodes = triggerCodes
+    coll_file = open(filename, 'r')
 
+    trial = []
 
-    def readMaxData(self, filename):
+    # navigate line by line
+    for note in coll_file:
 
-        coll_file = open(fileName, 'r')
+            note = note.strip()
+            note = note.lower()
+            for word in line.split():
+                    dictionary[word] = dictionary.get(word, 0) + 1
 
-        dictionary = dict()
+    return dictionary
 
-        # navigate line by line
-        for line in coll_file:
+def readCurryData(filename):
 
-                line = line.strip()
-                line = line.lower()
-                for word in line.split():
-                        dictionary[word] = dictionary.get(word, 0) + 1
-
-        return dictionary
-
-    def readCurryData(self, filename):
-
-            return "Hello Curry"
+        return "Hello Curry"
 
 
-    def analyzeBlock(self):
+def analyzeBlock():
 
-        return "Hi"
+    return "Hi"
 
-    def analyzeSubject(self):
+def analyzeSubject():
 
-        return "Hello"
+    return "Hello"
 
-    def analyzeTrial(self):
+def analyzeTrial():
 
-        return "Bye"
+    return "Bye"
+
 
 
 if __name__ == '__main__':
@@ -58,42 +48,36 @@ if __name__ == '__main__':
     import time
     import sys
     import os
+    from glob import glob
 
-    curryData = []
-    trials = []
+    # test booleans
+    test_file_structure = True
 
     # enter file name to run on a single set of subjects
     if len(sys.argv) > 1:
+
         maxDataLocation = "../Data/MaxLogs/" + sys.argv[1]
         curryDataLocation = "../Data/CurryLogs/" + sys.argv[1]
 
-        # store the coll max file locations in an array
-        for (path, dirnames, filenames) in os.walk(maxDataLocation):
-            # subjectPairs.extend(os.path.join(path, name) for name in dirnames)
-            trials.extend(os.path.join(path, name) for name in filenames)
+        # store the max coll file locations in an array
+        trials = [y for x in os.walk(maxDataLocation) for y in glob(os.path.join(x[0], '*.txt'))]
 
-        # store the coll max file locations in an array
-        for (path, dirnames, filenames) in os.walk(curryDataLocation):
-            # subjectPairs.extend(os.path.join(path, name) for name in dirnames)
-            curryData.extend(os.path.join(path, name) for name in filenames)
+        # store the curry file locations in an array
+        curryData = [y for x in os.walk(curryDataLocation) for y in glob(os.path.join(x[0], '*.ceo'))]
 
     else:
 
         print "Error: Please enter subject pair XX_YY"
         sys.exit()
 
+    if test_file_structure:
 
-    print len(trials)
-    print len(curryData)
+        print "len(trials)"
+        print len(trials)
+        print "len(curryData)"
+        print len(curryData)
 
-    # for i in range(len(subjectPairs)):
-    #     print subjectPairs[i]
-    #
-    for i in range(len(trials)):
-        print trials[i]
-
-
-
-    print "I am running"
-
-    pass
+    yo = readTrialData(trials[0])
+    # experiment = Experiment(trials,curryData)
+    # analysis = Analysis(experiment)
+    # note = analysis.readMaxData(experiment.trials)

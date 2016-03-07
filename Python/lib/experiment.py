@@ -15,11 +15,11 @@ class Experiment:
     An abstract class defining the experiment
     """
 
-    def __init__(self, subjectInitials, blocks):
+    def __init__(self, trials, curryData):
         """Object is initialized with its subjectInitials"""
-        self.subjectInitials = subjectInitials
-        self.blocks = blocks
-        self.numBlocks = len(blocks)
+        # self.subjectInitials = subjectInitials
+        self.trials = trials
+        self.curryData = curryData
 
     def readMaxData(self, fileName):
         """ Empty structure for within experiment data analysis """
@@ -53,6 +53,7 @@ class Block:
         initialized with the frequency and SPL of a masker and whether or not
         it is Tonal
         """
+
         self.score = score
         self.numTrials = len(trials)
         self.trials = trials
@@ -65,20 +66,47 @@ class Block:
 
 class Trial:
     """
-    Defines a current trial
+    Defines a trial
     """
 
-    def __init__(self, subjectInitials, filename):
+    def __init__(self, phrases):
+        """
+        Trial takes in an array of phrases
+        """
+
+        self.phrases = phrases
+
+class Phrase:
+    """
+    Defines a Phrase
+    """
+
+    def __init__(self, notes):
+        """
+        Phrase takes in an array of notes
+        """
+
+        self.notes = notes
+
+class Note:
+    """
+    Defines a note
+    """
+
+    def __init__(self, noteParams, isDeviant = False):
         """
         Assigns MDCT lines to scale factor bands based on a vector of the number
         of lines in each band
         """
 
-        self.nSubjects = len(subjectInitials)
-        self.filename = filename
+        self.noteIndex = noteParams[0]
+        self.IOI = noteParams[1]
+        self.player = noteParams[2]
+        self.midivalue = noteParams[3]
+        self.velociy = noteParams[4]
+        self.duration = noteParams[5]
+        self.isDeviant = isDeviant
 
 if __name__ == '__main__':
-
-    print "I am running"
 
     pass
