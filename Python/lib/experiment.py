@@ -5,10 +5,30 @@ Written By: Wisam Reid
 -----------------------------------------------------------------------
 """
 
-
 class ExperimentParams:
     """ A class to hold coding parameters to share across subjects, trials and blocks """
     pass # will just add attributes at runtime as needed
+
+
+class Experiment:
+    """
+    An abstract class defining the experiment
+    """
+
+    def __init__(self, subjectInitials, blocks):
+        """Object is initialized with its subjectInitials"""
+        self.subjectInitials = subjectInitials
+        self.blocks = blocks
+        self.numBlocks = len(blocks)
+
+    def readMaxData(self, fileName):
+        """ Empty structure for within experiment data analysis """
+        pass
+
+
+    def AnalyzeSomeExperimentData(self, data):
+        """ Empty structure for within experiment data analysis """
+        pass
 
 class Subject:
     """An abstract class defining handlers expected for a data file containing audio data"""
@@ -21,6 +41,7 @@ class Subject:
     def AnalyzeSomeSubjectData(self, data):
         """ Empty structure for within subject data analysis """
         pass
+
 
 class Block:
     """
@@ -41,6 +62,7 @@ class Block:
         """ Empty structure for within Block data analysis """
         pass
 
+
 class Trial:
     """
     Defines a current trial
@@ -54,7 +76,6 @@ class Trial:
 
         self.nSubjects = len(subjectInitials)
         self.trialNumber = trialNumber
-
 
 if __name__ == '__main__':
 
