@@ -15,16 +15,12 @@ class Experiment:
     An abstract class defining the experiment
     """
 
-    def __init__(self, trials, curryData):
+    def __init__(self, subjects, blocks, score):
         """Object is initialized with its subjectInitials"""
         # self.subjectInitials = subjectInitials
-        self.trials = trials
-        self.curryData = curryData
-
-    def readMaxData(self, fileName):
-        """ Empty structure for within experiment data analysis """
-        pass
-
+        self.subjects = subjects
+        self.blocks = blocks
+        self.score = score
 
     def AnalyzeSomeExperimentData(self, data):
         """ Empty structure for within experiment data analysis """
@@ -48,13 +44,11 @@ class Block:
     A class to hold parameters to share across subjects and trials
     """
 
-    def __init__(self, score, trials, isSkyNet = False):
+    def __init__(self, trials, isSkyNet = False):
         """
         initialized with the frequency and SPL of a masker and whether or not
         it is Tonal
         """
-
-        self.score = score
         self.numTrials = len(trials)
         self.trials = trials
         self.isSkyNet = isSkyNet
@@ -73,16 +67,10 @@ class Trial:
         """
         Trial takes in an array of phrases
 
-        Arguments:
+        Argument(s):
 
                 an array of phrases
         """
-        # phrase1 =
-        # phrase2 =
-        # phrase3 =
-        # phrase4 =
-        #
-        # phrases = [phrase1,phrase2,phrase3,phrase4]
 
         self.phrases = phrases
 
@@ -93,13 +81,14 @@ class Phrase:
     Defines a Phrase
     """
 
-    def __init__(self, notes, isPreBoundary = False):
+    def __init__(self, notes, isPreBoundary = False, isDeviant = False):
         """
         Phrase takes in an array of notes
         """
 
         self.notes = notes
         self.isPreBoundary = isPreBoundary
+        self.isDeviant = isDeviant
 
 class Note:
     """
