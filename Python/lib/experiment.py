@@ -72,21 +72,34 @@ class Trial:
     def __init__(self, phrases):
         """
         Trial takes in an array of phrases
+
+        Arguments:
+
+                an array of phrases
         """
+        # phrase1 =
+        # phrase2 =
+        # phrase3 =
+        # phrase4 =
+        #
+        # phrases = [phrase1,phrase2,phrase3,phrase4]
 
         self.phrases = phrases
+
+
 
 class Phrase:
     """
     Defines a Phrase
     """
 
-    def __init__(self, notes):
+    def __init__(self, notes, isPreBoundary = False):
         """
         Phrase takes in an array of notes
         """
 
         self.notes = notes
+        self.isPreBoundary = isPreBoundary
 
 class Note:
     """
