@@ -68,14 +68,14 @@ class Trial:
     Defines a current trial
     """
 
-    def __init__(self, subjectInitials, trialNumber):
+    def __init__(self, subjectInitials, filename):
         """
         Assigns MDCT lines to scale factor bands based on a vector of the number
         of lines in each band
         """
 
         self.nSubjects = len(subjectInitials)
-        self.trialNumber = trialNumber
+        self.filename = filename
 
 if __name__ == '__main__':
 
