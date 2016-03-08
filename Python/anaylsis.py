@@ -304,5 +304,5 @@ if __name__ == '__main__':
         print "len(curryDataPaths): ", len(curryDataPaths), " (Should be 12)"
         print "ExperimentParams.subjectInitials: ", ExperimentParams.subjectInitials
 
-
+    # comstruct an experiment object, ready to for analysis
     experiment = buildExperiment(maxDataPaths, curryDataPaths)
