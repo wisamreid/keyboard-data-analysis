@@ -17,14 +17,15 @@ from lib.experiment import *
 from lib.util import *
 
 
-def buildExperiment(maxDataPaths, curryDataPaths):
+def buildExperiment(maxDataPaths, curryDataPaths, scoreDataPaths):
     """
         Construct an analyzable experiment using max and curry generated data
 
         Argument(s):
 
-                maxData: (string array) array of max generated coll file paths
-                curryData: (string array) array of curry generated file paths
+                maxDataPaths: (string array) array of max generated coll file paths
+                curryDataPaths: (string array) array of curry generated file paths
+                scoreDataPaths: (string array) array of score file paths
 
         Return:
 
@@ -36,13 +37,19 @@ def buildExperiment(maxDataPaths, curryDataPaths):
     # parse data files
     raw_trial_data, blockOrdering = parseMaxData(maxDataPaths)
     raw_curry_data = parseCurryData(curryDataPaths)
+    raw_score = parseScore(scoreDataPaths)
 
     if debug:
 
-        print "blockOrdering"
-        print blockOrdering
-        print "trials"
-        print raw_trial_data[-1]
+        print "---- Max Parsing ----"
+        print "First Trial (Raw Data): ", raw_trial_data[0]
+        print "Last Trial (Raw Data): ", raw_trial_data[-1]
+        print "Block Ordering: ", blockOrdering
+        print "---- Curry Parsing ----"
+        print "First Block Trigger Codes: ", raw_curry_data[0]
+        print "Last Block Trigger Codes: ", raw_curry_data[-1]
+        # print "Number of Trigger Codes: ", numTriggerCodes
+        print "\n"
 
     raw_trial_data = removeBadTrials(raw_trial_data, raw_curry_data)
 
@@ -138,6 +145,7 @@ def readCollFile(filename):
 
         print "Trial Data: ", trial
         print "Note Count: ", noteCount
+        print "\n"
 
     return trial
 
@@ -147,7 +155,7 @@ def parseCurryData(curryDataPaths):
     """
         Argument(s):
 
-                curryData: (string array) array of curry generated file paths
+                curryDataPaths: (string array) array of curry generated file paths
 
         Return:
 
@@ -242,6 +250,21 @@ def readCurryFile(filename):
 
     return triggerCodes, numTriggerCodes
 
+def parseScore(scoreDataPaths):
+    """
+        Argument(s):
+
+                scoreDataPaths: (string array) array of score file paths
+
+        Return:
+
+                scores: (array of arrays) scores[score number](note object array) array of trials containing note objects
+    """
+
+    numScores = len(scoreDataPaths)
+
+    return 0
+
 
 
 def removeBadTrials(trials, curryData):
@@ -257,8 +280,6 @@ def removeBadTrials(trials, curryData):
 
     valid = ones(len(trials), dtype=bool)
 
-
-
     return 0
 
 
@@ -270,20 +291,25 @@ if __name__ == '__main__':
     import os
     from glob import glob
 
-    # test booleans
+    # test boolean(s)
     test_file_structure = True
+
 
     # enter file name to run on a single set of subjects
     if len(sys.argv) > 1:
 
         maxDataLocation = "../Data/MaxLogs/" + sys.argv[1]
         curryDataLocation = "../Data/CurryLogs/" + sys.argv[1]
+        scoreDataLocation = "../Data/Scores/"
 
         # store the max coll file locations in an array
         maxDataPaths = [y for x in os.walk(maxDataLocation) for y in glob(os.path.join(x[0], '*.txt'))]
 
         # store the curry file locations in an array
         curryDataPaths = [y for x in os.walk(curryDataLocation) for y in glob(os.path.join(x[0], '*.ceo'))]
+
+        # store the score file locations in an array
+        scoreDataPaths = [y for x in os.walk(scoreDataLocation) for y in glob(os.path.join(x[0], '*.txt'))]
 
         try:
 
@@ -302,7 +328,8 @@ if __name__ == '__main__':
 
         print "len(maxDataPaths): ", len(maxDataPaths)
         print "len(curryDataPaths): ", len(curryDataPaths), " (Should be 12)"
+        print "len(ScoreDataPaths): ", len(scoreDataPaths), " (Should be 4)"
         print "ExperimentParams.subjectInitials: ", ExperimentParams.subjectInitials
 
     # comstruct an experiment object, ready to for analysis
-    experiment = buildExperiment(maxDataPaths, curryDataPaths)
+    experiment = buildExperiment(maxDataPaths, curryDataPaths, scoreDataPaths)

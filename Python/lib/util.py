@@ -5,7 +5,6 @@ Written By: Wisam Reid
 -----------------------------------------------------------------------
 """
 
-
 def validateData(maxData,curryData):
 
 

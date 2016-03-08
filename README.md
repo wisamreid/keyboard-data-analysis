@@ -1,5 +1,9 @@
 # keyboard-data-analysis
 
-Author: Wisam Reid 
+Author: Wisam Reid
 
 An attempt at a modular, flexible, and scalable environment for keyboard data analysis
+
+TODO:
+
+  1. fill in the scoreParse function.

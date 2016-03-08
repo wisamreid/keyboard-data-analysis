@@ -18,7 +18,7 @@ class Experiment:
     An abstract class defining the experiment
     """
 
-    def __init__(self, subjects, blocks, score):
+    def __init__(self, subjects, blocks, score, triggerCodes):
         """Object is initialized with its subjectInitials"""
         # self.subjectInitials = subjectInitials
         self.subjects = subjects
