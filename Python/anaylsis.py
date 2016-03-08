@@ -41,6 +41,7 @@ def buildExperiment(maxDataPaths, curryDataPaths, scoreDataPaths):
 
     if debug:
 
+        print "---- Testing buildExperiment Function ----"
         print "---- Max Parsing ----"
         print "First Trial (Raw Data): ", raw_trial_data[0]
         print "Last Trial (Raw Data): ", raw_trial_data[-1]
@@ -79,6 +80,8 @@ def parseMaxData(maxDataPaths):
                 trials: (array of arrays) trials[trial number](note object array) array of trials containing note objects
                 blockOrdering: (int array) Array of block ordering
     """
+    # debug boolean
+    debug = False
 
     numTrials = len(maxDataPaths)
 
@@ -96,6 +99,11 @@ def parseMaxData(maxDataPaths):
     blockOrdering = trials.pop(0)
     # remove coll file indexes (leave just the block ordering)
     blockOrdering = [v for i, v in enumerate(blockOrdering) if i % 2 == 1]
+
+    if debug:
+
+        print "---- Testing buildExperiment Function ----"
+        print "\n"
 
     return trials, blockOrdering
 
@@ -143,6 +151,7 @@ def readCollFile(filename):
 
     if debug:
 
+        print "---- Testing readCollFile Function ----"
         print "Trial Data: ", trial
         print "Note Count: ", noteCount
         print "\n"
@@ -163,7 +172,7 @@ def parseCurryData(curryDataPaths):
                 blockOrdering: (int array) Array of block ordering
     """
     # debug boolean
-    debug = False
+    debug = True
 
     numBlocks = len(curryDataPaths)
     blocks = []
@@ -172,6 +181,14 @@ def parseCurryData(curryDataPaths):
 
         blockData, numTriggerCodes = readCurryFile(block)
         blocks.append(blockData)
+
+    if debug:
+
+        print "---- Testing parseCurryData Function ----"
+        print "First Block: ", blocks[0]
+        print "Last Block: ", blocks[-1]
+        print "len(blocks): ", len(blocks)
+        print "\n"
 
     return blocks
 
@@ -242,6 +259,7 @@ def readCurryFile(filename):
 
     if debug:
 
+        print "---- Testing readCurryFile Function ----"
         print "first trigger code: ", triggerCodes[0]
         print "last trigger code: ", triggerCodes[-1]
         print "len(triggerCodes): ", len(triggerCodes)
@@ -292,7 +310,7 @@ if __name__ == '__main__':
     from glob import glob
 
     # test boolean(s)
-    test_file_structure = True
+    test_file_structure = False
 
 
     # enter file name to run on a single set of subjects
@@ -325,7 +343,7 @@ if __name__ == '__main__':
         sys.exit()
 
     if test_file_structure:
-
+        print "---- Testing File Structure ----"
         print "len(maxDataPaths): ", len(maxDataPaths)
         print "len(curryDataPaths): ", len(curryDataPaths), " (Should be 12)"
         print "len(ScoreDataPaths): ", len(scoreDataPaths), " (Should be 4)"
