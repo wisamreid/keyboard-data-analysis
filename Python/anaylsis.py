@@ -58,6 +58,9 @@ def buildExperiment(maxDataPaths, curryDataPaths):
 
     return experiment
 
+
+
+
 def parseMaxData(maxDataPaths):
     """
         Argument(s):
@@ -74,16 +77,21 @@ def parseMaxData(maxDataPaths):
 
     trials = []
 
+    # gather raw trial data from each coll file
     for trial in maxDataPaths:
 
+        # read coll file, return array of raw data
         trialData = readCollFile(trial)
+        # add each trial to the trials array
         trials.append(trialData)
 
+    # first coll file is the block ordering
     blockOrdering = trials.pop(0)
-    # remove call file indexes
+    # remove coll file indexes (leave just the block ordering)
     blockOrdering = [v for i, v in enumerate(blockOrdering) if i % 2 == 1]
 
     return trials, blockOrdering
+
 
 
 def readCollFile(filename):
@@ -95,7 +103,6 @@ def readCollFile(filename):
         Return(s):
 
             trial: (integer array) data in the coll files
-
     """
     # debug boolean
     debug = False
@@ -103,36 +110,38 @@ def readCollFile(filename):
     numNoteParams = 6
 
     coll_file = open(filename, 'rb')
-    newstring = coll_file.read()
+    trial = coll_file.read()
 
     # pull out all the punctuation
-    newstring = str.replace(str(newstring),"."," ")
-    newstring = str.replace(str(newstring),","," ")
-    newstring = str.replace(str(newstring),":"," ")
-    newstring = str.replace(str(newstring),";"," ")
-    # newstring = str.lower(newstring)
+    trial = str.replace(str(trial),"."," ")
+    trial = str.replace(str(trial),","," ")
+    trial = str.replace(str(trial),":"," ")
+    trial = str.replace(str(trial),";"," ")
 
-    list =  str.split(newstring)
-    coll_line = asarray(list)
-
-    trial = coll_line.astype(int)
+    # create an int array for trial data
+    list =  str.split(trial)
+    trial = asarray(list)
+    trial = trial.astype(int)
 
     count = len(trial)
 
+    # coll file validatation
+    # (This is not robust, just a dumb sanity check for now)
     if not count%numNoteParams:
         noteCount = count/numNoteParams
 
-    else:
+    else: # check that each not has numNoteParams associated with it
         noteCount = "coll file is improperly formatted"
         print noteCount
 
     if debug:
-        print "Trial Data"
-        print trial
-        print "Count"
-        print noteCount
+
+        print "Trial Data: ", trial
+        print "Note Count: ", noteCount
 
     return trial
+
+
 
 def parseCurryData(curryDataPaths):
     """
@@ -145,35 +154,39 @@ def parseCurryData(curryDataPaths):
                 trials: (array of arrays) trials[trial number](note object array) array of trials containing note objects
                 blockOrdering: (int array) Array of block ordering
     """
+    # debug boolean
+    debug = False
 
     numBlocks = len(curryDataPaths)
-
     blocks = []
 
     for block in curryDataPaths:
 
-        blockData = readCurryFile(block)
+        blockData, numTriggerCodes = readCurryFile(block)
         blocks.append(blockData)
 
     return blocks
+
 
 
 def readCurryFile(filename):
     """
         Argument(s):
 
-            filename: (string) path to curry generated file
+            filename: (string) path to curry generated file containing
+                        trigger codes for a block
 
         Return(s):
 
-            trial: (integer array) data in the curry files
-
+            triggerCodes: (integer array) all trigger codes for a block
+            numTriggerCodes: (int) number of trigger codes
     """
 
     # debug boolean
     debug = False
     numTriggerCodes = 0
 
+    # open curry file
     curry_file = open(filename, 'rb')
     line = curry_file.readline()
 
@@ -190,12 +203,7 @@ def readCurryFile(filename):
             list =  str.split(line)
             temp = asarray(list)
             numTriggerCodes = int(temp[2])
-            triggerCodes = zeros(numTriggerCodes,dtype=int)
-            if debug:
-                print "triggerCodes"
-                print triggerCodes
-                print "numTriggerCodes"
-                print numTriggerCodes
+            triggerCodes = zeros(numTriggerCodes-1,dtype=int)
 
         # count 'NUMBER_LIST' instances
         if 'NUMBER_LIST' in line:
@@ -205,18 +213,35 @@ def readCurryFile(filename):
             line = next(curry_file)
             line = next(curry_file)
 
+    code = 0
     # Collect the trigger codes untill the next 'NUMBER_LIST'
     # (the end of the trigger code data)
-    while True:
+    while code < numTriggerCodes:
 
         list = str.split(line)
         curry_line = asarray(list)
-        # print curry_line
+        # only grab the trigger code and add it to the list
+        triggerCodes[code] = curry_line[2]
+
+        # go to next line
         line = next(curry_file)
+        code += 1
+        # break if we hit the end of the triger data
         if 'NUMBER_LIST' in line:
             break
 
-    return 0
+    numTriggerCodes -= 1 # we skipped the first line of the curry data
+
+    if debug:
+
+        print "first trigger code: ", triggerCodes[0]
+        print "last trigger code: ", triggerCodes[-1]
+        print "len(triggerCodes): ", len(triggerCodes)
+        print "numTriggerCodes: ", numTriggerCodes
+        print "\n"
+
+    return triggerCodes, numTriggerCodes
+
 
 
 def removeBadTrials(trials, curryData):
@@ -237,19 +262,6 @@ def removeBadTrials(trials, curryData):
     return 0
 
 
-def analyzeBlock():
-
-    return "Hi"
-
-def analyzeSubject():
-
-    return "Hello"
-
-def analyzeTrial():
-
-    return "Bye"
-
-
 
 if __name__ == '__main__':
 
@@ -259,7 +271,7 @@ if __name__ == '__main__':
     from glob import glob
 
     # test booleans
-    test_file_structure = False
+    test_file_structure = True
 
     # enter file name to run on a single set of subjects
     if len(sys.argv) > 1:
@@ -288,12 +300,9 @@ if __name__ == '__main__':
 
     if test_file_structure:
 
-        print "len(maxDataPaths)"
-        print len(maxDataPaths)
-        print "len(curryDataPaths)"
-        print len(curryDataPaths)
-        print "ExperimentParams.subjectInitials"
-        print ExperimentParams.subjectInitials
+        print "len(maxDataPaths): ", len(maxDataPaths)
+        print "len(curryDataPaths): ", len(curryDataPaths), " (Should be 12)"
+        print "ExperimentParams.subjectInitials: ", ExperimentParams.subjectInitials
 
 
     experiment = buildExperiment(maxDataPaths, curryDataPaths)
