@@ -110,7 +110,7 @@ def readCollFile(filename):
     newstring = str.replace(str(newstring),","," ")
     newstring = str.replace(str(newstring),":"," ")
     newstring = str.replace(str(newstring),";"," ")
-    newstring = str.lower(newstring)
+    # newstring = str.lower(newstring)
 
     list =  str.split(newstring)
     coll_line = asarray(list)
@@ -159,8 +159,65 @@ def parseCurryData(curryDataPaths):
 
 
 def readCurryFile(filename):
+    """
+        Argument(s):
+
+            filename: (string) path to curry generated file
+
+        Return(s):
+
+            trial: (integer array) data in the curry files
+
+    """
+
+    # debug boolean
+    debug = False
+    numTriggerCodes = 0
+
+    curry_file = open(filename, 'rb')
+    line = curry_file.readline()
+
+    # counter looking for lines including 'NUMBER_LIST'
+    symbolCount = 0
+
+    # skip all lines until fourth 'NUMBER_LIST' line
+    # (the beginning of the trigger code data)
+    while line != '' and symbolCount < 4:
+        line = next(curry_file)
+
+        # get number of trigger codes
+        if 'ListNrRows' in line:
+            list =  str.split(line)
+            temp = asarray(list)
+            numTriggerCodes = int(temp[2])
+            triggerCodes = zeros(numTriggerCodes,dtype=int)
+            if debug:
+                print "triggerCodes"
+                print triggerCodes
+                print "numTriggerCodes"
+                print numTriggerCodes
+
+        # count 'NUMBER_LIST' instances
+        if 'NUMBER_LIST' in line:
+            symbolCount += 1
+        if symbolCount == 4:
+            # skip 'NUMBER_LIST' line and the header code in .ceo file
+            line = next(curry_file)
+            line = next(curry_file)
+
+    # Collect the trigger codes untill the next 'NUMBER_LIST'
+    # (the end of the trigger code data)
+    while True:
+
+        list = str.split(line)
+        curry_line = asarray(list)
+        # print curry_line
+        line = next(curry_file)
+        if 'NUMBER_LIST' in line:
+            break
 
     return 0
+
 
 def removeBadTrials(trials, curryData):
     """
@@ -202,7 +259,7 @@ if __name__ == '__main__':
     from glob import glob
 
     # test booleans
-    test_file_structure = True
+    test_file_structure = False
 
     # enter file name to run on a single set of subjects
     if len(sys.argv) > 1:
