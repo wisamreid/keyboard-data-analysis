@@ -4,22 +4,32 @@ analysis.py -- Analysis of midi keyboard data.
 Written By: Wisam Reid
 -----------------------------------------------------------------------
 
-Builds an Experiment Object made of Subject, Block, Trial, Phrase, and Note objects
+    Builds an Experiment Object made of Subject, Block, Trial, Phrase, and Note objects
 
-Enabling data analysis within or accross any or all of these objects
+    Enabling data analysis within or accross any or all of these objects
 
-The max masp generated data will be checked against the curry generated data to
-validate and verify their concurance
+    The max masp generated data will be checked against the curry generated data to
+    validate and verify their concurance
 
 """
+
 from numpy import *
 from lib.experiment import *
 from lib.util import *
 
-
 def buildExperiment(maxDataPaths, curryDataPaths, scoreDataPaths):
     """
-        Construct an analyzable experiment using max and curry generated data
+
+        Constructs an analyzable experiment using max, curry, and score data
+
+        ##### NOTE: Eventualy this should be expanded:
+
+                    1) An experiment could be built from anything imported
+                    through the file system.
+
+                    For Example:    A table containing trigger codes for a new
+                                    experiment
+
 
         Argument(s):
 
@@ -36,8 +46,21 @@ def buildExperiment(maxDataPaths, curryDataPaths, scoreDataPaths):
 
     # parse data files
     raw_trial_data, blockOrdering = parseMaxData(maxDataPaths)
+    # parse curry files
     raw_curry_data = parseCurryData(curryDataPaths)
+    # parse score files
     raw_score = parseScore(scoreDataPaths)
+
+
+    #### TODO  # finish this function
+
+    # raw curry data is currently divided into blocks
+    # break it into trials, Code function below, call it here
+
+    #### TODO  # Code function below, call it here
+    # throw out bad trials
+
+    curry_trial_data = blocksToTrials(raw_curry_data)
 
     if debug:
 
@@ -52,7 +75,7 @@ def buildExperiment(maxDataPaths, curryDataPaths, scoreDataPaths):
         # print "Number of Trigger Codes: ", numTriggerCodes
         print "\n"
 
-    raw_trial_data = removeBadTrials(raw_trial_data, raw_curry_data)
+    raw_trial_data = removeBadTrials(raw_trial_data, curry_trial_data)
 
     # create notes
     # build phrases
@@ -65,9 +88,6 @@ def buildExperiment(maxDataPaths, curryDataPaths, scoreDataPaths):
     experiment = 0
 
     return experiment
-
-
-
 
 def parseMaxData(maxDataPaths):
     """
@@ -106,8 +126,6 @@ def parseMaxData(maxDataPaths):
         print "\n"
 
     return trials, blockOrdering
-
-
 
 def readCollFile(filename):
     """
@@ -158,8 +176,6 @@ def readCollFile(filename):
 
     return trial
 
-
-
 def parseCurryData(curryDataPaths):
     """
         Argument(s):
@@ -172,7 +188,7 @@ def parseCurryData(curryDataPaths):
                 blockOrdering: (int array) Array of block ordering
     """
     # debug boolean
-    debug = True
+    debug = False
 
     numBlocks = len(curryDataPaths)
     blocks = []
@@ -191,8 +207,6 @@ def parseCurryData(curryDataPaths):
         print "\n"
 
     return blocks
-
-
 
 def readCurryFile(filename):
     """
@@ -281,12 +295,49 @@ def parseScore(scoreDataPaths):
 
     numScores = len(scoreDataPaths)
 
+    ##### TODO # Fill in code
+
     return 0
 
+def blocksToTrials(curryData):
+    """
 
+    Function to divide curry data (in blocks) into trial data
+
+        Argument(s):
+
+            curryData: (array of arrays) raw curry data
+
+        Return(s):
+
+            curryTrials: (array of arrays) curry data divided trial arrays
+    """
+
+    ###### TODO # finish this function
+
+    debug = False
+
+    numBlocks = len(curryData)
+    curry_data= copy(curryData)
+
+    code = 233 # hardcoded for now
+    item_index = where(curry_data[0]==code)
+
+    # poo = split(curryData[0], 233)
+
+    if debug:
+        print "---- Testing blocksToTrials Function ----"
+        print item_index
+        print curryData[0],len(curryData[0])
+
+
+    return 0
 
 def removeBadTrials(trials, curryData):
     """
+
+    Function used to filter out bad trials before constructing the experiment
+
         Argument(s):
 
             trials: (array of arrays) coll file data
@@ -298,9 +349,9 @@ def removeBadTrials(trials, curryData):
 
     valid = ones(len(trials), dtype=bool)
 
+    ###### TODO # Fill in code
+
     return 0
-
-
 
 if __name__ == '__main__':
 
@@ -343,11 +394,12 @@ if __name__ == '__main__':
         sys.exit()
 
     if test_file_structure:
+
         print "---- Testing File Structure ----"
         print "len(maxDataPaths): ", len(maxDataPaths)
         print "len(curryDataPaths): ", len(curryDataPaths), " (Should be 12)"
         print "len(ScoreDataPaths): ", len(scoreDataPaths), " (Should be 4)"
         print "ExperimentParams.subjectInitials: ", ExperimentParams.subjectInitials
 
-    # comstruct an experiment object, ready to for analysis
+    # construct an experiment object, ready to for analysis
     experiment = buildExperiment(maxDataPaths, curryDataPaths, scoreDataPaths)

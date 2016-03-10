@@ -1,16 +1,16 @@
 """
 experiment.py -- Analysis of midi keyboard data.
------------------------------------------------------------------------
+# ---------------------------------------------------------------------
 Written By: Wisam Reid
 -----------------------------------------------------------------------
 
-Defines an Experiment Object made of Subject, Block, Trial, Phrase, and Note objects
+Defines an Experiment Object made of Subject, TriggerCode, Block, Trial, Phrase, and Note objects
 
 """
 
 class ExperimentParams:
     """ A class to hold coding parameters to share across subjects, trials and blocks """
-    pass # will just add attributes at runtime as needed
+    pass # add attributes at runtime as needed
 
 
 class Experiment:
@@ -24,13 +24,28 @@ class Experiment:
         self.subjects = subjects
         self.blocks = blocks
         self.score = score
+        self.triggerCodes = triggerCodes
 
     def AnalyzeSomeExperimentData(self, data):
         """ Empty structure for within experiment data analysis """
         pass
 
+
+class TriggerCode:
+    """
+    An abstract class defining the trigger codes of the experiment
+
+    We will hardcode this for now, but this should take a text file in as input
+    """
+
+    def __init__(self, codes):
+        pass
+
+
 class Subject:
-    """An abstract class defining handlers expected for a data file containing audio data"""
+    """
+    An abstract class defining handlers expected for a data file containing audio data
+    """
 
     def __init__(self, subjectInitials):
         """Object is initialized with its subjectInitials"""
