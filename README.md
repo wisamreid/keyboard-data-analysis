@@ -31,7 +31,7 @@ Search **TODO** in the source code files
 | ----- |:--------------------------:|:--------------------------:| ----------------------------------------------------------------:|
 | 1.    | [analysis.parseScore]      | [analysis.buildExperiment] | fill in the scoreParse function                                  |
 | 2.    | [analysis.blocksToTrials]  | [analysis.buildExperiment] | break raw curry data into trials (currently divided into blocks) |                                                         | 3.    | [analysis.removeBadTrials] | [analysis.buildExperiment] | throw out bad trials                                             |
-| 4.    | [experiment.py]            | [analysis.buildExperiment] | call the experiment constructor to begin the building process    |
+| 4.    | [experiment.py]            | [analysis.main]            | call the experiment constructor to begin the building process    |
 
 
 ## Miscellaneous Notes
