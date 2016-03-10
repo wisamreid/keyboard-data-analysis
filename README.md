@@ -4,6 +4,7 @@ Author: Wisam Reid
 
 An attempt at a modular, flexible, and scalable environment for keyboard data analysis
 
+-----
 
 # Running the code
 ## Command line
@@ -23,7 +24,9 @@ if we want add features
 The **buildExperiment** function constructs an experiment object that is informed of
 the relevant data and is ready for analysis
 
-## Development
+-----
+
+# Development
 
 Search **TODO** in the source code files
 
