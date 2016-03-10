@@ -10,7 +10,7 @@ An attempt at a modular, flexible, and scalable environment for keyboard data an
 
 # Running the code
 ## Command line
-run with 'python analysis.py << Subject's Initials >>'
+run with "python analysis.py << Subject's Initials >>"
 
 # Code Structure
 
@@ -29,8 +29,8 @@ the relevant data and is ready for analysis
 Search **TODO** in the source code files
 
 
-| TODO: | Code Location              | Called                     | Task                                                             |
-| ----- |:--------------------------:|:--------------------------:| ----------------------------------------------------------------:|
+| TODO: | Code Location              | Location Called            | Task                                                             |
+|:-----:|:--------------------------:|:--------------------------:|:----------------------------------------------------------------:|
 | 1.    | [analysis.parseScore]      | [analysis.buildExperiment] | fill in the scoreParse function                                  |
 | 2.    | [analysis.blocksToTrials]  | [analysis.buildExperiment] | break raw curry data into trials (currently divided into blocks) |                                                         | 3.    | [analysis.removeBadTrials] | [analysis.buildExperiment] | throw out bad trials                                             |
 | 4.    | [experiment.py]            | [analysis.main]            | call the experiment constructor to begin the building process    |
