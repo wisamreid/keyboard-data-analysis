@@ -41,7 +41,8 @@ Search **TODO** in the source code files
 While some error checking is done at the command line, but this could use improvement if we want to add features
 
 
-The experiement constructor will
+The experiement constructor will:
+
 1. build block objects
 2. build trial objects
 3. build phrase objects
