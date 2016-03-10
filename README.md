@@ -48,6 +48,6 @@ The experiement constructor will:
 3. build phrase objects
 4. create note objects
 5. create subject objects
-⋅⋅ 1. assign block, trial, phrase objects
+6. assign block, trial, phrase objects to each subject
 
 # Dependencies
