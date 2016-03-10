@@ -401,5 +401,5 @@ if __name__ == '__main__':
         print "len(ScoreDataPaths): ", len(scoreDataPaths), " (Should be 4)"
         print "ExperimentParams.subjectInitials: ", ExperimentParams.subjectInitials
 
-    # construct an experiment object, ready to for analysis
+    # construct an experiment object, ready for analysis
     experiment = buildExperiment(maxDataPaths, curryDataPaths, scoreDataPaths)
