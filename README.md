@@ -15,10 +15,7 @@ run with 'python analysis.py << Subject's Initials >>'
 The **__main__** function at the bottom of analysis.py fetches data from the file system
 by subject (Chosen at the command line)
 
-It then calls the **buildExperiment** function passing in string arrays containing file paths to the data needed to run the experiment.
-
-While some error checking is done at the command line, this could use improvement
-if we want add features  
+It then calls the **buildExperiment** function passing in string arrays containing file paths to the data needed to run the experiment.  
 
 The **buildExperiment** function constructs an experiment object that is informed of
 the relevant data and is ready for analysis
@@ -38,6 +35,8 @@ Search **TODO** in the source code files
 
 
 ## Miscellaneous Notes
+
+While some error checking is done at the command line, but this could use improvement if we want to add features
 
 ### build blocks objects
 ### build trials objects
