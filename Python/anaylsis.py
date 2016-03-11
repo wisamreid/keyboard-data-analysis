@@ -6,7 +6,7 @@ Written By: Wisam Reid
 
     Builds an Experiment Object made of Subject, Block, Trial, Phrase, and Note objects
 
-    Enabling data analysis within or accross any or all of these objects
+    Enabling data analysis within or across any or all of these objects
 
     The max masp generated data will be checked against the curry generated data to
     validate and verify their concurance
