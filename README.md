@@ -29,7 +29,7 @@ the relevant data and is ready for analysis
 Search **TODO** in the source code files
 
 
-| TODO: | Code Location              | Location Called            | Task                                                             |
+| TODO: | Code Location              | Call Location              | Task                                                             |
 |:-----:|:--------------------------:|:--------------------------:|:----------------------------------------------------------------:|
 | 1.    | [analysis.parseScore]      | [analysis.buildExperiment] | fill in the scoreParse function                                  |
 | 2.    | [analysis.blocksToTrials]  | [analysis.buildExperiment] | break raw curry data into trials (currently divided into blocks) |                                                         | 3.    | [analysis.removeBadTrials] | [analysis.buildExperiment] | throw out bad trials                                             |
