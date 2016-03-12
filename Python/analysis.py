@@ -17,14 +17,14 @@ from numpy import *
 from lib.experiment import *
 from lib.util import *
 
-def buildExperiment(maxDataPaths, curryDataPaths, scoreDataPaths):
+def buildExperiment(maxDataPaths, curryDataPaths, scoreDataPaths, ExperimentParams):
     """
 
         Constructs an analyzable experiment using max, curry, and score data
 
         ##### NOTE: Eventualy this should be expanded:
 
-                    1) An experiment could be built from anything imported
+                    # 1) An experiment could be built from anything imported
                     through the file system.
 
                     For Example:    A table containing trigger codes for a new
@@ -36,6 +36,7 @@ def buildExperiment(maxDataPaths, curryDataPaths, scoreDataPaths):
                 maxDataPaths: (string array) array of max generated coll file paths
                 curryDataPaths: (string array) array of curry generated file paths
                 scoreDataPaths: (string array) array of score file paths
+                ExperimentParams: class for dynamically generated variables
 
         Return:
 
@@ -56,11 +57,10 @@ def buildExperiment(maxDataPaths, curryDataPaths, scoreDataPaths):
 
     # raw curry data is currently divided into blocks
     # break it into trials, Code function below, call it here
+    curry_trial_data = blocksToTrials(raw_curry_data, ExperimentParams)
 
     #### TODO  # Code function below, call it here
     # throw out bad trials
-
-    curry_trial_data = blocksToTrials(raw_curry_data)
 
     if debug:
 
@@ -299,7 +299,7 @@ def parseScore(scoreDataPaths):
 
     return 0
 
-def blocksToTrials(curryData):
+def blocksToTrials(curryData, ExperimentParams):
     """
 
     Function to divide curry data (in blocks) into trial data
@@ -315,20 +315,24 @@ def blocksToTrials(curryData):
 
     ###### TODO # finish this function
 
-    debug = False
+    # helper for block parsing
+    find = lambda searchList, elem: [[i for i, x in enumerate(searchList) if x == e] for e in elem]
+
+    debug = True
 
     numBlocks = len(curryData)
-    curry_data= copy(curryData)
+    curry_data = copy(curryData)
 
-    code = 233 # hardcoded for now
-    item_index = where(curry_data[0]==code)
-
-    # poo = split(curryData[0], 233)
+    delineator = ExperimentParams.metronome_codes[-1]
+    metronome_indices = where(curry_data[0]==delineator)
+    start_indices = find(curry_data[0], ExperimentParams.metronome_codes)
 
     if debug:
         print "---- Testing blocksToTrials Function ----"
-        print item_index
-        print curryData[0],len(curryData[0])
+        print metronome_indices, "metronome_indices"
+        print ExperimentParams.metronome_codes, "ExperimentParams.metronome_codes"
+        print start_indices, "start_indices"
+        print "\n"
 
 
     return 0
@@ -401,5 +405,7 @@ if __name__ == '__main__':
         print "len(ScoreDataPaths): ", len(scoreDataPaths), " (Should be 4)"
         print "ExperimentParams.subjectInitials: ", ExperimentParams.subjectInitials
 
+    # metronome trigger codes
+    ExperimentParams.metronome_codes = arange(33) + 201
     # construct an experiment object, ready for analysis
-    experiment = buildExperiment(maxDataPaths, curryDataPaths, scoreDataPaths)
+    experiment = buildExperiment(maxDataPaths, curryDataPaths, scoreDataPaths, ExperimentParams)
