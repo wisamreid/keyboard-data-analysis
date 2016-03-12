@@ -310,30 +310,81 @@ def blocksToTrials(curryData, ExperimentParams):
 
         Return(s):
 
-            curryTrials: (array of arrays) curry data divided trial arrays
+            curryTrials: (array of arrays) curry data divided by trial
+                        this will return good and bad trials to be validated later
     """
-
-    ###### TODO # finish this function
 
     # helper for block parsing
     find = lambda searchList, elem: [[i for i, x in enumerate(searchList) if x == e] for e in elem]
 
     debug = True
 
+    # to control outer loop
     numBlocks = len(curryData)
     curry_data = copy(curryData)
+    curryTrials = [] # return filled with arrays of trigger codes for each trial
 
-    delineator = ExperimentParams.metronome_codes[-1]
-    metronome_indices = where(curry_data[0]==delineator)
-    start_indices = find(curry_data[0], ExperimentParams.metronome_codes)
+    ###### TODO # loop over all the blocks
+
+    # this is trigger code # 233 : metro tick
+    metro_tick_trigger_code = ExperimentParams.metronome_codes[-1]
+
+    # indices for metro ticks (in list of triggers recieved by curry)
+    # trigger codes 201 - 233
+    metronome_indices = where(curry_data[0] == metro_tick_trigger_code)
+
+    # these are the indices for all metro trigger codes (201 - 233)
+    metro_ticks = find(curry_data[0], ExperimentParams.metronome_codes)
+    metro_ticks = array(metro_ticks) # convert to numpy array
+    metro_tick_trigger_code_indices = []
+
+    # we now need to grab only the last metro ticks so we can use them to
+    # break the block into trials (this is only for TC# 233 since they are repeated)
+    valid = ediff1d(metro_ticks[-1]) - 1 # creates a mask (in order to eliminate repeats and keep the last tick)
+    for tick in range(len(valid)):
+        if valid[i]:
+            metro_tick_trigger_code_indices.append(metro_ticks[-1][tick])
+
+    # combine into one list and then sort
+    # after we make the last decision to keep or throw out # 233 ticks
+    # these are the indices we will cut our block with
+    final_indices = []
+
+    for for trial in range(len(metro_ticks-1)):
+
+    # sort the full list
+
+    # decide which 233's to keep
+
+    # use list to cut at indices
+
+    # do not include final trial, we will a
+    # ppend metro_tick_trigger_code_indices at the end
+    # for trial in range(len(metro_ticks-1)):
+    #
+    #     curryTrials.append(metro_ticks[trial])
+
+
+
+    ###### TODO # check not empty and at least 12 (Something is wrong otherwise)
+
+    # we should have twelve instances of 4 different trigger codes
+    # Since each trigger code is a permutaion of 2 variables that determine
+    # the order of deviant phrases
+
 
     if debug:
         print "---- Testing blocksToTrials Function ----"
-        print metronome_indices, "metronome_indices"
-        print ExperimentParams.metronome_codes, "ExperimentParams.metronome_codes"
-        print start_indices, "start_indices"
+        print "metronome_indices", metronome_indices
         print "\n"
-
+        print "ExperimentParams.metronome_codes", ExperimentParams.metronome_codes
+        print "\n"
+        print "metro_ticks", metro_ticks
+        print "\n"
+        # print "valid",valid
+        # print "\n"
+        print "metro_tick_trigger_code_indices",  metro_tick_trigger_code_indices
+        print "\n"
 
     return 0
 
