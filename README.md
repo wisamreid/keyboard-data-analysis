@@ -19,8 +19,7 @@ by subject (Chosen at the command line)
 
 It then calls the **buildExperiment** function passing in string arrays containing file paths to the data needed to run the experiment.  
 
-The **buildExperiment** function constructs an experiment object that is informed of
-the relevant data and is ready for analysis
+The **buildExperiment** function constructs an experiment object that is informed of the relevant data and is ready for analysis
 
 -----
 
