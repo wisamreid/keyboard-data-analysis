@@ -5,7 +5,7 @@ import numpy as np
 # ndx = np.asarray([np.nonzero(xs == y)[0][0] for y in ys]) # <---- This line
 # print(ndx)
 
-nameArr = ['josh','is','a','person', 'a', 'a',]
+# nameArr = ['josh','is','a','person', 'a', 'a',]
 # Using map
 # map(nameArr.index, ['a', 'is'])
 # Using list comprehensions

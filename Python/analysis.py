@@ -14,6 +14,7 @@ Written By: Wisam Reid
 """
 
 from numpy import *
+set_printoptions(threshold=inf) # don't truncate prints
 from lib.experiment import *
 from lib.util import *
 
@@ -46,7 +47,7 @@ def buildExperiment(maxDataPaths, curryDataPaths, scoreDataPaths, ExperimentPara
     debug = False
 
     # parse data files
-    raw_trial_data, blockOrdering = parseMaxData(maxDataPaths)
+    raw_max_data, blockOrdering = parseMaxData(maxDataPaths)
     # parse curry files
     raw_curry_data = parseCurryData(curryDataPaths)
     # parse score files
@@ -66,8 +67,9 @@ def buildExperiment(maxDataPaths, curryDataPaths, scoreDataPaths, ExperimentPara
 
         print "---- Testing buildExperiment Function ----"
         print "---- Max Parsing ----"
-        print "First Trial (Raw Data): ", raw_trial_data[0]
-        print "Last Trial (Raw Data): ", raw_trial_data[-1]
+        print "Number of Trials: ", len(raw_max_data)
+        print "First Trial (Raw Data): ", raw_max_data[0]
+        print "Last Trial (Raw Data): ", raw_max_data[-1]
         print "Block Ordering: ", blockOrdering
         print "---- Curry Parsing ----"
         print "First Block Trigger Codes: ", raw_curry_data[0]
@@ -75,7 +77,7 @@ def buildExperiment(maxDataPaths, curryDataPaths, scoreDataPaths, ExperimentPara
         # print "Number of Trigger Codes: ", numTriggerCodes
         print "\n"
 
-    raw_trial_data = removeBadTrials(raw_trial_data, curry_trial_data)
+    raw_max_data = removeBadTrials(raw_max_data, curry_trial_data)
 
     # create notes
     # build phrases
@@ -299,6 +301,42 @@ def parseScore(scoreDataPaths):
 
     return 0
 
+def partitionList(alist, indices):
+    """
+    Helper function, takes a list and partitions it based on a list of indexes
+
+        Argument(s):
+
+                alist: list to partition
+                indices: indices to partition by
+
+        Return:
+
+                listOfLists: (array of arrays) list partitians
+    """
+    debug = False
+
+    listOfLists = []
+    for i in range(len(indices)):
+
+        if i+1 < len(indices):
+            # cut ranges
+            listOfLists.append(alist[indices[i]:indices[i+1]])
+            if debug:
+                print listOfLists[i]
+        else:
+            # grab the rest of the list
+            listOfLists.append(alist[indices[i]:])
+
+    if debug:
+        print "---- Testing partitionList ----"
+        print "len(listOfLists) ",len(listOfLists)
+        print "First Trial: ", listOfLists[0]
+        print "Last Trial: ", listOfLists[-1]
+        print "\n"
+
+    return listOfLists
+
 def blocksToTrials(curryData, ExperimentParams):
     """
 
@@ -319,30 +357,25 @@ def blocksToTrials(curryData, ExperimentParams):
 
     debug = True
 
-    # to control outer loop
-    numBlocks = len(curryData)
+    numBlocks = len(curryData) # to control outer loop
+    # print "len(curryData)", len(curryData)
     curry_data = copy(curryData)
-    curryTrials = [] # return filled with arrays of trigger codes for each trial
+    # curryTrials = [] # return filled with arrays of trigger codes for each trial
 
     ###### TODO # loop over all the blocks
 
     # this is trigger code # 233 : metro tick
     metro_tick_trigger_code = ExperimentParams.metronome_codes[-1]
 
-    # indices for metro ticks (in list of triggers recieved by curry)
-    # trigger codes 201 - 233
-    metronome_indices = where(curry_data[0] == metro_tick_trigger_code)
-
     # these are the indices for all metro trigger codes (201 - 233)
     metro_ticks = find(curry_data[0], ExperimentParams.metronome_codes)
-    metro_ticks = array(metro_ticks) # convert to numpy array
-    metro_tick_trigger_code_indices = []
 
+    metro_tick_trigger_code_indices = []
     # we now need to grab only the last metro ticks so we can use them to
     # break the block into trials (this is only for TC# 233 since they are repeated)
-    valid = ediff1d(metro_ticks[-1]) - 1 # creates a mask (in order to eliminate repeats and keep the last tick)
+    valid = ediff1d(metro_ticks[-1]) - 1 # creates a mask (in order to eliminate repeats keeping the last tick)
     for tick in range(len(valid)):
-        if valid[i]:
+        if valid[tick]:
             metro_tick_trigger_code_indices.append(metro_ticks[-1][tick])
 
     # combine into one list and then sort
@@ -350,13 +383,38 @@ def blocksToTrials(curryData, ExperimentParams):
     # these are the indices we will cut our block with
     final_indices = []
 
-    for for trial in range(len(metro_ticks-1)):
+    for code in range(len(metro_ticks)-1):
+        if metro_ticks[code]:
+            final_indices.append(metro_ticks[code])
 
-    # sort the full list
+    # append indices for TC# 233
+    final_indices.append(metro_tick_trigger_code_indices)
+    final_indices = reduce(lambda x,y: x+y,final_indices)
+    final_indices = sorted(final_indices) # sort the full list
 
     # decide which 233's to keep
+    # we will thow out the values that only jump by 2
+    # we want to replace the second value with the first value
+    final_valid = ediff1d(final_indices)
+    minDiff = min(final_valid)
+    final_valid -= minDiff # set low numbers to zero
+
+    # decide which 233's to keep
+    for index in range(len(final_valid)):
+
+        if not final_valid[index] and index + 1 <= len(final_indices):
+            # replace indexes to be removed with zeros
+            final_indices[index+1] = 0
+    final_indices = filter(lambda a: a != 0, final_indices) # remove zeros
+
+    curryTrials = partitionList(curry_data[0],final_indices)
+
+    # final clean up
 
     # use list to cut at indices
+
+    # after cutting, I should delete all instances of 233 TCs for trials
+    # that dont begin with 233
 
     # do not include final trial, we will a
     # ppend metro_tick_trigger_code_indices at the end
@@ -374,16 +432,29 @@ def blocksToTrials(curryData, ExperimentParams):
 
 
     if debug:
-        print "---- Testing blocksToTrials Function ----"
-        print "metronome_indices", metronome_indices
+        print "-------- Testing blocksToTrials Function --------"
+        print "---- ExperimentParams.metronome_codes ----"
+        print ExperimentParams.metronome_codes
         print "\n"
-        print "ExperimentParams.metronome_codes", ExperimentParams.metronome_codes
+        print "---- metro_ticks ----"
+        print metro_ticks
         print "\n"
-        print "metro_ticks", metro_ticks
-        print "\n"
-        # print "valid",valid
+        # print "metro_tick_trigger_code_indices",  metro_tick_trigger_code_indices
         # print "\n"
-        print "metro_tick_trigger_code_indices",  metro_tick_trigger_code_indices
+        print "---- final_indices ----"
+        print final_indices
+        print "\n"
+        print "---- len(final_indices) ----"
+        print len(final_indices)
+        print "\n"
+        print "---- First Curry Trial ----"
+        print curryTrials[0]
+        print "\n"
+        print "---- Last Curry Trial ----"
+        print curryTrials[-1]
+        print "\n"
+        print "---- curryTrials ----"
+        print curryTrials
         print "\n"
 
     return 0
@@ -406,6 +477,11 @@ def removeBadTrials(trials, curryData):
 
     ###### TODO # Fill in code
 
+    # look for prcatice trials
+    # look for error codes
+    # look for out of place shit (May need to look at block ordering)
+
+
     return 0
 
 if __name__ == '__main__':
@@ -414,6 +490,7 @@ if __name__ == '__main__':
     import sys
     import os
     from glob import glob
+    from itertools import izip, chain
 
     # test boolean(s)
     test_file_structure = False
@@ -458,5 +535,6 @@ if __name__ == '__main__':
 
     # metronome trigger codes
     ExperimentParams.metronome_codes = arange(33) + 201
+    ExperimentParams.numMetronomeClicks = 3
     # construct an experiment object, ready for analysis
     experiment = buildExperiment(maxDataPaths, curryDataPaths, scoreDataPaths, ExperimentParams)
