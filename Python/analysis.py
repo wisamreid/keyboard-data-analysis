@@ -432,30 +432,32 @@ def blocksToTrials(curryData, ExperimentParams):
 
 
     if debug:
+        print "-------------------------------------------------"
         print "-------- Testing blocksToTrials Function --------"
+        print "-------------------------------------------------"
+        print "\n"
         print "---- ExperimentParams.metronome_codes ----"
         print ExperimentParams.metronome_codes
-        print "\n"
         print "---- metro_ticks ----"
         print metro_ticks
-        print "\n"
         # print "metro_tick_trigger_code_indices",  metro_tick_trigger_code_indices
         # print "\n"
         print "---- final_indices ----"
         print final_indices
-        print "\n"
         print "---- len(final_indices) ----"
         print len(final_indices)
-        print "\n"
         print "---- First Curry Trial ----"
         print curryTrials[0]
-        print "\n"
         print "---- Last Curry Trial ----"
         print curryTrials[-1]
-        print "\n"
-        print "---- curryTrials ----"
-        print curryTrials
-        print "\n"
+
+        if verbose:
+            print "-------------------------"
+            print "-------- Verbose --------"
+            print "-------------------------"
+            print "---- curryTrials ----"
+            print curryTrials
+            print "\n"
 
     return 0
 
@@ -494,6 +496,7 @@ if __name__ == '__main__':
 
     # test boolean(s)
     test_file_structure = False
+    verbose = False
 
 
     # enter file name to run on a single set of subjects
@@ -524,6 +527,18 @@ if __name__ == '__main__':
 
         print "Error: Please enter subject pair XX_YY"
         sys.exit()
+
+
+    #### TODO # add flag documentation to the readme
+
+    if len(sys.argv) == 3:
+
+        if sys.argv[2] == "-v":
+            verbose = True
+        if sys.argv[2] == '-h':
+            print "use -v for verbose printing"
+        else:
+            print "Error: Unknown Flag"
 
     if test_file_structure:
 
