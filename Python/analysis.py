@@ -352,10 +352,8 @@ def blocksToTrials(curryData, ExperimentParams):
                         this will return good and bad trials to be validated later
     """
 
-    # helper for block parsing
+    # helper function for block parsing
     find = lambda searchList, elem: [[i for i, x in enumerate(searchList) if x == e] for e in elem]
-
-    debug = True
 
     numBlocks = len(curryData) # to control outer loop
     # print "len(curryData)", len(curryData)
@@ -390,16 +388,17 @@ def blocksToTrials(curryData, ExperimentParams):
     # append indices for TC# 233
     final_indices.append(metro_tick_trigger_code_indices)
     final_indices = reduce(lambda x,y: x+y,final_indices)
-    final_indices = sorted(final_indices) # sort the full list
+    # sort the full list of indices
+    final_indices = sorted(final_indices)
 
-    # decide which 233's to keep
+    # Decide which Trigger code: #233's to keep
     # we will thow out the values that only jump by 2
     # we want to replace the second value with the first value
     final_valid = ediff1d(final_indices)
     minDiff = min(final_valid)
-    final_valid -= minDiff # set low numbers to zero
+    final_valid -= minDiff # set low values to zero
 
-    # decide which 233's to keep
+    # decide which TC 233's to keep
     for index in range(len(final_valid)):
 
         if not final_valid[index] and index + 1 <= len(final_indices):
@@ -407,11 +406,11 @@ def blocksToTrials(curryData, ExperimentParams):
             final_indices[index+1] = 0
     final_indices = filter(lambda a: a != 0, final_indices) # remove zeros
 
+    # cut our list of trigger codes recieved by curry into individual trials
+    # we cut the at the indices we just gathered
     curryTrials = partitionList(curry_data[0],final_indices)
 
     # final clean up
-
-    # use list to cut at indices
 
     # after cutting, I should delete all instances of 233 TCs for trials
     # that dont begin with 233
@@ -431,32 +430,50 @@ def blocksToTrials(curryData, ExperimentParams):
     # the order of deviant phrases
 
 
-    if debug:
-        print "-------------------------------------------------"
-        print "-------- Testing blocksToTrials Function --------"
-        print "-------------------------------------------------"
+    if debug_blocksToTrials:
+        print "---- Number of Trials in the Block ----"
         print "\n"
-        print "---- ExperimentParams.metronome_codes ----"
-        print ExperimentParams.metronome_codes
-        print "---- metro_ticks ----"
+        print len(curryTrials)
+        print "\n"
+        print "---- Trigger Codes Associated with Metronome Ticks  : [Index of] ----"
         print metro_ticks
-        # print "metro_tick_trigger_code_indices",  metro_tick_trigger_code_indices
-        # print "\n"
-        print "---- final_indices ----"
-        print final_indices
-        print "---- len(final_indices) ----"
-        print len(final_indices)
-        print "---- First Curry Trial ----"
-        print curryTrials[0]
-        print "---- Last Curry Trial ----"
-        print curryTrials[-1]
+        print "\n"
 
         if verbose:
-            print "-------------------------"
-            print "-------- Verbose --------"
-            print "-------------------------"
-            print "---- curryTrials ----"
-            print curryTrials
+            print "-----------------------------------------"
+            print "---------------- Verbose ----------------"
+            print "-----------------------------------------"
+            print "\n"
+            print "---- First Curry Trial ----"
+            print curryTrials[1]
+            print "\n"
+
+            # if user inputs '.' we will print all the trials in
+            if sys.argv[4] == '.':
+                numbertrials_Print_trigger_codes = len(curryTrials) - 2;
+            # set the number of prints to user input if input is valid
+            else:
+                try:
+                    if isinstance(int(sys.argv[4]),int):
+                        numbertrials_Print_trigger_codes = int(sys.argv[4])
+                except:
+                    commandlineErrorBlocksToTrials(sys.argv[4])
+
+            if numbertrials_Print_trigger_codes <= len(curryTrials) + 2: # first and last
+                for i in range(numbertrials_Print_trigger_codes):
+                    print "---- Curry Trial Number:", str(i+2)," ----"
+                    print curryTrials[i+1]
+                    print "\n"
+            else:
+                print "WARNING: number out of bounds, Did not print extra trials"
+            print "---- Last Curry Trial ----"
+            print curryTrials[-1]
+            print "\n"
+            print "---- Trigger Codes Associated with Metronome Ticks ----"
+            print ExperimentParams.metronome_codes
+            print "\n"
+            print "---- final_indices ----"
+            print final_indices
             print "\n"
 
     return 0
@@ -489,15 +506,25 @@ def removeBadTrials(trials, curryData):
 if __name__ == '__main__':
 
     import time
+    import ast
     import sys
     import os
+    from lib.util import *
     from glob import glob
     from itertools import izip, chain
+    from inspect import currentframe, getframeinfo # We will use this to print line numbers
 
-    # test boolean(s)
-    test_file_structure = False
+    #### TODO # change commandline to run all subjects or just a single subject pair
+
+    # test booleans
     verbose = False
 
+    # debug flags [for each function]
+    debug_main = False
+    debug_blocksToTrials = False
+
+    # testing variables
+    numbertrials_Print_trigger_codes = 0
 
     # enter file name to run on a single set of subjects
     if len(sys.argv) > 1:
@@ -531,18 +558,56 @@ if __name__ == '__main__':
 
     #### TODO # add flag documentation to the readme
 
-    if len(sys.argv) == 3:
+    if len(sys.argv) == 4:
 
         if sys.argv[2] == "-v":
             verbose = True
-        if sys.argv[2] == '-h':
-            print "use -v for verbose printing"
+            if sys.argv[3] == 'main':
+                debug_main = True
+            if sys.argv[3] == 'removeBadTrials':
+                pass
+            if sys.argv[3] == "blocksToTrials":
+                debug_blocksToTrials = True
+                numbertrials_Print_trigger_codes = 0 # do not print any extra trials
+                print "-------------------------------------------------"
+                print "-------- Testing blocksToTrials Function --------"
+                print "-------------------------------------------------"
+                print "\n"
         else:
             print "Error: Unknown Flag"
 
-    if test_file_structure:
 
-        print "---- Testing File Structure ----"
+
+    if len(sys.argv) == 5:
+
+        if sys.argv[2] == "-v":
+            verbose = True
+            if sys.argv[3] == 'main':
+                debug_main = True
+            elif sys.argv[3] == 'removeBadTrials':
+                pass
+            elif sys.argv[3] == 'blocksToTrials':
+                print "----------------------------------------------------------"
+                print "-------- Testing blocksToTrials function Function --------"
+                print "----------------------------------------------------------"
+                print "\n"
+                debug_blocksToTrials = True
+                numbertrials_Print_trigger_codes = 0
+            else:
+                print "-------------------------------------------------"
+                print "----------------- Input Error -------------------"
+                print "-------------------------------------------------"
+                print "-------------------------------------------------"
+                print "--------------  Type -h for help  ---------------"
+                print "-------------------------------------------------"
+        else:
+            print "Error: Unknown Flag"
+
+    if debug_main:
+        print "--------------------------------------------------------"
+        print "-------- Testing Main Function (File Structure) --------"
+        print "--------------------------------------------------------"
+        print "\n"
         print "len(maxDataPaths): ", len(maxDataPaths)
         print "len(curryDataPaths): ", len(curryDataPaths), " (Should be 12)"
         print "len(ScoreDataPaths): ", len(scoreDataPaths), " (Should be 4)"

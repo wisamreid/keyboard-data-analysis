@@ -24,3 +24,16 @@ def moving_average(a, n=3) :
     return ret[n - 1:] / n
 Z = np.arange(20)
 print(moving_average(Z, n=3))
+
+from inspect import currentframe, getframeinfo
+
+# print line numbers outside of a function
+frameinfo = getframeinfo(currentframe())
+print frameinfo.filename, frameinfo.lineno + 1 # line number follows frameinfo declarartion
+
+# print line numbers inside of a function
+def get_linenumber():
+    cf = currentframe()
+    return cf.f_back.f_lineno
+
+print "This is line 7, python says line ", get_linenumber()
