@@ -448,16 +448,8 @@ def blocksToTrials(curryData, ExperimentParams):
             print curryTrials[1]
             print "\n"
 
-            # if user inputs '.' we will print all the trials in
-            if sys.argv[4] == '.':
-                numbertrials_Print_trigger_codes = len(curryTrials) - 2;
-            # set the number of prints to user input if input is valid
-            else:
-                try:
-                    if isinstance(int(sys.argv[4]),int):
-                        numbertrials_Print_trigger_codes = int(sys.argv[4])
-                except:
-                    commandlineErrorBlocksToTrials(sys.argv[4])
+            # decide how many trials to print
+            numbertrials_Print_trigger_codes = printOptionsBlocksToTrials(sys.argv,len(curryTrials))
 
             if numbertrials_Print_trigger_codes <= len(curryTrials) + 2: # first and last
                 for i in range(numbertrials_Print_trigger_codes):
@@ -509,7 +501,6 @@ if __name__ == '__main__':
     import ast
     import sys
     import os
-    from lib.util import *
     from glob import glob
     from itertools import izip, chain
     from inspect import currentframe, getframeinfo # We will use this to print line numbers
@@ -568,7 +559,6 @@ if __name__ == '__main__':
                 pass
             if sys.argv[3] == "blocksToTrials":
                 debug_blocksToTrials = True
-                numbertrials_Print_trigger_codes = 0 # do not print any extra trials
                 print "-------------------------------------------------"
                 print "-------- Testing blocksToTrials Function --------"
                 print "-------------------------------------------------"
@@ -615,6 +605,5 @@ if __name__ == '__main__':
 
     # metronome trigger codes
     ExperimentParams.metronome_codes = arange(33) + 201
-    ExperimentParams.numMetronomeClicks = 3
     # construct an experiment object, ready for analysis
     experiment = buildExperiment(maxDataPaths, curryDataPaths, scoreDataPaths, ExperimentParams)
