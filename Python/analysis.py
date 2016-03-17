@@ -53,12 +53,13 @@ def buildExperiment(maxDataPaths, curryDataPaths, scoreDataPaths, ExperimentPara
     # parse score files
     raw_score = parseScore(scoreDataPaths)
 
+    #### TODO  # loop over subject
 
-    #### TODO  # finish this function
+    #### TODO  # loop over blocks : blockToTrials
 
     # raw curry data is currently divided into blocks
     # break it into trials, Code function below, call it here
-    curry_trial_data = blocksToTrials(raw_curry_data, ExperimentParams)
+    curry_trial_data = blockToTrials(raw_curry_data[0], ExperimentParams)
 
     #### TODO  # Code function below, call it here
     # throw out bad trials
@@ -337,36 +338,31 @@ def partitionList(alist, indices):
 
     return listOfLists
 
-def blocksToTrials(curryData, ExperimentParams):
+def blockToTrials(curryData, ExperimentParams):
     """
 
-    Function to divide curry data (in blocks) into trial data
+    Function to divide a block of curry data into arrays of trial data
 
         Argument(s):
 
-            curryData: (array of arrays) raw curry data
+            curryData: (int array) raw curry data (One Block)
 
         Return(s):
 
-            curryTrials: (array of arrays) curry data divided by trial
+            curryTrials: (array of arrays) curry data divided by trial (One Block)
                         this will return good and bad trials to be validated later
     """
 
     # helper function for block parsing
     find = lambda searchList, elem: [[i for i, x in enumerate(searchList) if x == e] for e in elem]
 
-    numBlocks = len(curryData) # to control outer loop
-    # print "len(curryData)", len(curryData)
     curry_data = copy(curryData)
-    # curryTrials = [] # return filled with arrays of trigger codes for each trial
-
-    ###### TODO # loop over all the blocks
 
     # this is trigger code # 233 : metro tick
     metro_tick_trigger_code = ExperimentParams.metronome_codes[-1]
 
     # these are the indices for all metro trigger codes (201 - 233)
-    metro_ticks = find(curry_data[0], ExperimentParams.metronome_codes)
+    metro_ticks = find(curry_data, ExperimentParams.metronome_codes)
 
     metro_tick_trigger_code_indices = []
     # we now need to grab only the last metro ticks so we can use them to
@@ -408,36 +404,28 @@ def blocksToTrials(curryData, ExperimentParams):
 
     # cut our list of trigger codes recieved by curry into individual trials
     # we cut the at the indices we just gathered
-    curryTrials = partitionList(curry_data[0],final_indices)
+    curryTrials = partitionList(curry_data,final_indices)
 
-    # final clean up
+    ### final clean up ###
 
-    # after cutting, I should delete all instances of 233 TCs for trials
-    # that dont begin with 233
+    for index, trial in enumerate(curryTrials):
+        # after cutting, delete all instances of 233 TCs for trials
+        # that dont begin with 233
+        if trial[0] != metro_tick_trigger_code:
+            curryTrials[index] = filter(lambda a: a != metro_tick_trigger_code, trial) # remove zeros
 
-    # do not include final trial, we will a
-    # ppend metro_tick_trigger_code_indices at the end
-    # for trial in range(len(metro_ticks-1)):
-    #
-    #     curryTrials.append(metro_ticks[trial])
-
-
-
-    ###### TODO # check not empty and at least 12 (Something is wrong otherwise)
-
-    # we should have twelve instances of 4 different trigger codes
-    # Since each trigger code is a permutaion of 2 variables that determine
-    # the order of deviant phrases
-
-
-    if debug_blocksToTrials:
+    if debug_blockToTrials:
         print "---- Number of Trials in the Block ----"
         print "\n"
         print len(curryTrials)
         print "\n"
+        # we should have twelve instances of 4 different trigger codes
+        # Since each trigger code is a permutaion of 2 variables that determine
+        # the order of deviant phrases
         print "---- Trigger Codes Associated with Metronome Ticks  : [Index of] ----"
         print metro_ticks
         print "\n"
+
 
         if verbose:
             print "-----------------------------------------"
@@ -446,20 +434,24 @@ def blocksToTrials(curryData, ExperimentParams):
             print "\n"
             print "---- First Curry Trial ----"
             print curryTrials[1]
+            print "Number of Codes in Trial: ", len(curryTrials[1])
             print "\n"
 
             # decide how many trials to print
-            numbertrials_Print_trigger_codes = printOptionsBlocksToTrials(sys.argv,len(curryTrials))
+            numbertrials_Print_trigger_codes = printOptionsBlockToTrials(sys.argv,len(curryTrials))
 
             if numbertrials_Print_trigger_codes <= len(curryTrials) + 2: # first and last
                 for i in range(numbertrials_Print_trigger_codes):
                     print "---- Curry Trial Number:", str(i+2)," ----"
                     print curryTrials[i+1]
+                    print "Number of Codes in Trial: ", len(curryTrials[i+1])
                     print "\n"
             else:
                 print "WARNING: number out of bounds, Did not print extra trials"
+                print "\n"
             print "---- Last Curry Trial ----"
             print curryTrials[-1]
+            print "Number of Codes in Trial: ", len(curryTrials[-1])
             print "\n"
             print "---- Trigger Codes Associated with Metronome Ticks ----"
             print ExperimentParams.metronome_codes
@@ -468,7 +460,7 @@ def blocksToTrials(curryData, ExperimentParams):
             print final_indices
             print "\n"
 
-    return 0
+    return curryTrials
 
 def removeBadTrials(trials, curryData):
     """
@@ -492,6 +484,8 @@ def removeBadTrials(trials, curryData):
     # look for error codes
     # look for out of place shit (May need to look at block ordering)
 
+    if debug_removeBadTrials:
+        pass
 
     return 0
 
@@ -512,7 +506,8 @@ if __name__ == '__main__':
 
     # debug flags [for each function]
     debug_main = False
-    debug_blocksToTrials = False
+    debug_blockToTrials = False
+    debug_removeBadTrials = False
 
     # testing variables
     numbertrials_Print_trigger_codes = 0
@@ -556,17 +551,19 @@ if __name__ == '__main__':
             if sys.argv[3] == 'main':
                 debug_main = True
             if sys.argv[3] == 'removeBadTrials':
-                pass
-            if sys.argv[3] == "blocksToTrials":
-                debug_blocksToTrials = True
+                print "----------------------------------------------------------"
+                print "----------- Testing removeBadTrials Function -------------"
+                print "----------------------------------------------------------"
+                print "\n"
+                debug_removeBadTrials = True
+            if sys.argv[3] == "blockToTrials":
+                debug_blockToTrials = True
                 print "-------------------------------------------------"
-                print "-------- Testing blocksToTrials Function --------"
+                print "--------- Testing blockToTrials Function --------"
                 print "-------------------------------------------------"
                 print "\n"
         else:
             print "Error: Unknown Flag"
-
-
 
     if len(sys.argv) == 5:
 
@@ -575,13 +572,17 @@ if __name__ == '__main__':
             if sys.argv[3] == 'main':
                 debug_main = True
             elif sys.argv[3] == 'removeBadTrials':
-                pass
-            elif sys.argv[3] == 'blocksToTrials':
                 print "----------------------------------------------------------"
-                print "-------- Testing blocksToTrials function Function --------"
+                print "----------- Testing removeBadTrials Function -------------"
                 print "----------------------------------------------------------"
                 print "\n"
-                debug_blocksToTrials = True
+                debug_removeBadTrials = True
+            elif sys.argv[3] == 'blockToTrials':
+                print "----------------------------------------------------------"
+                print "-------- Testing blockToTrials Function ---------"
+                print "----------------------------------------------------------"
+                print "\n"
+                debug_blockToTrials = True
                 numbertrials_Print_trigger_codes = 0
             else:
                 print "-------------------------------------------------"
@@ -603,7 +604,9 @@ if __name__ == '__main__':
         print "len(ScoreDataPaths): ", len(scoreDataPaths), " (Should be 4)"
         print "ExperimentParams.subjectInitials: ", ExperimentParams.subjectInitials
 
-    # metronome trigger codes
+    # metronome trigger codes (TCs: 201 - 233)
     ExperimentParams.metronome_codes = arange(33) + 201
+    # error trigger codes (TCs: 240 - 246)
+    ExperimentParams.error_codes = arange(7) + 240
     # construct an experiment object, ready for analysis
     experiment = buildExperiment(maxDataPaths, curryDataPaths, scoreDataPaths, ExperimentParams)

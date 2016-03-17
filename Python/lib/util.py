@@ -16,7 +16,7 @@ def validateData(maxData,curryData):
 "----------------------- BlocksToTrials: Errors and Debug Options ------------------------"
 "-----------------------------------------------------------------------------------------"
 
-def commandlineErrorBlocksToTrials(args):
+def commandlineErrorBlockToTrials(args):
 
     print "-----------------------------------------------------------------------------------------"
     print "------------------------------------- Input Error ---------------------------------------"
@@ -28,7 +28,7 @@ def commandlineErrorBlocksToTrials(args):
     print args, "is not a valid input"
     sys.exit()
 
-def printOptionsBlocksToTrials(args,numTrialsInBlock):
+def printOptionsBlockToTrials(args,numTrialsInBlock):
     # if the user didn't specify, just print the first and last trial
     if len(args) == 4:
         numbertrials_Print_trigger_codes = 0
@@ -41,7 +41,7 @@ def printOptionsBlocksToTrials(args,numTrialsInBlock):
             if isinstance(int(args[4]),int):
                 numbertrials_Print_trigger_codes = int(args[4])
         except:
-            commandlineErrorBlocksToTrials(args[4])
+            commandlineErrorBlockToTrials(args[4])
 
     return numbertrials_Print_trigger_codes
 
