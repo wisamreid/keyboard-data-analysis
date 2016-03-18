@@ -31,14 +31,10 @@ class Experiment:
         pass
 
 
-class TriggerCode:
-    """
-    An abstract class defining the trigger codes of the experiment
-
-    We will hardcode this for now, but this should take a text file in as input
-    """
-
-    def __init__(self, codes):
+    def readTriggerCodes(self, codes):
+        """
+        We will hardcode this for now, but this should take a text file in as input
+        """
         pass
 
 

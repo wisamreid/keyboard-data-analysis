@@ -25,11 +25,11 @@ def buildExperiment(maxDataPaths, curryDataPaths, scoreDataPaths, ExperimentPara
 
         ##### NOTE: Eventualy this should be expanded:
 
-                    # 1) An experiment could be built from anything imported
-                    through the file system.
+                # 1) An experiment could be built from anything imported
+                through the file system.
 
-                    For Example:    A table containing trigger codes for a new
-                                    experiment
+                For Example:    A table containing trigger codes for a new
+                                experiment
 
 
         Argument(s):
@@ -59,7 +59,8 @@ def buildExperiment(maxDataPaths, curryDataPaths, scoreDataPaths, ExperimentPara
 
     # raw curry data is currently divided into blocks
     # break it into trials, Code function below, call it here
-    curry_trial_data = blockToTrials(raw_curry_data[0], ExperimentParams)
+    for index, block in enumerate(raw_curry_data):
+        curry_trial_data = blockToTrials(block, ExperimentParams)
 
     #### TODO  # Code function below, call it here
     # throw out bad trials
@@ -419,11 +420,25 @@ def blockToTrials(curryData, ExperimentParams):
         print "\n"
         print len(curryTrials)
         print "\n"
-        # we should have twelve instances of 4 different trigger codes
-        # Since each trigger code is a permutaion of 2 variables that determine
-        # the order of deviant phrases
-        print "---- Trigger Codes Associated with Metronome Ticks  : [Index of] ----"
-        print metro_ticks
+        print "---- First Curry Trial ----"
+        print curryTrials[1]
+        print "Number of Codes in Trial: ", len(curryTrials[1])
+        print "\n"
+        # decide how many trials to print
+        numbertrials_Print_trigger_codes = printOptionsBlockToTrials(sys.argv,len(curryTrials))
+
+        if numbertrials_Print_trigger_codes <= len(curryTrials) + 2: # first and last
+            for i in range(numbertrials_Print_trigger_codes):
+                print "---- Curry Trial Number:", str(i+2)," ----"
+                print curryTrials[i+1]
+                print "Number of Codes in Trial: ", len(curryTrials[i+1])
+                print "\n"
+        else:
+            print "WARNING: number out of bounds, Did not print extra trials"
+            print "\n"
+        print "---- Last Curry Trial ----"
+        print curryTrials[-1]
+        print "Number of Codes in Trial: ", len(curryTrials[-1])
         print "\n"
 
 
@@ -432,31 +447,16 @@ def blockToTrials(curryData, ExperimentParams):
             print "---------------- Verbose ----------------"
             print "-----------------------------------------"
             print "\n"
-            print "---- First Curry Trial ----"
-            print curryTrials[1]
-            print "Number of Codes in Trial: ", len(curryTrials[1])
-            print "\n"
-
-            # decide how many trials to print
-            numbertrials_Print_trigger_codes = printOptionsBlockToTrials(sys.argv,len(curryTrials))
-
-            if numbertrials_Print_trigger_codes <= len(curryTrials) + 2: # first and last
-                for i in range(numbertrials_Print_trigger_codes):
-                    print "---- Curry Trial Number:", str(i+2)," ----"
-                    print curryTrials[i+1]
-                    print "Number of Codes in Trial: ", len(curryTrials[i+1])
-                    print "\n"
-            else:
-                print "WARNING: number out of bounds, Did not print extra trials"
-                print "\n"
-            print "---- Last Curry Trial ----"
-            print curryTrials[-1]
-            print "Number of Codes in Trial: ", len(curryTrials[-1])
-            print "\n"
             print "---- Trigger Codes Associated with Metronome Ticks ----"
             print ExperimentParams.metronome_codes
             print "\n"
             print "---- final_indices ----"
+            # we should have twelve instances of 4 different trigger codes
+            # Since each trigger code is a permutaion of 2 variables that determine
+            # the order of deviant phrases
+            print "---- Trigger Codes Associated with Metronome Ticks  : [Index of] ----"
+            print metro_ticks
+            print "\n"
             print final_indices
             print "\n"
 
@@ -514,7 +514,7 @@ if __name__ == '__main__':
 
     # enter file name to run on a single set of subjects
     if len(sys.argv) > 1:
-
+        filename = sys.argv[1]
         maxDataLocation = "../Data/MaxLogs/" + sys.argv[1]
         curryDataLocation = "../Data/CurryLogs/" + sys.argv[1]
         scoreDataLocation = "../Data/Scores/"
@@ -544,53 +544,86 @@ if __name__ == '__main__':
 
     #### TODO # add flag documentation to the readme
 
-    if len(sys.argv) == 4:
+    if len(sys.argv) == 2:
+        if sys.argv[1] == '-h':
+            print "This is some helpful info"
+            sys.exit()
 
-        if sys.argv[2] == "-v":
+    if len(sys.argv) == 3:
+        if sys.argv[2] == 'main':
+            debug_main = True
+        elif sys.argv[2] == 'removeBadTrials':
+            print "----------------------------------------------------------"
+            print "----------- Testing removeBadTrials Function -------------"
+            print "----------------------------------------------------------"
+            print "\n"
+            debug_removeBadTrials = True
+        elif sys.argv[2] == "blockToTrials":
+            debug_blockToTrials = True
+            print "-------------------------------------------------"
+            print "--------- Testing blockToTrials Function --------"
+            print "-------------------------------------------------"
+            print "\n"
+        else:
+            print "-------------------------------------------------------------"
+            print "----------------------- Input Error -------------------------"
+            print "-------------------------------------------------------------"
+            print "-------------------------------------------------------------"
+            print "------------  Type: 'analysis.py -h' for help  --------------"
+            print "-------------------------------------------------------------"
+
+    if len(sys.argv) == 4:
+        if sys.argv[2] == 'main':
+            debug_main = True
+        elif sys.argv[2] == 'removeBadTrials':
+            print "----------------------------------------------------------"
+            print "----------- Testing removeBadTrials Function -------------"
+            print "----------------------------------------------------------"
+            print "\n"
+            debug_removeBadTrials = True
+        elif sys.argv[2] == "blockToTrials":
+            debug_blockToTrials = True
+            print "-------------------------------------------------"
+            print "--------- Testing blockToTrials Function --------"
+            print "-------------------------------------------------"
+            print "\n"
+        else:
+            print "-------------------------------------------------"
+            print "----------------- Input Error -------------------"
+            print "-------------------------------------------------"
+            print "-------------------------------------------------"
+            print "--------------  Type -h for help  ---------------"
+            print "-------------------------------------------------"
+        if sys.argv[-1] == "-v":
             verbose = True
-            if sys.argv[3] == 'main':
-                debug_main = True
-            if sys.argv[3] == 'removeBadTrials':
-                print "----------------------------------------------------------"
-                print "----------- Testing removeBadTrials Function -------------"
-                print "----------------------------------------------------------"
-                print "\n"
-                debug_removeBadTrials = True
-            if sys.argv[3] == "blockToTrials":
-                debug_blockToTrials = True
-                print "-------------------------------------------------"
-                print "--------- Testing blockToTrials Function --------"
-                print "-------------------------------------------------"
-                print "\n"
         else:
             print "Error: Unknown Flag"
 
     if len(sys.argv) == 5:
 
-        if sys.argv[2] == "-v":
+        if sys.argv[2] == 'main':
+            debug_main = True
+        elif sys.argv[2] == 'removeBadTrials':
+            print "----------------------------------------------------------"
+            print "----------- Testing removeBadTrials Function -------------"
+            print "----------------------------------------------------------"
+            print "\n"
+            debug_removeBadTrials = True
+        elif sys.argv[2] == "blockToTrials":
+            debug_blockToTrials = True
+            print "-------------------------------------------------"
+            print "--------- Testing blockToTrials Function --------"
+            print "-------------------------------------------------"
+            print "\n"
+        else:
+            print "-------------------------------------------------"
+            print "----------------- Input Error -------------------"
+            print "-------------------------------------------------"
+            print "-------------------------------------------------"
+            print "--------------  Type -h for help  ---------------"
+            print "-------------------------------------------------"
+        if sys.argv[-1] == "-v":
             verbose = True
-            if sys.argv[3] == 'main':
-                debug_main = True
-            elif sys.argv[3] == 'removeBadTrials':
-                print "----------------------------------------------------------"
-                print "----------- Testing removeBadTrials Function -------------"
-                print "----------------------------------------------------------"
-                print "\n"
-                debug_removeBadTrials = True
-            elif sys.argv[3] == 'blockToTrials':
-                print "----------------------------------------------------------"
-                print "-------- Testing blockToTrials Function ---------"
-                print "----------------------------------------------------------"
-                print "\n"
-                debug_blockToTrials = True
-                numbertrials_Print_trigger_codes = 0
-            else:
-                print "-------------------------------------------------"
-                print "----------------- Input Error -------------------"
-                print "-------------------------------------------------"
-                print "-------------------------------------------------"
-                print "--------------  Type -h for help  ---------------"
-                print "-------------------------------------------------"
         else:
             print "Error: Unknown Flag"
 
