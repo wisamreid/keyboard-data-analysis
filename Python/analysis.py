@@ -18,7 +18,7 @@ set_printoptions(threshold=inf) # don't truncate prints
 from lib.experiment import *
 from lib.util import *
 
-def buildExperiment(maxDataPaths, curryDataPaths, scoreDataPaths, ExperimentParams):
+def buildExperiment(subjectDataPaths, maxDataPaths, curryDataPaths, scoreDataPaths, ExperimentParams):
     """
 
         Constructs an analyzable experiment using max, curry, and score data
@@ -44,8 +44,6 @@ def buildExperiment(maxDataPaths, curryDataPaths, scoreDataPaths, ExperimentPara
                 experiment: (Experiment) an experiment object ready for analysis
     """
 
-    debug = False
-
     # parse data files
     raw_max_data, blockOrdering = parseMaxData(maxDataPaths)
     # parse curry files
@@ -53,32 +51,57 @@ def buildExperiment(maxDataPaths, curryDataPaths, scoreDataPaths, ExperimentPara
     # parse score files
     raw_score = parseScore(scoreDataPaths)
 
-    #### TODO  # loop over subject
+    if debug_buildExperiment:
+        print "---- Max Parsing ----"
+        print "\n"
+        print "Number of Trials: "
+        print "\n"
+        print len(raw_max_data)
+        print "\n"
+        print "Block Ordering: "
+        print "\n"
+        print blockOrdering
+        print "\n"
 
-    #### TODO  # loop over blocks : blockToTrials
+    #### TODO  # loop over subjects
 
     # raw curry data is currently divided into blocks
     # break it into trials, Code function below, call it here
     for index, block in enumerate(raw_curry_data):
         curry_trial_data = blockToTrials(block, ExperimentParams)
 
+        if debug_buildExperiment:
+            print "---- Curry Parsing ----"
+            print "\n"
+            print "Number of Trials: "
+            print "\n"
+            print len(curry_trial_data)
+            print "\n"
+            print listOfListLengths(curry_trial_data)
+
+            if verbose:
+                print "-----------------------------------------"
+                print "---------------- Verbose ----------------"
+                print "-----------------------------------------"
+                print "First Trial (Raw Data): "
+                print raw_max_data[0]
+                print "\n"
+                print "Last Trial (Raw Data): "
+                print raw_max_data[-1]
+                print "\n"
+                print "---- Curry Parsing ----"
+                print "\n"
+                print "First Block Trigger Codes: "
+                print "\n"
+                print raw_curry_data[0]
+                print "\n"
+                print "Last Block Trigger Codes: "
+                print "\n"
+                print raw_curry_data[-1]
+                print "\n"
+
     #### TODO  # Code function below, call it here
     # throw out bad trials
-
-    if debug:
-
-        print "---- Testing buildExperiment Function ----"
-        print "---- Max Parsing ----"
-        print "Number of Trials: ", len(raw_max_data)
-        print "First Trial (Raw Data): ", raw_max_data[0]
-        print "Last Trial (Raw Data): ", raw_max_data[-1]
-        print "Block Ordering: ", blockOrdering
-        print "---- Curry Parsing ----"
-        print "First Block Trigger Codes: ", raw_curry_data[0]
-        print "Last Block Trigger Codes: ", raw_curry_data[-1]
-        # print "Number of Trigger Codes: ", numTriggerCodes
-        print "\n"
-
     raw_max_data = removeBadTrials(raw_max_data, curry_trial_data)
 
     # create notes
@@ -425,10 +448,10 @@ def blockToTrials(curryData, ExperimentParams):
         print "Number of Codes in Trial: ", len(curryTrials[1])
         print "\n"
         # decide how many trials to print
-        numbertrials_Print_trigger_codes = printOptionsBlockToTrials(sys.argv,len(curryTrials))
+        number_of_trials_Print_trigger_codes = printOptionsBlockToTrials(sys.argv,len(curryTrials))
 
-        if numbertrials_Print_trigger_codes <= len(curryTrials) + 2: # first and last
-            for i in range(numbertrials_Print_trigger_codes):
+        if number_of_trials_Print_trigger_codes <= len(curryTrials) + 2: # first and last
+            for i in range(number_of_trials_Print_trigger_codes):
                 print "---- Curry Trial Number:", str(i+2)," ----"
                 print curryTrials[i+1]
                 print "Number of Codes in Trial: ", len(curryTrials[i+1])
@@ -501,16 +524,17 @@ if __name__ == '__main__':
 
     #### TODO # change commandline to run all subjects or just a single subject pair
 
-    # test booleans
+    # test print booleans
     verbose = False
 
     # debug flags [for each function]
     debug_main = False
+    debug_buildExperiment = False
     debug_blockToTrials = False
     debug_removeBadTrials = False
 
     # testing variables
-    numbertrials_Print_trigger_codes = 0
+    number_of_trials_Print_trigger_codes = 0
 
     # enter file name to run on a single set of subjects
     if len(sys.argv) > 1:
@@ -541,17 +565,21 @@ if __name__ == '__main__':
         print "Error: Please enter subject pair XX_YY"
         sys.exit()
 
-
     #### TODO # add flag documentation to the readme
 
     if len(sys.argv) == 2:
         if sys.argv[1] == '-h':
-            print "This is some helpful info"
-            sys.exit()
+            printHelpMenu()
 
-    if len(sys.argv) == 3:
+    elif len(sys.argv) == 3:
         if sys.argv[2] == 'main':
             debug_main = True
+        elif sys.argv[2] == 'buildExperiment':
+            print "----------------------------------------------------------"
+            print "----------- Testing buildExperiment Function -------------"
+            print "----------------------------------------------------------"
+            print "\n"
+            debug_buildExperiment = True
         elif sys.argv[2] == 'removeBadTrials':
             print "----------------------------------------------------------"
             print "----------- Testing removeBadTrials Function -------------"
@@ -572,9 +600,17 @@ if __name__ == '__main__':
             print "------------  Type: 'analysis.py -h' for help  --------------"
             print "-------------------------------------------------------------"
 
-    if len(sys.argv) == 4:
+    elif len(sys.argv) == 4:
         if sys.argv[2] == 'main':
             debug_main = True
+        elif sys.argv[2] == 'buildExperiment':
+            print "----------------------------------------------------------"
+            print "----------- Testing buildExperiment Function -------------"
+            print "----------------------------------------------------------"
+            print "\n"
+            debug_buildExperiment = True
+        elif sys.argv[2] == 'removeBadTrials':
+            pass
         elif sys.argv[2] == 'removeBadTrials':
             print "----------------------------------------------------------"
             print "----------- Testing removeBadTrials Function -------------"
@@ -599,10 +635,16 @@ if __name__ == '__main__':
         else:
             print "Error: Unknown Flag"
 
-    if len(sys.argv) == 5:
+    elif len(sys.argv) == 5:
 
         if sys.argv[2] == 'main':
             debug_main = True
+        elif sys.argv[2] == 'buildExperiment':
+            print "----------------------------------------------------------"
+            print "----------- Testing buildExperiment Function -------------"
+            print "----------------------------------------------------------"
+            print "\n"
+            debug_buildExperiment = True
         elif sys.argv[2] == 'removeBadTrials':
             print "----------------------------------------------------------"
             print "----------- Testing removeBadTrials Function -------------"
@@ -627,6 +669,8 @@ if __name__ == '__main__':
         else:
             print "Error: Unknown Flag"
 
+    else:
+        commandlineErrorMain(sys.argv,'tooManyArguments')
     if debug_main:
         print "--------------------------------------------------------"
         print "-------- Testing Main Function (File Structure) --------"
@@ -642,4 +686,4 @@ if __name__ == '__main__':
     # error trigger codes (TCs: 240 - 246)
     ExperimentParams.error_codes = arange(7) + 240
     # construct an experiment object, ready for analysis
-    experiment = buildExperiment(maxDataPaths, curryDataPaths, scoreDataPaths, ExperimentParams)
+    experiment = buildExperiment(subjectDataPaths,maxDataPaths, curryDataPaths, scoreDataPaths, ExperimentParams)

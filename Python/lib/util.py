@@ -9,12 +9,24 @@ import sys
 def validateData(maxData,curryData):
     pass
 
+def listOfListLengths(listoflists):
+    """ Return the lengths of a list of lists """
+    return [len(x) for x in listoflists]
 
-"-----------------------------------------------------------------------------------------"
-"----------------------- BlocksToTrials: Errors and Debug Options ------------------------"
-"-----------------------------------------------------------------------------------------"
+def printHelpMenu():
+    print "----------------------------------------------------------------------------------"
+    print "---------------------------------- Help Menu -------------------------------------"
+    print "----------------------------------------------------------------------------------"
+    print "\n"
+    print "This is some helpful info"
+    print "\n"
+    print "\n"
+    sys.exit()
+"-------------------------------------------------------------------------------"
+"----------------------- Main: Errors and Debug Options ------------------------"
+"-------------------------------------------------------------------------------"
 
-def commandlineErrorBlockToTrials(args, lengthOrArgument):
+def commandlineErrorMain(args, errorType):
     """ This is the message for commandline argument errors
         in the blockToTrials function """
     print "-----------------------------------------------------------------------------------------"
@@ -24,11 +36,38 @@ def commandlineErrorBlockToTrials(args, lengthOrArgument):
     print "----------------------------------  Type -h for help  -----------------------------------"
     print "-----------------------------------------------------------------------------------------"
     print "\n"
-    if lengthOrArgument == "ArgumentInvalid":
+    if errorType == "argumentInvalid":
         print args, "is not a valid input"
         print "\n"
         print "\n"
-    elif lengthOrArgument == "TooManyArguments":
+    elif errorType == 'tooManyArguments':
+        print "Too many input arguments"
+        print "\n"
+        print "\n"
+    sys.exit()
+
+def printOptionsMain(args,numTrialsInBlock):
+    pass
+
+"-----------------------------------------------------------------------------------------"
+"----------------------- BlocksToTrials: Errors and Debug Options ------------------------"
+"-----------------------------------------------------------------------------------------"
+
+def commandlineErrorBlockToTrials(args, errorType):
+    """ This is the message for commandline argument errors
+        in the blockToTrials function """
+    print "-----------------------------------------------------------------------------------------"
+    print "------------------------------------- Input Error ---------------------------------------"
+    print "-----------------------------------------------------------------------------------------"
+    print "-----------------------------------------------------------------------------------------"
+    print "----------------------------------  Type -h for help  -----------------------------------"
+    print "-----------------------------------------------------------------------------------------"
+    print "\n"
+    if errorType == "ArgumentInvalid":
+        print args, "is not a valid input"
+        print "\n"
+        print "\n"
+    elif errorType == "tooManyArguments":
         print "Too many input arguments"
         print "\n"
         print "\n"
@@ -39,6 +78,7 @@ def printOptionsBlockToTrials(args,numTrialsInBlock):
     if len(args) == 3:
         numbertrials_Print_trigger_codes = 0
         return numbertrials_Print_trigger_codes # return zero trials
+    # 4 inputs
     elif len(args) == 4:
         if args[3] == '-v':
             numbertrials_Print_trigger_codes = 0
@@ -51,8 +91,9 @@ def printOptionsBlockToTrials(args,numTrialsInBlock):
                 if isinstance(int(args[3]),int):
                     numbertrials_Print_trigger_codes = int(args[3])
             except:
-                commandlineErrorBlockToTrials(args[3],"ArgumentInvalid")
+                commandlineErrorBlockToTrials(args[3],"argumentInvalid")
         return numbertrials_Print_trigger_codes
+    # 5 inputs
     elif len(args) == 5:
         if args[3] == '-v':
             numbertrials_Print_trigger_codes = 0
@@ -65,10 +106,10 @@ def printOptionsBlockToTrials(args,numTrialsInBlock):
                 if isinstance(int(args[3]),int):
                     numbertrials_Print_trigger_codes = int(args[3])
             except:
-                commandlineErrorBlockToTrials(args[3],"ArgumentInvalid")
+                commandlineErrorBlockToTrials(args[3],"argumentInvalid")
         return numbertrials_Print_trigger_codes
     else:
-        commandlineErrorBlockToTrials(args[3], "TooManyArguments")
+        commandlineErrorBlockToTrials(args[3], "tooManyArguments")
 
 
 if __name__ == '__main__':
