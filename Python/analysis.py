@@ -16,7 +16,7 @@ Written By: Wisam Reid
 from numpy import *
 set_printoptions(threshold=inf) # don't truncate prints
 from lib.experiment import *
-from lib.analysisutilities import *
+from lib.analysis_utilities import *
 
 def buildExperiment(subjectDataPaths, maxDataPaths, curryDataPaths, scoreDataPaths, ExperimentParams):
     """
@@ -34,8 +34,9 @@ def buildExperiment(subjectDataPaths, maxDataPaths, curryDataPaths, scoreDataPat
 
         Argument(s):
 
-                maxDataPaths: (string array) array of max generated coll file paths
-                curryDataPaths: (string array) array of curry generated file paths
+                subjectDataPaths: (string array) array of subject (Pairs) data folder names
+                maxDataPaths: (string array of arrays) arrays of max generated coll file paths
+                curryDataPaths: (string array of arrays) arrays of curry generated file paths
                 scoreDataPaths: (string array) array of score file paths
                 ExperimentParams: class for dynamically generated variables
 
@@ -43,16 +44,27 @@ def buildExperiment(subjectDataPaths, maxDataPaths, curryDataPaths, scoreDataPat
 
                 experiment: (Experiment) an experiment object ready for analysis
     """
+    #### TODO  # loop over subjects
 
     # parse data files
-    raw_max_data, blockOrdering = parseMaxData(maxDataPaths)
+    raw_max_data, blockOrdering = parseMaxData(maxDataPaths[0])
+
+    #### TODO  # loop over blocks for curry data
     # parse curry files
-    raw_curry_data = parseCurryData(curryDataPaths)
+    raw_curry_data = parseCurryData(curryDataPaths[0])
     # parse score files
     raw_score = parseScore(scoreDataPaths)
 
     if debug_buildExperiment:
         print "---- Max Parsing ----"
+        print "\n"
+        print "Length of maxDataPaths: "
+        print "\n"
+        print len(maxDataPaths)
+        print "\n"
+        print "maxDataPaths[0]: "
+        print "\n"
+        print maxDataPaths[0]
         print "\n"
         print "Number of Trials: "
         print "\n"
@@ -63,7 +75,6 @@ def buildExperiment(subjectDataPaths, maxDataPaths, curryDataPaths, scoreDataPat
         print blockOrdering
         print "\n"
 
-    #### TODO  # loop over subjects
 
     # raw curry data is currently divided into blocks
     # break it into trials, Code function below, call it here
@@ -127,16 +138,12 @@ def parseMaxData(maxDataPaths):
                 trials: (array of arrays) trials[trial number](note object array) array of trials containing note objects
                 blockOrdering: (int array) Array of block ordering
     """
-    # debug boolean
-    debug = False
-
     numTrials = len(maxDataPaths)
 
     trials = []
 
     # gather raw trial data from each coll file
     for trial in maxDataPaths:
-
         # read coll file, return array of raw data
         trialData = readCollFile(trial)
         # add each trial to the trials array
@@ -147,11 +154,16 @@ def parseMaxData(maxDataPaths):
     # remove coll file indexes (leave just the block ordering)
     blockOrdering = [v for i, v in enumerate(blockOrdering) if i % 2 == 1]
 
-    if debug:
-
-        print "---- Testing buildExperiment Function ----"
+    if debug_parseMaxData:
+        print "-------- Number of Trials in the Block --------"
         print "\n"
-
+        print numTrials
+        print "\n"
+        if verbose:
+            print "-------- Number of Trials in the Block --------"
+            print "\n"
+            print trials
+            print "\n"
     return trials, blockOrdering
 
 def readCollFile(filename):
@@ -164,8 +176,6 @@ def readCollFile(filename):
 
             trial: (integer array) data in the coll files
     """
-    # debug boolean
-    debug = False
 
     numNoteParams = 6
 
@@ -181,6 +191,8 @@ def readCollFile(filename):
     # create an int array for trial data
     list =  str.split(trial)
     trial = asarray(list)
+    if debug_readCollFile:
+        print trial
     trial = trial.astype(int)
 
     count = len(trial)
@@ -194,7 +206,7 @@ def readCollFile(filename):
         noteCount = "coll file is improperly formatted"
         print noteCount
 
-    if debug:
+    if debug_readCollFile:
 
         print "---- Testing readCollFile Function ----"
         print "Trial Data: ", trial
@@ -325,42 +337,6 @@ def parseScore(scoreDataPaths):
     ##### TODO # Fill in code
 
     return 0
-
-def partitionList(alist, indices):
-    """
-    Helper function, takes a list and partitions it based on a list of indexes
-
-        Argument(s):
-
-                alist: list to partition
-                indices: indices to partition by
-
-        Return:
-
-                listOfLists: (array of arrays) list partitians
-    """
-    debug = False
-
-    listOfLists = []
-    for i in range(len(indices)):
-
-        if i+1 < len(indices):
-            # cut ranges
-            listOfLists.append(alist[indices[i]:indices[i+1]])
-            if debug:
-                print listOfLists[i]
-        else:
-            # grab the rest of the list
-            listOfLists.append(alist[indices[i]:])
-
-    if debug:
-        print "---- Testing partitionList ----"
-        print "len(listOfLists) ",len(listOfLists)
-        print "First Trial: ", listOfLists[0]
-        print "Last Trial: ", listOfLists[-1]
-        print "\n"
-
-    return listOfLists
 
 def blockToTrials(curryData, ExperimentParams):
     """
@@ -521,8 +497,10 @@ if __name__ == '__main__':
     from glob import glob
     from itertools import izip, chain
     from inspect import currentframe, getframeinfo # We will use this to print line numbers
+    from os import walk
 
     #### TODO # change commandline to run all subjects or just a single subject pair
+    #### TODO # add flag documentation to the readme
 
     # test print booleans
     verbose = False
@@ -532,61 +510,89 @@ if __name__ == '__main__':
     debug_buildExperiment = False
     debug_blockToTrials = False
     debug_removeBadTrials = False
+    debug_readCollFile = False
+    debug_parseMaxData = False
 
     # testing variables
     number_of_trials_Print_trigger_codes = 0
 
     # enter file name to run on a single set of subjects
+    # '.' runs all subjects
     if len(sys.argv) > 1:
         subjects = sys.argv[1]
-        if len(sys.argv) == 3:
+        # check for help menu
+        if len(sys.argv) == 2:
+            if sys.argv[1] == '-h':
+                printHelpMenu()
+        if len(sys.argv) > 3: # TODO # Check this
             if sys.argv[2] == 'main':
                 debug_main = True
+            if sys.argv[-1] == '-v':
+                verbose = True
 
-        maxDataLocation = "../Data/MaxLogs/" + subjects
-        curryDataLocation = "../Data/CurryLogs/" + subjects
+        maxDataLocation = "../Data/MaxLogs/"
+        curryDataLocation = "../Data/CurryLogs/"
         scoreDataLocation = "../Data/Scores/"
 
-        # store the max coll file locations in an array
-        maxDataPaths = [y for x in os.walk(maxDataLocation) for y in glob(os.path.join(x[0], '*.txt'))]
+        # path to all subjects' max data
+        subjectPathsMax = []
+        for (dirpath, dirnames, filenames) in walk(maxDataLocation):
+            subjectPathsMax.extend(dirnames)
+            break
 
-        # store the curry file locations in an array
-        curryDataPaths = [y for x in os.walk(curryDataLocation) for y in glob(os.path.join(x[0], '*.ceo'))]
+        # path to all subjects' curry data
+        subjectPathsCurry = []
+        for (dirpath, dirnames, filenames) in walk(curryDataLocation):
+            subjectPathsCurry.extend(dirnames)
+            break
+
+        if subjectPathsCurry != subjectPathsMax:
+            commandlineErrorMain(sys.argv,'fileStructure')
+
+        maxDataPaths= []
+        curryDataPaths = []
+        for index, subjectPair in enumerate(subjectPathsMax):
+            # for
+            maxDataLocation = "../Data/MaxLogs/" + subjectPair
+            curryDataLocation = "../Data/CurryLogs/" + subjectPair
+
+            # store the max coll file locations in an array
+            maxDataPaths.append([y for x in os.walk(maxDataLocation) for y in glob(os.path.join(x[0], '*.txt'))])
+
+            # store the curry file locations in an array
+            curryDataPaths.append([y for x in os.walk(curryDataLocation) for y in glob(os.path.join(x[0], '*.ceo'))])
 
         # store the score file locations in an array
         scoreDataPaths = [y for x in os.walk(scoreDataLocation) for y in glob(os.path.join(x[0], '*.txt'))]
-
 
         if debug_main:
             print "--------------------------------------------------------"
             print "-------- Testing Main Function (File Structure) --------"
             print "--------------------------------------------------------"
             print "\n"
-            print "---------- subjects ----------"
-            print "\n"
-            print subjects
-            print "\n"
+            if verbose:
+                print "---------- Subject File Paths ----------"
+                print "\n"
+                print subjectPathsMax
+                print "\n"
 
         try:
-
-            ExperimentParams.subjectInitials = [str(sys.argv[1][0:2]),str(sys.argv[1][3:5])]
+            if len(subjectPathsMax) > 1:
+                # store all the subject pairs in an array
+                ExperimentParams.subjectInitials = []
+                for subjectPath in subjectPathsMax:
+                    ExperimentParams.subjectInitials.append([str(subjectPath[0:2]),str(subjectPath[3:5])])
+            else:
+                ExperimentParams.subjectInitials = [str(subjects[0:2]),str(subjects[3:5])]
+                # print "ExperimentParams.subjectInitials", ExperimentParams.subjectInitials
 
         except:
-
-            print "Error: Please enter subject pair XX_YY"
+            commandlineErrorMain(sys.argv,'subjestsInvalid')
 
     else:
+        commandlineErrorMain(sys.argv,'subjestsInvalid')
 
-        print "Error: Please enter subject pair XX_YY"
-        sys.exit()
-
-    #### TODO # add flag documentation to the readme
-
-    if len(sys.argv) == 2:
-        if sys.argv[1] == '-h':
-            printHelpMenu()
-
-    elif len(sys.argv) == 3:
+    if len(sys.argv) == 3:
         # already checked for main debugging and
         # printed debuggung header
         if sys.argv[2] == 'main':
@@ -598,6 +604,18 @@ if __name__ == '__main__':
             print "----------------------------------------------------------"
             print "\n"
             debug_buildExperiment = True
+        elif sys.argv[2] == 'readCollFile':
+            print "----------------------------------------------------------"
+            print "------------- Testing readCollFile Function --------------"
+            print "----------------------------------------------------------"
+            print "\n"
+            debug_readCollFile = True
+        elif sys.argv[2] == 'parseMaxData':
+            print "----------------------------------------------------------"
+            print "------------- Testing parseMaxData Function --------------"
+            print "----------------------------------------------------------"
+            print "\n"
+            debug_parseMaxData = True
         elif sys.argv[2] == 'removeBadTrials':
             print "----------------------------------------------------------"
             print "----------- Testing removeBadTrials Function -------------"
@@ -611,13 +629,7 @@ if __name__ == '__main__':
             print "-------------------------------------------------"
             print "\n"
         else:
-            print "SHIIIIIIIIIT"
-            print "-------------------------------------------------------------"
-            print "----------------------- Input Error -------------------------"
-            print "-------------------------------------------------------------"
-            print "-------------------------------------------------------------"
-            print "------------  Type: 'analysis.py -h' for help  --------------"
-            print "-------------------------------------------------------------"
+            commandlineErrorMain(sys.argv, 'functionNameInvalid')
 
     elif len(sys.argv) == 4:
         if sys.argv[2] == 'main':
@@ -628,8 +640,18 @@ if __name__ == '__main__':
             print "----------------------------------------------------------"
             print "\n"
             debug_buildExperiment = True
-        elif sys.argv[2] == 'removeBadTrials':
-            pass
+        elif sys.argv[2] == 'readCollFile':
+            print "----------------------------------------------------------"
+            print "----------- Testing readCollFile Function -------------"
+            print "----------------------------------------------------------"
+            print "\n"
+            debug_readCollFile = True
+        elif sys.argv[2] == 'parseMaxData':
+            print "----------------------------------------------------------"
+            print "------------- Testing parseMaxData Function --------------"
+            print "----------------------------------------------------------"
+            print "\n"
+            debug_parseMaxData = True
         elif sys.argv[2] == 'removeBadTrials':
             print "----------------------------------------------------------"
             print "----------- Testing removeBadTrials Function -------------"
@@ -643,16 +665,11 @@ if __name__ == '__main__':
             print "-------------------------------------------------"
             print "\n"
         else:
-            print "-------------------------------------------------"
-            print "----------------- Input Error -------------------"
-            print "-------------------------------------------------"
-            print "-------------------------------------------------"
-            print "--------------  Type -h for help  ---------------"
-            print "-------------------------------------------------"
+            commandlineErrorMain(sys.argv, 'functionNameInvalid')
         if sys.argv[-1] == "-v":
             verbose = True
         else:
-            print "Error: Unknown Flag"
+            commandlineErrorMain(sys.argv, 'flagInvalid')
 
     elif len(sys.argv) == 5:
 
@@ -664,6 +681,18 @@ if __name__ == '__main__':
             print "----------------------------------------------------------"
             print "\n"
             debug_buildExperiment = True
+        elif sys.argv[2] == 'readCollFile':
+            print "----------------------------------------------------------"
+            print "----------- Testing readCollFile Function -------------"
+            print "----------------------------------------------------------"
+            print "\n"
+            debug_readCollFile = True
+        elif sys.argv[2] == 'parseMaxData':
+            print "----------------------------------------------------------"
+            print "------------- Testing parseMaxData Function --------------"
+            print "----------------------------------------------------------"
+            print "\n"
+            debug_parseMaxData = True
         elif sys.argv[2] == 'removeBadTrials':
             print "----------------------------------------------------------"
             print "----------- Testing removeBadTrials Function -------------"
@@ -677,24 +706,23 @@ if __name__ == '__main__':
             print "-------------------------------------------------"
             print "\n"
         else:
-            print "-------------------------------------------------"
-            print "----------------- Input Error -------------------"
-            print "-------------------------------------------------"
-            print "-------------------------------------------------"
-            print "--------------  Type -h for help  ---------------"
-            print "-------------------------------------------------"
+            commandlineErrorMain(sys.argv, 'functionNameInvalid')
         if sys.argv[-1] == "-v":
             verbose = True
         else:
-            print "Error: Unknown Flag"
+            commandlineErrorMain(sys.argv, 'flagInvalid')
 
     else:
         commandlineErrorMain(sys.argv,'tooManyArguments')
 
     if debug_main:
-        print "---------- Number of Max Files (Single Trials) ----------"
+        print "---------- Number of Subjects ----------"
         print "\n"
         print len(maxDataPaths)
+        print "\n"
+        print "---------- Number of Max Files (Single Trials) For Subject Pair: ", ExperimentParams.subjectInitials[0],"----------"
+        print "\n"
+        print len(maxDataPaths[0])
         print "\n"
         print "---------- Number of Curry Files (Blocks of Trials) ----------"
         print "\n"
@@ -704,10 +732,12 @@ if __name__ == '__main__':
         print "\n"
         print len(scoreDataPaths), " (Should be 4)"
         print "\n"
-        print "---------- Subjects ----------"
+        print "---------- Subject Pairs ----------"
         print "\n"
         print ExperimentParams.subjectInitials
         print "\n"
+        if verbose:
+            pass
 
     # metronome trigger codes (TCs: 201 - 233)
     ExperimentParams.metronome_codes = arange(33) + 201

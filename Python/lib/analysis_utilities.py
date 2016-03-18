@@ -13,6 +13,42 @@ def listOfListLengths(listoflists):
     """ Return the lengths of a list of lists """
     return [len(x) for x in listoflists]
 
+def partitionList(alist, indices):
+    """
+    Takes a list and partitions it based on a list of indexes
+
+        Argument(s):
+
+                alist: list to partition
+                indices: indices to partition by
+
+        Return:
+
+                listOfLists: (array of arrays) list partitians
+    """
+    debug = False
+
+    listOfLists = []
+    for i in range(len(indices)):
+
+        if i+1 < len(indices):
+            # cut ranges
+            listOfLists.append(alist[indices[i]:indices[i+1]])
+            if debug:
+                print listOfLists[i]
+        else:
+            # grab the rest of the list
+            listOfLists.append(alist[indices[i]:])
+
+    if debug:
+        print "---- Testing partitionList ----"
+        print "len(listOfLists) ",len(listOfLists)
+        print "First Trial: ", listOfLists[0]
+        print "Last Trial: ", listOfLists[-1]
+        print "\n"
+
+    return listOfLists
+
 def printHelpMenu():
     print "----------------------------------------------------------------------------------"
     print "---------------------------------- Help Menu -------------------------------------"
@@ -22,11 +58,12 @@ def printHelpMenu():
     print "\n"
     print "\n"
     sys.exit()
-"-------------------------------------------------------------------------------"
-"----------------------- Main: Errors and Debug Options ------------------------"
-"-------------------------------------------------------------------------------"
 
-def commandlineErrorMain(args, errorType):
+"---------------------------------------------------------"
+"------------- Main: Errors and Debug Options ------------"
+"---------------------------------------------------------"
+
+def commandlineErrorMain(args, errorType='default'):
     """ This is the message for commandline argument errors
         in the blockToTrials function """
     print "-----------------------------------------------------------------------------------------"
@@ -36,7 +73,13 @@ def commandlineErrorMain(args, errorType):
     print "----------------------------------  Type -h for help  -----------------------------------"
     print "-----------------------------------------------------------------------------------------"
     print "\n"
-    if errorType == "argumentInvalid":
+    if errorType == 'default':
+        pass
+    if errorType == 'fileStructure':
+        print "File structure is not valid"
+        print "\n"
+        print "\n"
+    if errorType == 'argumentInvalid':
         print args, "is not a valid input"
         print "\n"
         print "\n"
@@ -44,14 +87,28 @@ def commandlineErrorMain(args, errorType):
         print "Too many input arguments"
         print "\n"
         print "\n"
+    elif errorType == 'functionNameInvalid':
+        print "Invalid Function Name: ", args[2]
+        print "\n"
+        print "\n"
+    elif errorType == 'flagInvalid':
+        print "Error: Unknown Flag"
+        print "\n"
+        print "\n"
+    elif errorType == 'subjestsInvalid':
+        print "Error: Please enter a subject pair by intials [formatted as: 'XX_YY']"
+        print "       or enter '.' to build with all subjects'"
+        print "\n"
+        print "\n"
     sys.exit()
 
 def printOptionsMain(args,numTrialsInBlock):
     pass
 
-"-----------------------------------------------------------------------------------------"
-"----------------------- BlocksToTrials: Errors and Debug Options ------------------------"
-"-----------------------------------------------------------------------------------------"
+"---------------------------------------------------------"
+"-------- BlocksToTrials: Errors and Debug Options -------"
+"---------------------------------------------------------"
+
 
 def commandlineErrorBlockToTrials(args, errorType):
     """ This is the message for commandline argument errors
