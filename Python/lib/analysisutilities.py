@@ -1,5 +1,5 @@
 """
-util.py -- support utilities for the analysis of midi keyboard data.
+analysisutilities.py -- support utilities for the analysis of midi keyboard data.
 -----------------------------------------------------------------------
 Written By: Wisam Reid
 -----------------------------------------------------------------------

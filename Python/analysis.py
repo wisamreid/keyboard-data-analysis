@@ -16,7 +16,7 @@ Written By: Wisam Reid
 from numpy import *
 set_printoptions(threshold=inf) # don't truncate prints
 from lib.experiment import *
-from lib.util import *
+from lib.analysisutilities import *
 
 def buildExperiment(subjectDataPaths, maxDataPaths, curryDataPaths, scoreDataPaths, ExperimentParams):
     """
@@ -538,9 +538,13 @@ if __name__ == '__main__':
 
     # enter file name to run on a single set of subjects
     if len(sys.argv) > 1:
-        filename = sys.argv[1]
-        maxDataLocation = "../Data/MaxLogs/" + sys.argv[1]
-        curryDataLocation = "../Data/CurryLogs/" + sys.argv[1]
+        subjects = sys.argv[1]
+        if len(sys.argv) == 3:
+            if sys.argv[2] == 'main':
+                debug_main = True
+
+        maxDataLocation = "../Data/MaxLogs/" + subjects
+        curryDataLocation = "../Data/CurryLogs/" + subjects
         scoreDataLocation = "../Data/Scores/"
 
         # store the max coll file locations in an array
@@ -551,6 +555,17 @@ if __name__ == '__main__':
 
         # store the score file locations in an array
         scoreDataPaths = [y for x in os.walk(scoreDataLocation) for y in glob(os.path.join(x[0], '*.txt'))]
+
+
+        if debug_main:
+            print "--------------------------------------------------------"
+            print "-------- Testing Main Function (File Structure) --------"
+            print "--------------------------------------------------------"
+            print "\n"
+            print "---------- subjects ----------"
+            print "\n"
+            print subjects
+            print "\n"
 
         try:
 
@@ -572,8 +587,11 @@ if __name__ == '__main__':
             printHelpMenu()
 
     elif len(sys.argv) == 3:
+        # already checked for main debugging and
+        # printed debuggung header
         if sys.argv[2] == 'main':
-            debug_main = True
+            pass
+        # check for debugging
         elif sys.argv[2] == 'buildExperiment':
             print "----------------------------------------------------------"
             print "----------- Testing buildExperiment Function -------------"
@@ -593,6 +611,7 @@ if __name__ == '__main__':
             print "-------------------------------------------------"
             print "\n"
         else:
+            print "SHIIIIIIIIIT"
             print "-------------------------------------------------------------"
             print "----------------------- Input Error -------------------------"
             print "-------------------------------------------------------------"
@@ -671,19 +690,29 @@ if __name__ == '__main__':
 
     else:
         commandlineErrorMain(sys.argv,'tooManyArguments')
+
     if debug_main:
-        print "--------------------------------------------------------"
-        print "-------- Testing Main Function (File Structure) --------"
-        print "--------------------------------------------------------"
+        print "---------- Number of Max Files (Single Trials) ----------"
         print "\n"
-        print "len(maxDataPaths): ", len(maxDataPaths)
-        print "len(curryDataPaths): ", len(curryDataPaths), " (Should be 12)"
-        print "len(ScoreDataPaths): ", len(scoreDataPaths), " (Should be 4)"
-        print "ExperimentParams.subjectInitials: ", ExperimentParams.subjectInitials
+        print len(maxDataPaths)
+        print "\n"
+        print "---------- Number of Curry Files (Blocks of Trials) ----------"
+        print "\n"
+        print len(curryDataPaths), " (Should be 12)"
+        print "\n"
+        print "---------- Number of Score Files ----------"
+        print "\n"
+        print len(scoreDataPaths), " (Should be 4)"
+        print "\n"
+        print "---------- Subjects ----------"
+        print "\n"
+        print ExperimentParams.subjectInitials
+        print "\n"
 
     # metronome trigger codes (TCs: 201 - 233)
     ExperimentParams.metronome_codes = arange(33) + 201
     # error trigger codes (TCs: 240 - 246)
     ExperimentParams.error_codes = arange(7) + 240
     # construct an experiment object, ready for analysis
-    experiment = buildExperiment(subjectDataPaths,maxDataPaths, curryDataPaths, scoreDataPaths, ExperimentParams)
+    # experiment = buildExperiment(subjectDataPaths,maxDataPaths, curryDataPaths, scoreDataPaths, ExperimentParams)
+    experiment = buildExperiment(0,maxDataPaths, curryDataPaths, scoreDataPaths, ExperimentParams)
