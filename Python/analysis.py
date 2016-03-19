@@ -44,7 +44,11 @@ def buildExperiment(subjectDataPaths, maxDataPaths, curryDataPaths, scoreDataPat
 
                 experiment: (Experiment) an experiment object ready for analysis
     """
+
+    local_debug = False
+
     #### TODO  # loop over subjects
+    numSubjects = len(subjectDataPaths)
 
     # parse data files
     raw_max_data, blockOrdering = parseMaxData(maxDataPaths[0])
@@ -56,15 +60,14 @@ def buildExperiment(subjectDataPaths, maxDataPaths, curryDataPaths, scoreDataPat
     raw_score = parseScore(scoreDataPaths)
 
     if debug_buildExperiment:
-        print "---- Max Parsing ----"
+    # if local_debug:
+        print "---------------------------------------------"
+        print "---------------- Max Parsing ----------------"
+        print "---------------------------------------------"
         print "\n"
-        print "Length of maxDataPaths: "
+        print "Number of Subjects: "
         print "\n"
-        print len(maxDataPaths)
-        print "\n"
-        print "maxDataPaths[0]: "
-        print "\n"
-        print maxDataPaths[0]
+        print numSubjects
         print "\n"
         print "Number of Trials: "
         print "\n"
@@ -82,13 +85,19 @@ def buildExperiment(subjectDataPaths, maxDataPaths, curryDataPaths, scoreDataPat
         curry_trial_data = blockToTrials(block, ExperimentParams)
 
         if debug_buildExperiment:
-            print "---- Curry Parsing ----"
+        # if local_debug:
+            print "-----------------------------------------------"
+            print "---------------- Curry Parsing ----------------"
+            print "-----------------------------------------------"
             print "\n"
-            print "Number of Trials: "
+            print "Number of Trials in Block: "
             print "\n"
             print len(curry_trial_data)
             print "\n"
+            print "List of Curry Trial lengths: "
+            print "\n"
             print listOfListLengths(curry_trial_data)
+            print "\n"
 
             if verbose:
                 print "-----------------------------------------"
@@ -99,6 +108,10 @@ def buildExperiment(subjectDataPaths, maxDataPaths, curryDataPaths, scoreDataPat
                 print "\n"
                 print "Last Trial (Raw Data): "
                 print raw_max_data[-1]
+                print "\n"
+                print "maxDataPaths[0]: "
+                print "\n"
+                print maxDataPaths[0]
                 print "\n"
                 print "---- Curry Parsing ----"
                 print "\n"
@@ -524,7 +537,7 @@ if __name__ == '__main__':
         if len(sys.argv) == 2:
             if sys.argv[1] == '-h':
                 printHelpMenu()
-        if len(sys.argv) > 3: # TODO # Check this
+        if len(sys.argv) >= 3: # TODO # Check this
             if sys.argv[2] == 'main':
                 debug_main = True
             if sys.argv[-1] == '-v':
@@ -592,7 +605,10 @@ if __name__ == '__main__':
     else:
         commandlineErrorMain(sys.argv,'subjestsInvalid')
 
-    if len(sys.argv) == 3:
+    if len(sys.argv) == 2:
+        pass
+
+    elif len(sys.argv) == 3:
         # already checked for main debugging and
         # printed debuggung header
         if sys.argv[2] == 'main':
@@ -628,6 +644,8 @@ if __name__ == '__main__':
             print "--------- Testing blockToTrials Function --------"
             print "-------------------------------------------------"
             print "\n"
+        elif sys.argv[-1] == '-v':
+            pass
         else:
             commandlineErrorMain(sys.argv, 'functionNameInvalid')
 
@@ -716,17 +734,17 @@ if __name__ == '__main__':
         commandlineErrorMain(sys.argv,'tooManyArguments')
 
     if debug_main:
-        print "---------- Number of Subjects ----------"
+        print "---------- Number of Subject Pairs ----------"
         print "\n"
-        print len(maxDataPaths)
+        print len(subjectPathsMax)
         print "\n"
         print "---------- Number of Max Files (Single Trials) For Subject Pair: ", ExperimentParams.subjectInitials[0],"----------"
         print "\n"
         print len(maxDataPaths[0])
         print "\n"
-        print "---------- Number of Curry Files (Blocks of Trials) ----------"
+        print "---------- Number of Curry Files (First Subject [Blocks of Trials]) ----------"
         print "\n"
-        print len(curryDataPaths), " (Should be 12)"
+        print len(curryDataPaths[0]), " (Should be 12)"
         print "\n"
         print "---------- Number of Score Files ----------"
         print "\n"
@@ -745,4 +763,4 @@ if __name__ == '__main__':
     ExperimentParams.error_codes = arange(7) + 240
     # construct an experiment object, ready for analysis
     # experiment = buildExperiment(subjectDataPaths,maxDataPaths, curryDataPaths, scoreDataPaths, ExperimentParams)
-    experiment = buildExperiment(0,maxDataPaths, curryDataPaths, scoreDataPaths, ExperimentParams)
+    experiment = buildExperiment(subjectPathsMax,maxDataPaths, curryDataPaths, scoreDataPaths, ExperimentParams)
