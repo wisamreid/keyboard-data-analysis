@@ -6,6 +6,10 @@ Written By: Wisam Reid
 """
 import sys
 
+class DebugPrintParams:
+    """ A class to hold coding parameters to share across subjects, trials and blocks """
+    pass # add attributes at runtime as needed
+
 def validateData(maxData,curryData):
     pass
 
