@@ -4,7 +4,16 @@ analysisutilities.py -- support utilities for the analysis of midi keyboard data
 Written By: Wisam Reid
 -----------------------------------------------------------------------
 """
+from numpy import *
+from time import *
+from ast import *
 import sys
+import os 
+from glob import glob
+from itertools import izip, chain
+from inspect import currentframe, getframeinfo # We will use this to print line numbers
+from os import walk
+set_printoptions(threshold=inf) # don't truncate prints
 
 class DebugPrintParams:
     """ A class to hold coding parameters to share across subjects, trials and blocks """

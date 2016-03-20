@@ -13,11 +13,6 @@ Written By: Wisam Reid
 
 """
 
-from numpy import *
-set_printoptions(threshold=inf) # don't truncate prints
-from lib.experiment import *
-from lib.analysis_utilities import *
-
 def buildExperiment(subjectDataPaths, maxDataPaths, curryDataPaths, scoreDataPaths, ExperimentParams, DebugPrintParams):
     """
 
@@ -73,8 +68,10 @@ def buildExperiment(subjectDataPaths, maxDataPaths, curryDataPaths, scoreDataPat
     for subjectPair in range(len(subjectDataPaths)):
         # raw curry data is currently divided into blocks break it into trials
         # loop over the blocks for each subject pair
+        DebugPrintParams.current_subject_pair = subjectPair # set print options then pass to helper functions
         for block in range(len(raw_curry_data[subjectPair])):
             # chop curry block data into trials
+            DebugPrintParams.current_block = block
             curry_trial_data.append(blockToTrials(raw_curry_data[subjectPair][block], ExperimentParams, DebugPrintParams))
 
     # if local_debug:
@@ -118,7 +115,7 @@ def buildExperiment(subjectDataPaths, maxDataPaths, curryDataPaths, scoreDataPat
         print "Number of Blocks per Subject Pairing: "
         print [len(listOfListLengths(curry_trial_data)[:12]),len(listOfListLengths(curry_trial_data)[12:24]), len(listOfListLengths(curry_trial_data)[24:36]), len(listOfListLengths(curry_trial_data)[36:48]),len(listOfListLengths(curry_trial_data)[48:])]
         print "\n"
-        print "curry_trial_data[0][0]"
+        print "[Fist Block : First Trial] Trigger Codes: "
         print curry_trial_data[0][0]
         print "\n"
 
@@ -126,25 +123,25 @@ def buildExperiment(subjectDataPaths, maxDataPaths, curryDataPaths, scoreDataPat
             print "-----------------------------------------"
             print "---------------- Verbose ----------------"
             print "-----------------------------------------"
-            print "First Trial (Raw Data): "
-            print raw_max_data[0]
             print "\n"
-            print "Last Trial (Raw Data): "
-            print raw_max_data[-1]
+            print "First Subject : First Trial (Max Raw Data): "
+            print raw_max_data[0][0]
             print "\n"
-            print "maxDataPaths[0]: "
+            print "Last Subject : Last Trial (Max Raw Data): "
+            print raw_max_data[-1][-1]
             print "\n"
-            print maxDataPaths[0]
             print "\n"
-            print "---- Curry Parsing ----"
+            print "----------------------------------------------"
+            print "---------------- Debug Prints ----------------"
+            print "----------------------------------------------"
             print "\n"
-            print "First Block Trigger Codes: "
+            print "---- Current Block ----"
+            print DebugPrintParams.current_block + 1
+            print "Value: ", DebugPrintParams.current_block
             print "\n"
-            print raw_curry_data[0]
-            print "\n"
-            print "Last Block Trigger Codes: "
-            print "\n"
-            print raw_curry_data[-1]
+            print "---- Current Subject Pair ----"
+            print subjectDataPaths[DebugPrintParams.current_subject_pair]
+            print "Value: ", DebugPrintParams.current_subject_pair
             print "\n"
 
     #### MERGE AND CONCUR DATA ####
@@ -391,6 +388,8 @@ def blockToTrials(curryData, ExperimentParams, DebugPrintParams):
                         this will return good and bad trials to be validated later
     """
 
+    global debug_blockToTrials # Allows for dynamic debug print options
+
     # helper function for block parsing
     find = lambda searchList, elem: [[i for i, x in enumerate(searchList) if x == e] for e in elem]
 
@@ -452,13 +451,19 @@ def blockToTrials(curryData, ExperimentParams, DebugPrintParams):
         if trial[0] != metro_tick_trigger_code:
             curryTrials[index] = filter(lambda a: a != metro_tick_trigger_code, trial) # remove zeros
 
-    # if ExperimentParams.subjects_to_print == '.':
-    #     for subjectPair in range(len(subjectDataPaths)):
-    #         print "Block Ordering for Subject Pairing", subjectDataPaths[subjectPair], ": ", blockOrdering[subjectPair]
-    #         print "\n"
-    # else:
-    #     print "Block Ordering for Subject Pairing", subjectDataPaths[ExperimentParams.subjects_to_print], ": ", blockOrdering[ExperimentParams.subjects_to_print]
-    #     print "\n"
+    if DebugPrintParams.blocks_to_print != '.':
+        # print  DebugPrintParams.blocks_to_print,  type(DebugPrintParams.blocks_to_print)
+        # print  DebugPrintParams.current_block, type(DebugPrintParams.current_block)
+        if DebugPrintParams.blocks_to_print == DebugPrintParams.current_block:
+            print "---------------------------------------------------------------------"
+            print "---- Printing Subject Pair:", subjectPathsMax[DebugPrintParams.current_subject_pair], " Printing Block:", DebugPrintParams.current_block, "----------------"
+            print "---------------------------------------------------------------------"
+            print "\n"
+            print "current_block: ", DebugPrintParams.current_block
+            debug_blockToTrials = True
+        else:
+            debug_blockToTrials = False
+
     if debug_blockToTrials:
         print "---- Number of Trials in the Block ----"
         print "\n"
@@ -535,14 +540,8 @@ def removeBadTrials(trials, curryData, ExperimentParams):
 
 if __name__ == '__main__':
 
-    import time
-    import ast
-    import sys
-    import os
-    from glob import glob
-    from itertools import izip, chain
-    from inspect import currentframe, getframeinfo # We will use this to print line numbers
-    from os import walk
+    from lib.analysis_utilities import *
+    from lib.experiment import *
 
     #### TODO # add flag documentation to the readme
 
@@ -614,7 +613,7 @@ if __name__ == '__main__':
 
         if sys.argv[1] != '.':
             try:
-                subjectsToPrint = subjectPathsCurry.index(sys.argv[1])
+                subjectsToPrint = int(subjectPathsCurry.index(sys.argv[1]))
             except:
                 commandlineErrorMain(sys.argv[1],'subjectsInvalid')
 
@@ -783,7 +782,7 @@ if __name__ == '__main__':
             if sys.argv[4] != '.':
                 try:
                     if isinstance(int(sys.argv[4]),int):
-                        block_number_Print_trigger_codes = sys.argv[4]
+                        block_number_Print_trigger_codes = int(sys.argv[4])
                 except:
                     commandlineErrorMain(sys.argv[4],'flagInvalid')
 
@@ -848,7 +847,6 @@ if __name__ == '__main__':
     ExperimentParams.number_of_blocks_per_subjectPair = []
     for pair in range(ExperimentParams.number_of_subjectPairs):
         ExperimentParams.number_of_blocks_per_subjectPair.append(len(curryDataPaths[pair]))
-
 
     #### DEBUG PRINT PARAMETERS ####
     # blocks for printing
