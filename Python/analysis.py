@@ -40,7 +40,9 @@ def buildExperiment(subjectDataPaths, maxDataPaths, curryDataPaths, scoreDataPat
                 experiment: (Experiment) an experiment object ready for analysis
     """
 
-    local_debug = False
+    # print variables
+    global debug_buildExperiment
+    local_debug = True
 
     numSubjects = len(subjectDataPaths)
     raw_curry_data = []
@@ -72,15 +74,23 @@ def buildExperiment(subjectDataPaths, maxDataPaths, curryDataPaths, scoreDataPat
         for block in range(len(raw_curry_data[subjectPair])):
             # chop curry block data into trials
             DebugPrintParams.current_block = block
+            DebugPrintParams.current_curry_file = curryDataPaths[subjectPair][block]
             curry_trial_data.append(blockToTrials(raw_curry_data[subjectPair][block], ExperimentParams, DebugPrintParams))
 
-    # if local_debug:
+    if local_debug:
+        print "----------------------------------------------------------"
+        print "----------- Testing buildExperiment Function -------------"
+        print "----------------------------------------------------------"
+        print "----------------------------------------------------------"
+        print "---------------- Local Printing Enabled ------------------"
+        print "----------------------------------------------------------"
+        print "\n"
+        debug_buildExperiment = True
     if debug_buildExperiment:
         for subjectPair in range(len(subjectDataPaths)):
             print "Block Ordering for Subject Pairing", subjectDataPaths[subjectPair], ": ", blockOrdering[subjectPair]
             print "\n"
         print "Number of Subjects: ", numSubjects
-        print "\n"
         print "\n"
         print "--------------------------------------------------------"
         print "Still need to throw out practice trials and bad trials!:"
@@ -457,14 +467,14 @@ def blockToTrials(curryData, ExperimentParams, DebugPrintParams):
 
     if DebugPrintParams.current_subject_pair == subjectsToPrint:
         if DebugPrintParams.blocks_to_print != '.':
-            # print  DebugPrintParams.blocks_to_print,  type(DebugPrintParams.blocks_to_print)
-            # print  DebugPrintParams.current_block, type(DebugPrintParams.current_block)
             if DebugPrintParams.blocks_to_print == DebugPrintParams.current_block:
                 print "---------------------------------------------------------------------"
-                print "---- Printing Subject Pair:", subjectPathsMax[DebugPrintParams.current_subject_pair], " Printing Block:", DebugPrintParams.current_block, "----------------"
+                print "---------- Printing Subject Pair:", subjectPathsMax[DebugPrintParams.current_subject_pair], " Printing Block:", DebugPrintParams.current_block + 1, "----------"
+                print "---------------------------------------------------------------------"
+                print "---------------------------------------------------------------------"
+                print "--------- From File:", DebugPrintParams.current_curry_file,"---------"
                 print "---------------------------------------------------------------------"
                 print "\n"
-                print "current_block: ", DebugPrintParams.current_block
                 debug_blockToTrials = True
             else:
                 debug_blockToTrials = False
@@ -475,14 +485,14 @@ def blockToTrials(curryData, ExperimentParams, DebugPrintParams):
             print len(curryTrials)
             print "\n"
             print "---- First Curry Trial ----"
-            print curryTrials[1]
-            print "Number of Codes in Trial: ", len(curryTrials[1])
+            print curryTrials[0]
+            print "Number of Codes in Trial: ", len(curryTrials[0])
             print "\n"
             # decide how many trials to print
             number_of_trials_Print_trigger_codes, block_number_Print_trigger_codes = printOptionsBlockToTrials(sys.argv,len(curryTrials))
 
             if number_of_trials_Print_trigger_codes <= len(curryTrials) + 2: # first and last
-                for i in range(number_of_trials_Print_trigger_codes):
+                for i in range(number_of_trials_Print_trigger_codes-1):
                     print "---- Curry Trial Number:", str(i+2)," ----"
                     print curryTrials[i+1]
                     print "Number of Codes in Trial: ", len(curryTrials[i+1])
@@ -494,7 +504,6 @@ def blockToTrials(curryData, ExperimentParams, DebugPrintParams):
             print curryTrials[-1]
             print "Number of Codes in Trial: ", len(curryTrials[-1])
             print "\n"
-
 
             if verbose:
                 print "-----------------------------------------"

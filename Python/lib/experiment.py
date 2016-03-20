@@ -89,7 +89,6 @@ class Trial:
         self.phrases = phrases
 
 
-
 class Phrase:
     """
     Defines a Phrase
@@ -103,6 +102,7 @@ class Phrase:
         self.notes = notes
         self.isPreBoundary = isPreBoundary
         self.isDeviant = isDeviant
+
 
 class Note:
     """
