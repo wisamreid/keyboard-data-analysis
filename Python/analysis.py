@@ -77,8 +77,8 @@ def buildExperiment(subjectDataPaths, maxDataPaths, curryDataPaths, scoreDataPat
             # chop curry block data into trials
             curry_trial_data.append(blockToTrials(raw_curry_data[subjectPair][block], ExperimentParams))
 
-    if debug_buildExperiment:
     # if local_debug:
+    if debug_buildExperiment:
         for subjectPair in range(len(subjectDataPaths)):
             print "Block Ordering for Subject Pairing", subjectDataPaths[subjectPair], ": ", blockOrdering[subjectPair]
             print "\n"
@@ -146,7 +146,6 @@ def buildExperiment(subjectDataPaths, maxDataPaths, curryDataPaths, scoreDataPat
             print "\n"
             print raw_curry_data[-1]
             print "\n"
-
 
     #### TODO  # Code function below, call it here
     # throw out bad trials
@@ -461,7 +460,7 @@ def blockToTrials(curryData, ExperimentParams):
         print "Number of Codes in Trial: ", len(curryTrials[1])
         print "\n"
         # decide how many trials to print
-        number_of_trials_Print_trigger_codes = printOptionsBlockToTrials(sys.argv,len(curryTrials))
+        number_of_trials_Print_trigger_codes, block_number_Print_trigger_codes = printOptionsBlockToTrials(sys.argv,len(curryTrials))
 
         if number_of_trials_Print_trigger_codes <= len(curryTrials) + 2: # first and last
             for i in range(number_of_trials_Print_trigger_codes):
@@ -536,7 +535,6 @@ if __name__ == '__main__':
     from inspect import currentframe, getframeinfo # We will use this to print line numbers
     from os import walk
 
-    #### TODO # change commandline to run all subjects or just a single subject pair
     #### TODO # add flag documentation to the readme
 
     # test print booleans
@@ -552,6 +550,8 @@ if __name__ == '__main__':
 
     # testing variables
     number_of_trials_Print_trigger_codes = 0
+    block_number_Print_trigger_codes = '.'
+    subjectsToPrint = '.'
 
     # enter file name to run on a single set of subjects
     # '.' runs all subjects
@@ -602,6 +602,12 @@ if __name__ == '__main__':
         # store the score file locations in an array
         scoreDataPaths = [y for x in os.walk(scoreDataLocation) for y in glob(os.path.join(x[0], '*.txt'))]
 
+        if sys.argv[1] != '.':
+            try:
+                subjectsToPrint = subjectPathsCurry.index(sys.argv[1])
+            except:
+                commandlineErrorMain(sys.argv[1],'subjectsInvalid')
+
         if debug_main:
             print "--------------------------------------------------------"
             print "-------- Testing Main Function (File Structure) --------"
@@ -626,7 +632,7 @@ if __name__ == '__main__':
             commandlineErrorMain(sys.argv,'subjestsInvalid')
 
     else:
-        commandlineErrorMain(sys.argv,'subjestsInvalid')
+        commandlineErrorMain(sys.argv,'subjectsInvalid')
 
     if len(sys.argv) == 2:
         pass
@@ -681,6 +687,7 @@ if __name__ == '__main__':
             print "----------------------------------------------------------"
             print "\n"
             debug_buildExperiment = True
+
         elif sys.argv[2] == 'readCollFile':
             print "----------------------------------------------------------"
             print "----------- Testing readCollFile Function -------------"
@@ -709,8 +716,14 @@ if __name__ == '__main__':
             commandlineErrorMain(sys.argv, 'functionNameInvalid')
         if sys.argv[-1] == "-v":
             verbose = True
+        elif sys.argv[-1] == '.':
+            pass
         else:
-            commandlineErrorMain(sys.argv, 'flagInvalid')
+            try:
+                if isinstance(int(sys.argv[3]),int):
+                    pass
+            except:
+                commandlineErrorMain(sys.argv[3],'flagInvalid')
 
     elif len(sys.argv) == 5:
 
@@ -751,10 +764,84 @@ if __name__ == '__main__':
         if sys.argv[-1] == "-v":
             verbose = True
         else:
-            commandlineErrorMain(sys.argv, 'flagInvalid')
+            if sys.argv[3] != '.':
+                try:
+                    if isinstance(int(sys.argv[3]),int):
+                        pass
+                except:
+                    commandlineErrorMain(sys.argv[3],'flagInvalid')
+            if sys.argv[4] != '.':
+                try:
+                    if isinstance(int(sys.argv[4]),int):
+                        block_number_Print_trigger_codes = sys.argv[4]
+                except:
+                    commandlineErrorMain(sys.argv[4],'flagInvalid')
+
+    elif len(sys.argv) == 6:
+
+        if sys.argv[2] == 'main':
+            debug_main = True
+        elif sys.argv[2] == 'buildExperiment':
+            print "----------------------------------------------------------"
+            print "----------- Testing buildExperiment Function -------------"
+            print "----------------------------------------------------------"
+            print "\n"
+            debug_buildExperiment = True
+        elif sys.argv[2] == 'readCollFile':
+            print "----------------------------------------------------------"
+            print "----------- Testing readCollFile Function -------------"
+            print "----------------------------------------------------------"
+            print "\n"
+            debug_readCollFile = True
+        elif sys.argv[2] == 'parseMaxData':
+            print "----------------------------------------------------------"
+            print "------------- Testing parseMaxData Function --------------"
+            print "----------------------------------------------------------"
+            print "\n"
+            debug_parseMaxData = True
+        elif sys.argv[2] == 'removeBadTrials':
+            print "----------------------------------------------------------"
+            print "----------- Testing removeBadTrials Function -------------"
+            print "----------------------------------------------------------"
+            print "\n"
+            debug_removeBadTrials = True
+        elif sys.argv[2] == "blockToTrials":
+            debug_blockToTrials = True
+            print "-------------------------------------------------"
+            print "--------- Testing blockToTrials Function --------"
+            print "-------------------------------------------------"
+            print "\n"
+        else:
+            commandlineErrorMain(sys.argv, 'functionNameInvalid')
+        if sys.argv[-1] == "-v":
+            verbose = True
+        else:
+                commandlineErrorMain(sys.argv[4],'flagInvalid')
+        if sys.argv[4] != '.':
+            try:
+                if isinstance(int(sys.argv[4]),int):
+                    block_number_Print_trigger_codes = sys.argv[4]
+            except:
+                commandlineErrorMain(sys.argv[4],'flagInvalid')
 
     else:
         commandlineErrorMain(sys.argv,'tooManyArguments')
+
+    #### EXPERIMENT PARAMETERS ####
+    # metronome trigger codes (TCs: 201 - 233)
+    ExperimentParams.metronome_codes = arange(33) + 201
+    # error trigger codes (TCs: 240 - 246)
+    ExperimentParams.error_codes = arange(7) + 240
+    # number of subjects in our experiment
+    ExperimentParams.number_of_subjectPairs = len(subjectPathsMax)
+    # blocks per subject pair
+    ExperimentParams.number_of_blocks_per_subjectPair = []
+    for pair in range(ExperimentParams.number_of_subjectPairs):
+        ExperimentParams.number_of_blocks_per_subjectPair.append(len(curryDataPaths[pair]))
+    # blocks for printing
+    ExperimentParams.blocks_to_print = block_number_Print_trigger_codes
+    # subjects for printing
+    ExperimentParams.subjects_to_print = subjectsToPrint
 
     if debug_main:
         print "---------- Number of Subject Pairs in the File System ----------"
@@ -778,12 +865,19 @@ if __name__ == '__main__':
         print ExperimentParams.subjectInitials
         print "\n"
         if verbose:
-            pass
+            print "--------------------------------------------------"
+            print "--------- Verbose (Print Options) ----------------"
+            print "--------------------------------------------------"
+            print "\n"
+            print "---------- Index of Subjects For Printing ----------"
+            print "\n"
+            print ExperimentParams.subjects_to_print, "  print all subjects if value is '.'"
+            print "\n"
+            print "---------- Index of Block For Printing ----------"
+            print "\n"
+            print ExperimentParams.blocks_to_print, "  print all blocks if value is '.'"
+            print "\n"
 
-    # metronome trigger codes (TCs: 201 - 233)
-    ExperimentParams.metronome_codes = arange(33) + 201
-    # error trigger codes (TCs: 240 - 246)
-    ExperimentParams.error_codes = arange(7) + 240
+    #### LETS BUILD AN EXPERIMENT ####
     # construct an experiment object, ready for analysis
-    # experiment = buildExperiment(subjectDataPaths,maxDataPaths, curryDataPaths, scoreDataPaths, ExperimentParams)
     experiment = buildExperiment(subjectPathsMax,maxDataPaths, curryDataPaths, scoreDataPaths, ExperimentParams)

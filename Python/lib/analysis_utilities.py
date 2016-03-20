@@ -125,11 +125,11 @@ def commandlineErrorMain(args, errorType='default'):
     print "\n"
     if errorType == 'default':
         pass
-    if errorType == 'fileStructure':
+    elif errorType == 'fileStructure':
         print "File structure is not valid"
         print "\n"
         print "\n"
-    if errorType == 'argumentInvalid':
+    elif errorType == 'argumentInvalid':
         print args, "is not a valid input"
         print "\n"
         print "\n"
@@ -142,10 +142,10 @@ def commandlineErrorMain(args, errorType='default'):
         print "\n"
         print "\n"
     elif errorType == 'flagInvalid':
-        print "Error: Unknown Flag"
+        print "Error: Unknown Flag ", args
         print "\n"
         print "\n"
-    elif errorType == 'subjestsInvalid':
+    elif errorType == 'subjectsInvalid':
         print "Error: Please enter a subject pair by intials [formatted as: 'XX_YY']"
         print "       or enter '.' to build with all subjects'"
         print "\n"
@@ -160,7 +160,7 @@ def printOptionsMain(args,numTrialsInBlock):
 "---------------------------------------------------------"
 
 
-def commandlineErrorBlockToTrials(args, errorType):
+def commandlineErrorBlockToTrials(args, errorType="default"):
     """ This is the message for commandline argument errors
         in the blockToTrials function """
     print "-----------------------------------------------------------------------------------------"
@@ -172,27 +172,32 @@ def commandlineErrorBlockToTrials(args, errorType):
     print "\n"
     print "Commandline Error Thrown by: blockToTrials function: "
     print "\n"
-    if errorType == "ArgumentInvalid":
+    if errorType == "default":
+        pass
+    if errorType == "argumentInvalid":
         print args, "is not a valid input"
         print "\n"
         print "\n"
-    elif errorType == "tooManyArguments":
+    if errorType == "tooManyArguments":
         print "Too many input arguments"
         print "\n"
         print "\n"
     sys.exit()
 
 def printOptionsBlockToTrials(args,numTrialsInBlock):
+    #### TODO # get rid of block_number_Print_trigger_codes
     # if the user didn't specify, just print the first and last trial
     if len(args) == 3:
         numbertrials_Print_trigger_codes = 0
-        return numbertrials_Print_trigger_codes # return zero trials
+        block_number_Print_trigger_codes = '.'
+        # return zero trials, print all blocks
+        return numbertrials_Print_trigger_codes, block_number_Print_trigger_codes
     # 4 inputs
     elif len(args) == 4:
-        if args[3] == '-v':
+        if args[-1] == '-v':
             numbertrials_Print_trigger_codes = 0
         # if user inputs '.' we will print all the trials in
-        elif args[3] == '.':
+        elif args[-1] == '.':
             numbertrials_Print_trigger_codes = numTrialsInBlock - 2;
         # set the number of prints to user input if input is valid
         else:
@@ -201,14 +206,15 @@ def printOptionsBlockToTrials(args,numTrialsInBlock):
                     numbertrials_Print_trigger_codes = int(args[3])
             except:
                 commandlineErrorBlockToTrials(args[3],"argumentInvalid")
-        return numbertrials_Print_trigger_codes
+        block_number_Print_trigger_codes = '.'
+        return numbertrials_Print_trigger_codes, block_number_Print_trigger_codes
     # 5 inputs
     elif len(args) == 5:
-        if args[3] == '-v':
-            numbertrials_Print_trigger_codes = 0
+        if args[-1] == '-v':
+            block_number_Print_trigger_codes = '.'
         # if user inputs '.' we will print all the trials in
-        elif args[3] == '.':
-            numbertrials_Print_trigger_codes = numTrialsInBlock - 2;
+        if args[3] == '.':
+            numbertrials_Print_trigger_codes = numTrialsInBlock - 2
         # set the number of prints to user input if input is valid
         else:
             try:
@@ -216,7 +222,45 @@ def printOptionsBlockToTrials(args,numTrialsInBlock):
                     numbertrials_Print_trigger_codes = int(args[3])
             except:
                 commandlineErrorBlockToTrials(args[3],"argumentInvalid")
-        return numbertrials_Print_trigger_codes
+        if args[4] == '.':
+            block_number_Print_trigger_codes = '.'
+        # set the number of prints to user input if input is valid
+        else:
+            if args[4] != '-v':
+                try:
+                    if isinstance(int(args[4]),int):
+                        block_number_Print_trigger_codes = int(args[4])
+                except:
+                    commandlineErrorBlockToTrials(args[4],"argumentInvalid")
+
+        return numbertrials_Print_trigger_codes, block_number_Print_trigger_codes
+    # 6 inputs
+    elif len(args) == 6:
+        if args[3] == '-v':
+            pass
+        # if user inputs '.' we will print all trials
+        if args[3] == '.':
+            numbertrials_Print_trigger_codes = numTrialsInBlock - 2
+        # set the number of prints to user input if input is valid
+        else:
+            try:
+                if isinstance(int(args[3]),int):
+                    numbertrials_Print_trigger_codes = int(args[3])
+            except:
+                commandlineErrorBlockToTrials(args[3],"argumentInvalid")
+        # if user inputs '.' we will print all blocks
+        if args[4] == '.':
+            block_number_Print_trigger_codes = '.'
+        # set the number of prints to user input if input is valid
+        else:
+            try:
+                if isinstance(int(args[4]),int):
+                    block_number_Print_trigger_codes = int(args[4])
+            except:
+                commandlineErrorBlockToTrials(args[4],"argumentInvalid")
+
+        return numbertrials_Print_trigger_codes, block_number_Print_trigger_codes
+
     else:
         commandlineErrorBlockToTrials(args[3], "tooManyArguments")
 
