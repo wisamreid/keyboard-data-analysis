@@ -86,6 +86,7 @@ def buildExperiment(subjectDataPaths, maxDataPaths, curryDataPaths, scoreDataPat
         print "----------------------------------------------------------"
         print "\n"
         debug_buildExperiment = True
+
     if debug_buildExperiment:
         for subjectPair in range(len(subjectDataPaths)):
             print "Block Ordering for Subject Pairing", subjectDataPaths[subjectPair], ": ", blockOrdering[subjectPair]
@@ -408,7 +409,7 @@ def blockToTrials(curryData, ExperimentParams, DebugPrintParams):
     curry_data = copy(curryData)
 
     # this is trigger code # 233 : metro tick
-    metro_tick_trigger_code = ExperimentParams.metronome_codes[-1]
+    metro_tick_trigger_code_233 = ExperimentParams.metronome_codes[-1]
     # these are the indices for all metro trigger codes (201 - 233)
     metro_ticks = find(curry_data, ExperimentParams.metronome_codes)
 
@@ -448,6 +449,7 @@ def blockToTrials(curryData, ExperimentParams, DebugPrintParams):
         if not final_valid[index] and index + 1 <= len(final_indices):
             # replace indexes to be removed with zeros
             final_indices[index+1] = 0
+
     final_indices = filter(lambda a: a != 0, final_indices) # remove zeros
 
     # cut our list of trigger codes recieved by curry into individual trials
@@ -455,12 +457,14 @@ def blockToTrials(curryData, ExperimentParams, DebugPrintParams):
     curryTrials = partitionList(curry_data,final_indices)
 
     #### final clean up ####
-
     for index, trial in enumerate(curryTrials):
         # after cutting, delete all instances of 233 TCs for trials
         # that dont begin with 233
-        if trial[0] != metro_tick_trigger_code:
-            curryTrials[index] = filter(lambda a: a != metro_tick_trigger_code, trial) # remove zeros
+        # if trial[0] != metro_tick_trigger_code_233:
+        first_code = [trial[0]]
+        filtered_codes = filter(lambda a: a != metro_tick_trigger_code_233, trial[1:]) # remove zeros
+
+        curryTrials[index] = first_code + filtered_codes
 
     if DebugPrintParams.subjects_to_print == ".":
         subjectsToPrint = DebugPrintParams.current_subject_pair

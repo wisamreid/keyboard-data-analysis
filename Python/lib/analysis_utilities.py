@@ -10,7 +10,8 @@ from ast import *
 import sys
 import os
 from glob import glob
-from itertools import izip, chain
+import itertools
+# from itertools import izip, chain
 from inspect import currentframe, getframeinfo # We will use this to print line numbers
 from os import walk
 set_printoptions(threshold=inf) # don't truncate prints
