@@ -60,6 +60,54 @@ def printHelpMenu():
     sys.exit()
 
 "---------------------------------------------------------"
+"------- buildExperiment: Errors and Debug Options -------"
+"---------------------------------------------------------"
+
+def commandlineErrorBuildExperiment(args, errorType='default'):
+    """ This is the message for commandline argument errors
+        in the buildExperiment function """
+    print "-----------------------------------------------------------------------------------------"
+    print "------------------------------------- Input Error ---------------------------------------"
+    print "-----------------------------------------------------------------------------------------"
+    print "-----------------------------------------------------------------------------------------"
+    print "----------------------------------  Type -h for help  -----------------------------------"
+    print "-----------------------------------------------------------------------------------------"
+    print "\n"
+    print "Commandline Error Thrown by: buildExperiment function: "
+    print "\n"
+    if errorType == 'default':
+        pass
+    if errorType == 'fileStructure':
+        print "File structure is not valid"
+        print "\n"
+        print "\n"
+    if errorType == 'argumentInvalid':
+        print args, "is not a valid input"
+        print "\n"
+        print "\n"
+    elif errorType == 'tooManyArguments':
+        print "Too many input arguments"
+        print "\n"
+        print "\n"
+    elif errorType == 'functionNameInvalid':
+        print "Invalid Function Name: ", args[2]
+        print "\n"
+        print "\n"
+    elif errorType == 'flagInvalid':
+        print "Error: Unknown Flag"
+        print "\n"
+        print "\n"
+    elif errorType == 'subjestsInvalid':
+        print "Error: Please enter a subject pair by intials [formatted as: 'XX_YY']"
+        print "       or enter '.' to build with all subjects'"
+        print "\n"
+        print "\n"
+    sys.exit()
+
+def printOptionsBuildExperiment(args,numTrialsInBlock):
+    pass
+
+"---------------------------------------------------------"
 "------------- Main: Errors and Debug Options ------------"
 "---------------------------------------------------------"
 
@@ -72,6 +120,8 @@ def commandlineErrorMain(args, errorType='default'):
     print "-----------------------------------------------------------------------------------------"
     print "----------------------------------  Type -h for help  -----------------------------------"
     print "-----------------------------------------------------------------------------------------"
+    print "\n"
+    print "Commandline Error Thrown by: main function: "
     print "\n"
     if errorType == 'default':
         pass
@@ -119,6 +169,8 @@ def commandlineErrorBlockToTrials(args, errorType):
     print "-----------------------------------------------------------------------------------------"
     print "----------------------------------  Type -h for help  -----------------------------------"
     print "-----------------------------------------------------------------------------------------"
+    print "\n"
+    print "Commandline Error Thrown by: blockToTrials function: "
     print "\n"
     if errorType == "ArgumentInvalid":
         print args, "is not a valid input"

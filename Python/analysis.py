@@ -49,97 +49,108 @@ def buildExperiment(subjectDataPaths, maxDataPaths, curryDataPaths, scoreDataPat
 
     numSubjects = len(subjectDataPaths)
     raw_curry_data = []
+    curry_trial_data = []
+    raw_max_data = []
+    blockOrdering = []
 
-
-    # parse score files
+    #### PARSE SCORE ####
     raw_score = parseScore(scoreDataPaths)
 
     #### PARSE CURRY ####
     # loop over subjects
     for subjectPair in range(len(subjectDataPaths)):
-        # parse data files
-        raw_max_data, blockOrdering = parseMaxData(maxDataPaths[subjectPair])
+        # parse max data files
+        raw_max_data_one_subject_pair, blockOrdering_one_subject_pair = parseMaxData(maxDataPaths[subjectPair])
 
-        #### TODO  # loop over blocks for curry data
-        # for pair, block in enumerate(curryDataPaths):
-            # parse curry files
+        raw_max_data.append(raw_max_data_one_subject_pair)
+        blockOrdering.append(blockOrdering_one_subject_pair)
+
         raw_curry_data.append(parseCurryData(curryDataPaths[subjectPair]))
-            # raw_curry_data = 0
-            # pass
 
-        if debug_buildExperiment:
-        # if local_debug:
-            print "---------------------------------------------"
-            print "---------------- Max Parsing ----------------"
-            print "---------------------------------------------"
-            print "\n"
-            print "Number of Subjects: "
-            print "\n"
-            print numSubjects
-            print "\n"
-            print "Number of Trials: "
-            print "\n"
-            print len(raw_max_data)
-            print "\n"
-            print "Block Ordering: "
-            print "\n"
-            print blockOrdering
-            print "\n"
 
     #### PARSE CURRY ####
     # loop over subjects
     for subjectPair in range(len(subjectDataPaths)):
-        # raw curry data is currently divided into blocks
-        # break it into trials, Code function below, call it here
-
+        # raw curry data is currently divided into blocks break it into trials
         # loop over the blocks for each subject pair
         for block in range(len(raw_curry_data[subjectPair])):
             # chop curry block data into trials
-            curry_trial_data = blockToTrials(raw_curry_data[subjectPair][block], ExperimentParams)
+            curry_trial_data.append(blockToTrials(raw_curry_data[subjectPair][block], ExperimentParams))
 
-            if debug_buildExperiment:
-            # if local_debug:
-                print "-----------------------------------------------"
-                print "---------------- Curry Parsing ----------------"
-                print "-----------------------------------------------"
-                print "\n"
-                print "Number of Trials in Block: "
-                print "\n"
-                print len(curry_trial_data)
-                print "\n"
-                print "List of Curry Trial lengths: "
-                print "\n"
-                print listOfListLengths(curry_trial_data)
-                print "\n"
+    if debug_buildExperiment:
+    # if local_debug:
+        for subjectPair in range(len(subjectDataPaths)):
+            print "Block Ordering for Subject Pairing", subjectDataPaths[subjectPair], ": ", blockOrdering[subjectPair]
+            print "\n"
+        print "Number of Subjects: ", numSubjects
+        print "\n"
+        print "\n"
+        print "--------------------------------------------------------"
+        print "Still need to throw out practice trials and bad trials!:"
+        print "--------------------------------------------------------"
+        print "\n"
+        print "---------------------------------------------"
+        print "---------------- Max Parsing ----------------"
+        print "---------------------------------------------"
+        print "\n"
+        print "Number of Trials per Subject Pairing: "
+        print listOfListLengths(raw_max_data)
+        print "\n"
+        print "Total Number of Trials: ", sum(listOfListLengths(raw_max_data))
+        print "\n"
+        print "First Trial for Subject Pairing", subjectDataPaths[0], ": "
+        print raw_max_data[0][0]
+        print "\n"
+        print "-----------------------------------------------"
+        print "---------------- Curry Parsing ----------------"
+        print "-----------------------------------------------"
+        print "\n"
+        print "Total Number of Trials: ", sum(listOfListLengths(curry_trial_data))
+        print "\n"
+        print "Number of Curry Blocks: ", len(listOfListLengths(curry_trial_data)), " ( Should be ", 60, ")"
+        print "\n"
+        print "Number of Trials in Block: "
+        print listOfListLengths(curry_trial_data)
+        print "\n"
+        print "Number of Trials per Subject Pairing: "
+        print [sum(listOfListLengths(curry_trial_data)[:12]),sum(listOfListLengths(curry_trial_data)[12:24]), sum(listOfListLengths(curry_trial_data)[24:36]), sum(listOfListLengths(curry_trial_data)[36:48]),sum(listOfListLengths(curry_trial_data)[48:])]
+        print "\n"
+        print "Number of Blocks per Subject Pairing: "
+        print [len(listOfListLengths(curry_trial_data)[:12]),len(listOfListLengths(curry_trial_data)[12:24]), len(listOfListLengths(curry_trial_data)[24:36]), len(listOfListLengths(curry_trial_data)[36:48]),len(listOfListLengths(curry_trial_data)[48:])]
+        print "\n"
+        print "curry_trial_data[0][0]"
+        print curry_trial_data[0][0]
+        print "\n"
 
-                if verbose:
-                    print "-----------------------------------------"
-                    print "---------------- Verbose ----------------"
-                    print "-----------------------------------------"
-                    print "First Trial (Raw Data): "
-                    print raw_max_data[0]
-                    print "\n"
-                    print "Last Trial (Raw Data): "
-                    print raw_max_data[-1]
-                    print "\n"
-                    print "maxDataPaths[0]: "
-                    print "\n"
-                    print maxDataPaths[0]
-                    print "\n"
-                    print "---- Curry Parsing ----"
-                    print "\n"
-                    print "First Block Trigger Codes: "
-                    print "\n"
-                    print raw_curry_data[0]
-                    print "\n"
-                    print "Last Block Trigger Codes: "
-                    print "\n"
-                    print raw_curry_data[-1]
-                    print "\n"
+        if verbose:
+            print "-----------------------------------------"
+            print "---------------- Verbose ----------------"
+            print "-----------------------------------------"
+            print "First Trial (Raw Data): "
+            print raw_max_data[0]
+            print "\n"
+            print "Last Trial (Raw Data): "
+            print raw_max_data[-1]
+            print "\n"
+            print "maxDataPaths[0]: "
+            print "\n"
+            print maxDataPaths[0]
+            print "\n"
+            print "---- Curry Parsing ----"
+            print "\n"
+            print "First Block Trigger Codes: "
+            print "\n"
+            print raw_curry_data[0]
+            print "\n"
+            print "Last Block Trigger Codes: "
+            print "\n"
+            print raw_curry_data[-1]
+            print "\n"
+
 
     #### TODO  # Code function below, call it here
     # throw out bad trials
-    # raw_max_data = removeBadTrials(raw_max_data, curry_trial_data)
+    raw_max_data = removeBadTrials(raw_max_data, curry_trial_data)
 
     # create notes
     # build phrases
@@ -622,7 +633,7 @@ if __name__ == '__main__':
 
     elif len(sys.argv) == 3:
         # already checked for main debugging and
-        # printed debuggung header
+        # printed debugging header
         if sys.argv[2] == 'main':
             pass
         # check for debugging
@@ -746,7 +757,7 @@ if __name__ == '__main__':
         commandlineErrorMain(sys.argv,'tooManyArguments')
 
     if debug_main:
-        print "---------- Number of Subject Pairs ----------"
+        print "---------- Number of Subject Pairs in the File System ----------"
         print "\n"
         print len(subjectPathsMax)
         print "\n"
@@ -754,7 +765,7 @@ if __name__ == '__main__':
         print "\n"
         print len(maxDataPaths[0])
         print "\n"
-        print "---------- Number of Curry Files (First Subject [Blocks of Trials]) ----------"
+        print "---------- Number of Curry Files (Blocks of Trials) For Subject Pair: ", ExperimentParams.subjectInitials[0],"----------"
         print "\n"
         print len(curryDataPaths[0]), " (Should be 12)"
         print "\n"
