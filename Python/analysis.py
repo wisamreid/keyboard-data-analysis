@@ -388,7 +388,9 @@ def blockToTrials(curryData, ExperimentParams, DebugPrintParams):
                         this will return good and bad trials to be validated later
     """
 
+    # Print Variables
     global debug_blockToTrials # Allows for dynamic debug print options
+    subjectsToPrint = DebugPrintParams.subjects_to_print
 
     # helper function for block parsing
     find = lambda searchList, elem: [[i for i, x in enumerate(searchList) if x == e] for e in elem]
@@ -397,7 +399,6 @@ def blockToTrials(curryData, ExperimentParams, DebugPrintParams):
 
     # this is trigger code # 233 : metro tick
     metro_tick_trigger_code = ExperimentParams.metronome_codes[-1]
-
     # these are the indices for all metro trigger codes (201 - 233)
     metro_ticks = find(curry_data, ExperimentParams.metronome_codes)
 
@@ -443,7 +444,7 @@ def blockToTrials(curryData, ExperimentParams, DebugPrintParams):
     # we cut the at the indices we just gathered
     curryTrials = partitionList(curry_data,final_indices)
 
-    ### final clean up ###
+    #### final clean up ####
 
     for index, trial in enumerate(curryTrials):
         # after cutting, delete all instances of 233 TCs for trials
@@ -451,63 +452,67 @@ def blockToTrials(curryData, ExperimentParams, DebugPrintParams):
         if trial[0] != metro_tick_trigger_code:
             curryTrials[index] = filter(lambda a: a != metro_tick_trigger_code, trial) # remove zeros
 
-    if DebugPrintParams.blocks_to_print != '.':
-        # print  DebugPrintParams.blocks_to_print,  type(DebugPrintParams.blocks_to_print)
-        # print  DebugPrintParams.current_block, type(DebugPrintParams.current_block)
-        if DebugPrintParams.blocks_to_print == DebugPrintParams.current_block:
-            print "---------------------------------------------------------------------"
-            print "---- Printing Subject Pair:", subjectPathsMax[DebugPrintParams.current_subject_pair], " Printing Block:", DebugPrintParams.current_block, "----------------"
-            print "---------------------------------------------------------------------"
-            print "\n"
-            print "current_block: ", DebugPrintParams.current_block
-            debug_blockToTrials = True
-        else:
-            debug_blockToTrials = False
+    if DebugPrintParams.subjects_to_print == ".":
+        subjectsToPrint = DebugPrintParams.current_subject_pair
 
-    if debug_blockToTrials:
-        print "---- Number of Trials in the Block ----"
-        print "\n"
-        print len(curryTrials)
-        print "\n"
-        print "---- First Curry Trial ----"
-        print curryTrials[1]
-        print "Number of Codes in Trial: ", len(curryTrials[1])
-        print "\n"
-        # decide how many trials to print
-        number_of_trials_Print_trigger_codes, block_number_Print_trigger_codes = printOptionsBlockToTrials(sys.argv,len(curryTrials))
-
-        if number_of_trials_Print_trigger_codes <= len(curryTrials) + 2: # first and last
-            for i in range(number_of_trials_Print_trigger_codes):
-                print "---- Curry Trial Number:", str(i+2)," ----"
-                print curryTrials[i+1]
-                print "Number of Codes in Trial: ", len(curryTrials[i+1])
+    if DebugPrintParams.current_subject_pair == subjectsToPrint:
+        if DebugPrintParams.blocks_to_print != '.':
+            # print  DebugPrintParams.blocks_to_print,  type(DebugPrintParams.blocks_to_print)
+            # print  DebugPrintParams.current_block, type(DebugPrintParams.current_block)
+            if DebugPrintParams.blocks_to_print == DebugPrintParams.current_block:
+                print "---------------------------------------------------------------------"
+                print "---- Printing Subject Pair:", subjectPathsMax[DebugPrintParams.current_subject_pair], " Printing Block:", DebugPrintParams.current_block, "----------------"
+                print "---------------------------------------------------------------------"
                 print "\n"
-        else:
-            print "WARNING: number out of bounds, Did not print extra trials"
+                print "current_block: ", DebugPrintParams.current_block
+                debug_blockToTrials = True
+            else:
+                debug_blockToTrials = False
+
+        if debug_blockToTrials:
+            print "---- Number of Trials in the Block ----"
             print "\n"
-        print "---- Last Curry Trial ----"
-        print curryTrials[-1]
-        print "Number of Codes in Trial: ", len(curryTrials[-1])
-        print "\n"
+            print len(curryTrials)
+            print "\n"
+            print "---- First Curry Trial ----"
+            print curryTrials[1]
+            print "Number of Codes in Trial: ", len(curryTrials[1])
+            print "\n"
+            # decide how many trials to print
+            number_of_trials_Print_trigger_codes, block_number_Print_trigger_codes = printOptionsBlockToTrials(sys.argv,len(curryTrials))
+
+            if number_of_trials_Print_trigger_codes <= len(curryTrials) + 2: # first and last
+                for i in range(number_of_trials_Print_trigger_codes):
+                    print "---- Curry Trial Number:", str(i+2)," ----"
+                    print curryTrials[i+1]
+                    print "Number of Codes in Trial: ", len(curryTrials[i+1])
+                    print "\n"
+            else:
+                print "WARNING: number out of bounds, Did not print extra trials"
+                print "\n"
+            print "---- Last Curry Trial ----"
+            print curryTrials[-1]
+            print "Number of Codes in Trial: ", len(curryTrials[-1])
+            print "\n"
 
 
-        if verbose:
-            print "-----------------------------------------"
-            print "---------------- Verbose ----------------"
-            print "-----------------------------------------"
-            print "\n"
-            print "---- Trigger Codes Associated with Metronome Ticks ----"
-            print ExperimentParams.metronome_codes
-            print "\n"
-            print "---- final_indices ----"
-            # we should have twelve instances of 4 different trigger codes
-            # Since each trigger code is a permutaion of 2 variables that determine
-            # the order of deviant phrases
-            print "---- Trigger Codes Associated with Metronome Ticks  : [Index of] ----"
-            print metro_ticks
-            print "\n"
-            print final_indices
-            print "\n"
+            if verbose:
+                print "-----------------------------------------"
+                print "---------------- Verbose ----------------"
+                print "-----------------------------------------"
+                print "\n"
+                print "---- Trigger Codes Associated with Metronome Ticks ----"
+                print ExperimentParams.metronome_codes
+                print "\n"
+                print "---- final_indices ----"
+                # we should have twelve instances of 4 different trigger codes
+                # Since each trigger code is a permutaion of 2 variables that determine
+                # the order of deviant phrases
+                print "---- Trigger Codes Associated with Metronome Ticks  : [Index of] ----"
+                print metro_ticks
+                print "\n"
+                print final_indices
+                print "\n"
 
     return curryTrials
 
@@ -826,13 +831,18 @@ if __name__ == '__main__':
             verbose = True
         else:
                 commandlineErrorMain(sys.argv[4],'flagInvalid')
+        if sys.argv[3] != '.':
+            try:
+                if isinstance(int(sys.argv[3]),int):
+                    pass
+            except:
+                commandlineErrorMain(sys.argv[3],'flagInvalid')
         if sys.argv[4] != '.':
             try:
                 if isinstance(int(sys.argv[4]),int):
-                    block_number_Print_trigger_codes = sys.argv[4]
+                    block_number_Print_trigger_codes = int(sys.argv[4])
             except:
                 commandlineErrorMain(sys.argv[4],'flagInvalid')
-
     else:
         commandlineErrorMain(sys.argv,'tooManyArguments')
 
