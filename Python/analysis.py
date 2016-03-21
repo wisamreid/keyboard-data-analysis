@@ -48,6 +48,7 @@ def buildExperiment(subjectDataPaths, maxDataPaths, curryDataPaths, scoreDataPat
     numSubjects = len(subjectDataPaths)
     raw_curry_data = []
     curry_trial_data = []
+    curry_block_data = []
     max_trial_data = []
     blockOrdering = []
 
@@ -55,7 +56,7 @@ def buildExperiment(subjectDataPaths, maxDataPaths, curryDataPaths, scoreDataPat
     raw_score = parseScore(scoreDataPaths)
 
     #### PARSE MAX ####
-    # loop over subjects
+    # loop over subjects  (Build an Array[Subjects][Blocks][Trials])
     for subjectPair in range(len(subjectDataPaths)):
         DebugPrintParams.current_subject_pair = subjectPair # set print options then pass to helper functions
         # parse max data files
@@ -67,16 +68,21 @@ def buildExperiment(subjectDataPaths, maxDataPaths, curryDataPaths, scoreDataPat
         raw_curry_data.append(parseCurryData(curryDataPaths[subjectPair]))
 
     #### PARSE CURRY ####
-    # loop over subjects
+    # loop over subjects (Build an Array[Subjects][Blocks][Trials])
     for subjectPair in range(len(subjectDataPaths)):
         # raw curry data is currently divided into blocks break it into trials
         # loop over the blocks for each subject pair
         DebugPrintParams.current_subject_pair = subjectPair # set print options then pass to helper functions
         for block in range(len(raw_curry_data[subjectPair])):
-            # chop curry block data into trials
+            # debug params
             DebugPrintParams.current_block = block
             DebugPrintParams.current_curry_file = curryDataPaths[subjectPair][block]
-            curry_trial_data.append(blockToTrials(raw_curry_data[subjectPair][block], ExperimentParams, DebugPrintParams))
+            # chop curry block data into trials
+            curry_block_data_one_subject_pair = curryBlockToTrials(raw_curry_data[subjectPair][block], ExperimentParams, DebugPrintParams)
+            curry_block_data.append(curry_block_data_one_subject_pair)
+        curry_trial_data.append(curry_block_data)
+        curry_block_data = [] # clear for new block data
+
 
     if local_debug:
         print "----------------------------------------------------------"
@@ -98,49 +104,67 @@ def buildExperiment(subjectDataPaths, maxDataPaths, curryDataPaths, scoreDataPat
         print "Still need to throw out practice trials and bad trials!:"
         print "--------------------------------------------------------"
         print "\n"
-        print "---------------------------------------------"
-        print "---------------- Max Parsing ----------------"
-        print "---------------------------------------------"
+        print "----------------------------------------------------"
+        print "---------------- Parsing Dimensions ----------------"
+        print "----------------------------------------------------"
+        print "------------------- Max Parsing --------------------"
+        print "----------------------------------------------------"
         print "\n"
-        print "Number of Trials per Subject Pairing: "
-        print listOfListLengths(max_trial_data)
+        print "Number of Subjects: ", len(max_trial_data)
         print "\n"
-        print "Total Number of Blocks: ", sum(listOfListLengths(max_trial_data))
+        print "Number of Blocks: ", len(max_trial_data[0])
         print "\n"
-        print "First Trial for Subject Pairing", subjectDataPaths[0], ": "
-        print max_trial_data[0][0][0]
+        print "Number of Trials: ", len(max_trial_data[0][0])
         print "\n"
-        print "-----------------------------------------------"
-        print "---------------- Curry Parsing ----------------"
-        print "-----------------------------------------------"
+        print "----------------------------------------------------"
+        print "---------------- Parsing Dimensions ----------------"
+        print "----------------------------------------------------"
+        print "------------------ Curry Parsing -------------------"
+        print "----------------------------------------------------"
         print "\n"
-        print "Total Number of Trials: ", sum(listOfListLengths(curry_trial_data))
+        print "Number of Subjects: ", len(curry_trial_data)
         print "\n"
-        print "Number of Curry Blocks: ", len(listOfListLengths(curry_trial_data)), " ( Should be ", 60, ")"
+        print "Number of Blocks: ", len(curry_trial_data[0])
         print "\n"
-        print "Number of Trials in Block: "
-        print listOfListLengths(curry_trial_data)
+        print "Number of Trials: ", len(curry_trial_data[0][0])
         print "\n"
-        print "Number of Trials per Subject Pairing: "
-        print [sum(listOfListLengths(curry_trial_data)[:12]),sum(listOfListLengths(curry_trial_data)[12:24]), sum(listOfListLengths(curry_trial_data)[24:36]), sum(listOfListLengths(curry_trial_data)[36:48]),sum(listOfListLengths(curry_trial_data)[48:])]
-        print "\n"
-        print "Number of Blocks per Subject Pairing: "
-        print [len(listOfListLengths(curry_trial_data)[:12]),len(listOfListLengths(curry_trial_data)[12:24]), len(listOfListLengths(curry_trial_data)[24:36]), len(listOfListLengths(curry_trial_data)[36:48]),len(listOfListLengths(curry_trial_data)[48:])]
-        print "\n"
-        print "[Fist Block : First Trial] Trigger Codes: "
-        print curry_trial_data[0][0]
-        print "\n"
-
         if verbose:
-            print "-----------------------------------------"
-            print "---------------- Verbose ----------------"
-            print "-----------------------------------------"
+            print "---------------------------------------------"
+            print "------------------ Verbose ------------------"
+            print "---------------------------------------------"
+            print "\n"
+            print "---------------------------------------------"
+            print "---------------- Max Parsing ----------------"
+            print "---------------------------------------------"
+            print "\n"
+            print "Number of Blocks per Subject Pairing: "
+            print listOfListLengths(max_trial_data)
+            print "\n"
+            print "Total Number of Blocks: ", sum(listOfListLengths(max_trial_data))
+            print "\n"
+            print "First Trial for Subject Pairing", subjectDataPaths[0], ": "
+            print max_trial_data[0][0][0]
             print "\n"
             print "First Subject : First Block : First Trial (Max Data): "
             print max_trial_data[0][0][0]
             print "\n"
             print "Last Subject : Last Block : Last Trial (Max Raw Data): "
             print max_trial_data[-1][-1][-1]
+            print "\n"
+            print "-----------------------------------------------"
+            print "---------------- Curry Parsing ----------------"
+            print "-----------------------------------------------"
+            print "\n"
+            print "Number of Blocks per Subject Pairing:: "
+            print listOfListLengths(curry_trial_data)
+            print "\n"
+            print "Total Number of Blocks: ", sum(listOfListLengths(curry_trial_data))
+            print "\n"
+            print "First Subject : Fist Block : First Trial (Curry Trigger Codes): "
+            print curry_trial_data[0][0][0]
+            print "\n"
+            print "Last Subject : Last Block : Last Trial (Curry Trigger Codes): "
+            print curry_trial_data[-1][-1][-1]
             print "\n"
             print "\n"
             print "----------------------------------------------"
@@ -152,16 +176,22 @@ def buildExperiment(subjectDataPaths, maxDataPaths, curryDataPaths, scoreDataPat
             print "Value: ", DebugPrintParams.current_block
             print "\n"
             print "---- Blocks To Print ----"
-            print DebugPrintParams.blocks_to_print + 1
-            print "Value: ", DebugPrintParams.blocks_to_print
-            print "\n"
+            if DebugPrintParams.blocks_to_print != '.':
+                print DebugPrintParams.blocks_to_print + 1
+                print "Value: ", DebugPrintParams.subjects_to_print
+            else:
+                print "All Blocks"
             print "---- Current Subject Pair ----"
             print subjectDataPaths[DebugPrintParams.current_subject_pair]
             print "Value: ", DebugPrintParams.current_subject_pair
             print "\n"
             print "---- Subject Pairs to Print ----"
-            print subjectDataPaths[DebugPrintParams.subjects_to_print]
-            print "Value: ", DebugPrintParams.subjects_to_print
+            if DebugPrintParams.subjects_to_print != '.':
+                print subjectDataPaths[DebugPrintParams.subjects_to_print]
+                print "Value: ", DebugPrintParams.subjects_to_print
+            else:
+                for i in range(len(subjectDataPaths)):
+                    print subjectDataPaths[i]
             print "\n"
 
     #### MERGE AND CONCUR DATA ####
@@ -218,9 +248,9 @@ def parseMaxData(maxDataPaths, ExperimentParams, DebugPrintParams):
         print numTrials
         print "\n"
         if verbose:
-            print "-------- Number of Trials in the Block --------"
+            print "-------- Number of Trials Returned --------"
             print "\n"
-            print trials
+            print len(trials)
             print "\n"
 
     return trials, blockOrdering
@@ -484,7 +514,7 @@ def parseScore(scoreDataPaths):
 
     return 0
 
-def blockToTrials(curryData, ExperimentParams, DebugPrintParams):
+def curryBlockToTrials(curryData, ExperimentParams, DebugPrintParams):
     """
 
     Function to divide a block of curry data into arrays of trial data
@@ -500,7 +530,7 @@ def blockToTrials(curryData, ExperimentParams, DebugPrintParams):
     """
 
     # Print Variables
-    global debug_blockToTrials # Allows for dynamic debug print options
+    global debug_curryBlockToTrials # Allows for dynamic debug print options
     subjectsToPrint = DebugPrintParams.subjects_to_print
 
     curry_data = copy(curryData)
@@ -567,7 +597,7 @@ def blockToTrials(curryData, ExperimentParams, DebugPrintParams):
 
     if DebugPrintParams.current_subject_pair == subjectsToPrint:
         if DebugPrintParams.blocks_to_print != '.':
-            if DebugPrintParams.blocks_to_print == DebugPrintParams.current_block and debug_blockToTrials:
+            if DebugPrintParams.blocks_to_print == DebugPrintParams.current_block and debug_curryBlockToTrials:
                 print "---------------------------------------------------------------------"
                 print "---------- Printing Subject Pair:", subjectPathsMax[DebugPrintParams.current_subject_pair], " Printing Block:", DebugPrintParams.current_block + 1, "----------"
                 print "---------------------------------------------------------------------"
@@ -575,11 +605,11 @@ def blockToTrials(curryData, ExperimentParams, DebugPrintParams):
                 print "--------- From File:", DebugPrintParams.current_curry_file,"---------"
                 print "---------------------------------------------------------------------"
                 print "\n"
-                debug_blockToTrials = True
+                debug_curryBlockToTrials = True
             else:
-                debug_blockToTrials = False
+                debug_curryBlockToTrials = False
 
-        if debug_blockToTrials:
+        if debug_curryBlockToTrials:
             print "---- Number of Trials in the Block ----"
             print "\n"
             print len(curryTrials) - 1
@@ -670,7 +700,7 @@ if __name__ == '__main__':
     # debug flags [for each function]
     debug_main = False
     debug_buildExperiment = False
-    debug_blockToTrials = False
+    debug_curryBlockToTrials = False
     debug_removeBadTrials = False
     debug_readCollFile = False
     debug_parseMaxData = False
@@ -802,11 +832,11 @@ if __name__ == '__main__':
             print "----------------------------------------------------------"
             print "\n"
             debug_removeBadTrials = True
-        elif sys.argv[2] == "blockToTrials":
-            debug_blockToTrials = True
-            print "-------------------------------------------------"
-            print "--------- Testing blockToTrials Function --------"
-            print "-------------------------------------------------"
+        elif sys.argv[2] == "curryBlockToTrials":
+            debug_curryBlockToTrials = True
+            print "------------------------------------------------------"
+            print "--------- Testing curryBlockToTrials Function --------"
+            print "------------------------------------------------------"
             print "\n"
         elif sys.argv[-1] == '-v':
             pass
@@ -846,11 +876,11 @@ if __name__ == '__main__':
             print "----------------------------------------------------------"
             print "\n"
             debug_removeBadTrials = True
-        elif sys.argv[2] == "blockToTrials":
-            debug_blockToTrials = True
-            print "-------------------------------------------------"
-            print "--------- Testing blockToTrials Function --------"
-            print "-------------------------------------------------"
+        elif sys.argv[2] == "curryBlockToTrials":
+            debug_curryBlockToTrials = True
+            print "------------------------------------------------------"
+            print "--------- Testing curryBlockToTrials Function --------"
+            print "------------------------------------------------------"
             print "\n"
         else:
             commandlineErrorMain(sys.argv, 'functionNameInvalid')
@@ -899,11 +929,11 @@ if __name__ == '__main__':
             print "----------------------------------------------------------"
             print "\n"
             debug_removeBadTrials = True
-        elif sys.argv[2] == "blockToTrials":
-            debug_blockToTrials = True
-            print "-------------------------------------------------"
-            print "--------- Testing blockToTrials Function --------"
-            print "-------------------------------------------------"
+        elif sys.argv[2] == "curryBlockToTrials":
+            debug_curryBlockToTrials = True
+            print "------------------------------------------------------"
+            print "--------- Testing curryBlockToTrials Function --------"
+            print "------------------------------------------------------"
             print "\n"
         else:
             commandlineErrorMain(sys.argv, 'functionNameInvalid')
@@ -957,11 +987,11 @@ if __name__ == '__main__':
             print "----------------------------------------------------------"
             print "\n"
             debug_removeBadTrials = True
-        elif sys.argv[2] == "blockToTrials":
-            debug_blockToTrials = True
-            print "-------------------------------------------------"
-            print "--------- Testing blockToTrials Function --------"
-            print "-------------------------------------------------"
+        elif sys.argv[2] == "curryBlockToTrials":
+            debug_curryBlockToTrials = True
+            print "------------------------------------------------------"
+            print "--------- Testing curryBlockToTrials Function --------"
+            print "------------------------------------------------------"
             print "\n"
         else:
             commandlineErrorMain(sys.argv, 'functionNameInvalid')
