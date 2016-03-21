@@ -231,7 +231,7 @@ def printOptionsMain(args,numTrialsInBlock):
 "---------------------------------------------------------"
 
 
-def commandlineErrorBlockToTrials(args, errorType="default"):
+def commandlineErrorCurryBlockToTrials(args, errorType="default"):
     """ This is the message for commandline argument errors
         in the blockToTrials function """
     print "-----------------------------------------------------------------------------------------"
@@ -255,56 +255,56 @@ def commandlineErrorBlockToTrials(args, errorType="default"):
         print "\n"
     sys.exit()
 
-def printOptionsBlockToTrials(args,numTrialsInBlock):
+def printOptionsCurryBlockToTrials(args, numTrialsInBlock, DebugPrintParams):
     #### TODO # get rid of block_number_Print_trigger_codes
     # if the user didn't specify, just print the first and last trial
     if len(args) == 3:
-        numbertrials_Print_trigger_codes = 0
-        block_number_Print_trigger_codes = '.'
+        trialsToPrint = 0
+        blocksToPrint = '.'
         # return zero trials, print all blocks
-        return numbertrials_Print_trigger_codes, block_number_Print_trigger_codes
+        return blocksToPrint, trialsToPrint
     # 4 inputs
     elif len(args) == 4:
         if args[-1] == '-v':
-            numbertrials_Print_trigger_codes = 0
+            trialsToPrint = 0
         # if user inputs '.' we will print all the trials in
         elif args[-1] == '.':
-            numbertrials_Print_trigger_codes = numTrialsInBlock - 2;
+            trialsToPrint = numTrialsInBlock - 2;
         # set the number of prints to user input if input is valid
         else:
             try:
                 if isinstance(int(args[3]),int):
-                    numbertrials_Print_trigger_codes = int(args[3])
+                    trialsToPrint = int(args[3])
             except:
-                commandlineErrorBlockToTrials(args[3],"argumentInvalid")
-        block_number_Print_trigger_codes = '.'
-        return numbertrials_Print_trigger_codes, block_number_Print_trigger_codes
+                commandlineErrorCurryBlockToTrials(args[3],"argumentInvalid")
+        blocksToPrint = DebugPrintParams.blocks_to_print
+        return blocksToPrint, trialsToPrint
     # 5 inputs
     elif len(args) == 5:
         if args[-1] == '-v':
-            block_number_Print_trigger_codes = '.'
+            blocksToPrint = '.'
         # if user inputs '.' we will print all the trials in
         if args[3] == '.':
-            numbertrials_Print_trigger_codes = numTrialsInBlock - 2
+            trialsToPrint = numTrialsInBlock - 2
         # set the number of prints to user input if input is valid
         else:
             try:
                 if isinstance(int(args[3]),int):
-                    numbertrials_Print_trigger_codes = int(args[3])
+                    trialsToPrint = int(args[3])
             except:
-                commandlineErrorBlockToTrials(args[3],"argumentInvalid")
+                commandlineErrorCurryBlockToTrials(args[3],"argumentInvalid")
         if args[4] == '.':
-            block_number_Print_trigger_codes = '.'
+            blocksToPrint = '.'
         # set the number of prints to user input if input is valid
         else:
             if args[4] != '-v':
                 try:
                     if isinstance(int(args[4]),int):
-                        block_number_Print_trigger_codes = int(args[4])
+                        blocksToPrint = int(args[4])
                 except:
-                    commandlineErrorBlockToTrials(args[4],"argumentInvalid")
+                    commandlineErrorCurryBlockToTrials(args[4],"argumentInvalid")
 
-        return numbertrials_Print_trigger_codes, block_number_Print_trigger_codes
+        return blocksToPrint, trialsToPrint
     # 6 inputs
     elif len(args) == 6:
         if args[3] == '-v':
@@ -316,24 +316,24 @@ def printOptionsBlockToTrials(args,numTrialsInBlock):
         else:
             try:
                 if isinstance(int(args[3]),int):
-                    numbertrials_Print_trigger_codes = int(args[3])
+                    trialsToPrint = int(args[3])
             except:
-                commandlineErrorBlockToTrials(args[3],"argumentInvalid")
+                commandlineErrorCurryBlockToTrials(args[3],"argumentInvalid")
         # if user inputs '.' we will print all blocks
         if args[4] == '.':
-            block_number_Print_trigger_codes = '.'
+            blocksToPrint = '.'
         # set the number of prints to user input if input is valid
         else:
             try:
                 if isinstance(int(args[4]),int):
-                    block_number_Print_trigger_codes = int(args[4])
+                    blocksToPrint = int(args[4])
             except:
-                commandlineErrorBlockToTrials(args[4],"argumentInvalid")
+                commandlineErrorCurryBlockToTrials(args[4],"argumentInvalid")
 
-        return numbertrials_Print_trigger_codes, block_number_Print_trigger_codes
+        return blocksToPrint, trialsToPrint
 
     else:
-        commandlineErrorBlockToTrials(args[3], "tooManyArguments")
+        commandlineErrorCurryBlockToTrials(args[3], "tooManyArguments")
 
 
 if __name__ == '__main__':

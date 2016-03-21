@@ -497,23 +497,6 @@ def readCurryFile(filename):
 
     return triggerCodes, numTriggerCodes
 
-def parseScore(scoreDataPaths):
-    """
-        Argument(s):
-
-                scoreDataPaths: (string array) array of score file paths
-
-        Return:
-
-                scores: (array of arrays) scores[score number](note object array) array of trials containing note objects
-    """
-
-    numScores = len(scoreDataPaths)
-
-    ##### TODO # Fill in code
-
-    return 0
-
 def curryBlockToTrials(curryData, ExperimentParams, DebugPrintParams):
     """
 
@@ -531,9 +514,20 @@ def curryBlockToTrials(curryData, ExperimentParams, DebugPrintParams):
 
     # Print Variables
     global debug_curryBlockToTrials # Allows for dynamic debug print options
-    subjectsToPrint = DebugPrintParams.subjects_to_print
+    local_debug = False
 
-    curry_data = copy(curryData)
+    #### To Print ####
+    subjectsToPrint = DebugPrintParams.subjects_to_print
+    blocksToPrint = DebugPrintParams.blocks_to_print
+    trialsToPrint = DebugPrintParams.trials_to_print
+
+    #### Curently Processing ####
+    currentSubject = DebugPrintParams.current_subject_pair
+    currentBlock = DebugPrintParams.current_block
+    # currentTrial = DebugPrintParams.current_trials
+
+    curry_data = copy(curryData) # Copy this
+
 
     # this is trigger code # 233 : metro tick
     metro_tick_trigger_code_233 = ExperimentParams.metronome_codes[-1]
@@ -586,18 +580,29 @@ def curryBlockToTrials(curryData, ExperimentParams, DebugPrintParams):
     #### final clean up ####
     for index, trial in enumerate(curryTrials):
         # after cutting, delete all instances of 233 TCs for trials
-        # that dont begin with 233
+        # except the first 233
         first_code = [trial[0]]
         filtered_codes = filter(lambda a: a != metro_tick_trigger_code_233, trial[1:]) # remove zeros
 
         curryTrials[index] = first_code + filtered_codes
 
-    if DebugPrintParams.subjects_to_print == ".":
-        subjectsToPrint = DebugPrintParams.current_subject_pair
+    if local_debug:
+        debug_curryBlockToTrials = True
 
-    if DebugPrintParams.current_subject_pair == subjectsToPrint:
-        if DebugPrintParams.blocks_to_print != '.':
-            if DebugPrintParams.blocks_to_print == DebugPrintParams.current_block and debug_curryBlockToTrials:
+    if debug_curryBlockToTrials:
+        # make the if below always true if we are printng all subjects
+        if subjectsToPrint == ".":
+            subjectsToPrint = DebugPrintParams.current_subject_pair
+
+        if subjectsToPrint == currentSubject:
+            # print "subjectsToPrint: ", subjectsToPrint, "currentSubject: ", currentSubject
+
+            # make the if below always true if we are printng all blocks
+            if blocksToPrint == ".":
+                blocksToPrint = DebugPrintParams.current_block
+            # print "blocksToPrint: ", blocksToPrint, "currentBlock: ", currentBlock
+            if blocksToPrint == currentBlock:
+
                 print "---------------------------------------------------------------------"
                 print "---------- Printing Subject Pair:", subjectPathsMax[DebugPrintParams.current_subject_pair], " Printing Block:", DebugPrintParams.current_block + 1, "----------"
                 print "---------------------------------------------------------------------"
@@ -605,53 +610,49 @@ def curryBlockToTrials(curryData, ExperimentParams, DebugPrintParams):
                 print "--------- From File:", DebugPrintParams.current_curry_file,"---------"
                 print "---------------------------------------------------------------------"
                 print "\n"
-                debug_curryBlockToTrials = True
-            else:
-                debug_curryBlockToTrials = False
+                print "---- Number of Trials in the Block ----"
+                print "\n"
+                print len(curryTrials) - 1
+                print "\n"
+                print "---- First Curry Trial ----"
+                print curryTrials[0]
+                print "Number of Codes in Trial: ", len(curryTrials[0])
+                print "\n"
+                # make the if below always true if we are printng all trials
+                if trialsToPrint == ".":
+                # if trialsToPrint <= len(curryTrials) + 2: # first and last
+                    for i in range(len(curryTrials) - 2):
+                        print "---- Curry Trial Number:", str(i+1)," ----"
+                        print curryTrials[i+1]
+                        print "Number of Codes in Trial: ", len(curryTrials[i+1])
+                        print "\n"
+                else:
+                    pass
 
-        if debug_curryBlockToTrials:
-            print "---- Number of Trials in the Block ----"
-            print "\n"
-            print len(curryTrials) - 1
-            print "\n"
-            print "---- First Curry Trial ----"
-            print curryTrials[0]
-            print "Number of Codes in Trial: ", len(curryTrials[0])
-            print "\n"
-            # decide how many trials to print
-            number_of_trials_Print_trigger_codes, block_number_Print_trigger_codes = printOptionsBlockToTrials(sys.argv,len(curryTrials))
+                    # print "WARNING: number out of bounds, Did not print extra trials"
+                    # print "\n"
+                print "---- Last Curry Trial ----"
+                print curryTrials[-1]
+                print "Number of Codes in Trial: ", len(curryTrials[-1])
+                print "\n"
 
-            if number_of_trials_Print_trigger_codes <= len(curryTrials) + 2: # first and last
-                for i in range(number_of_trials_Print_trigger_codes-1):
-                    print "---- Curry Trial Number:", str(i+2)," ----"
-                    print curryTrials[i+1]
-                    print "Number of Codes in Trial: ", len(curryTrials[i+1])
+                if verbose:
+                    print "-----------------------------------------"
+                    print "---------------- Verbose ----------------"
+                    print "-----------------------------------------"
                     print "\n"
-            else:
-                print "WARNING: number out of bounds, Did not print extra trials"
-                print "\n"
-            print "---- Last Curry Trial ----"
-            print curryTrials[-1]
-            print "Number of Codes in Trial: ", len(curryTrials[-1])
-            print "\n"
-
-            if verbose:
-                print "-----------------------------------------"
-                print "---------------- Verbose ----------------"
-                print "-----------------------------------------"
-                print "\n"
-                print "---- Trigger Codes Associated with Metronome Ticks ----"
-                print ExperimentParams.metronome_codes
-                print "\n"
-                print "---- final_indices ----"
-                # we should have twelve instances of 4 different trigger codes
-                # Since each trigger code is a permutaion of 2 variables that determine
-                # the order of deviant phrases
-                print "---- Trigger Codes Associated with Metronome Ticks  : [Index of] ----"
-                print metro_ticks
-                print "\n"
-                print final_indices
-                print "\n"
+                    print "---- Trigger Codes Associated with Metronome Ticks ----"
+                    print ExperimentParams.metronome_codes
+                    print "\n"
+                    print "---- final_indices ----"
+                    # we should have twelve instances of 4 different trigger codes
+                    # Since each trigger code is a permutaion of 2 variables that determine
+                    # the order of deviant phrases
+                    print "---- Trigger Codes Associated with Metronome Ticks  : [Index of] ----"
+                    print metro_ticks
+                    print "\n"
+                    print final_indices
+                    print "\n"
 
     return curryTrials
 
@@ -687,15 +688,36 @@ def removeBadTrials(maxTrials, curryTrials, ExperimentParams, DebugPrintParams):
 
     return 0, 0
 
+def parseScore(scoreDataPaths):
+    """
+        Argument(s):
+
+                scoreDataPaths: (string array) array of score file paths
+
+        Return:
+
+                scores: (array of arrays) scores[score number](note object array) array of trials containing note objects
+    """
+
+    numScores = len(scoreDataPaths)
+
+    ##### TODO # Fill in code
+
+    return 0
+
 if __name__ == '__main__':
 
     from lib.analysis_utilities import *
     from lib.experiment import *
 
-    #### TODO # add flag documentation to the readme
-
     #### test print booleans ####
     verbose = False
+    debug_local = False
+
+    # default settings : debug print variables
+    trialsToPrint = 0
+    blocksToPrint = '.'
+    subjectsToPrint = '.'
 
     # debug flags [for each function]
     debug_main = False
@@ -706,14 +728,9 @@ if __name__ == '__main__':
     debug_parseMaxData = False
     debug_maxTrialsToBlocks = False
 
-    # testing variables
-    number_of_trials_Print_trigger_codes = 0
-    block_number_Print_trigger_codes = '.'
-    subjectsToPrint = '.'
 
     #### COMMANDLINE PARSING ####
-    # enter file name to run on a single set of subjects
-    # '.' runs all subjects
+    # type >> 'python analysis.p -h' for help
     if len(sys.argv) > 1:
         subjects = sys.argv[1]
         # check for help menu
@@ -797,11 +814,10 @@ if __name__ == '__main__':
         pass
 
     elif len(sys.argv) == 3:
-        # already checked for main debugging and
-        # printed debugging header
-        if sys.argv[2] == 'main':
-            pass
         # check for debugging
+        if sys.argv[2] == 'main':
+            pass # already checked for main debugging and
+                 # printed debugging header
         elif sys.argv[2] == 'buildExperiment':
             print "----------------------------------------------------------"
             print "----------- Testing buildExperiment Function -------------"
@@ -839,13 +855,13 @@ if __name__ == '__main__':
             print "------------------------------------------------------"
             print "\n"
         elif sys.argv[-1] == '-v':
-            pass
+            pass # already set verbose
         else:
             commandlineErrorMain(sys.argv, 'functionNameInvalid')
 
     elif len(sys.argv) == 4:
         if sys.argv[2] == 'main':
-            debug_main = True
+            pass
         elif sys.argv[2] == 'buildExperiment':
             print "----------------------------------------------------------"
             print "----------- Testing buildExperiment Function -------------"
@@ -887,18 +903,17 @@ if __name__ == '__main__':
         if sys.argv[-1] == "-v":
             verbose = True
         elif sys.argv[-1] == '.':
-            pass
+            trialsToPrint = '.'
         else:
             try:
                 if isinstance(int(sys.argv[3]),int):
-                    pass
+                    trialsToPrint = int(sys.argv[3])
             except:
                 commandlineErrorMain(sys.argv[3],'flagInvalid')
 
     elif len(sys.argv) == 5:
-
         if sys.argv[2] == 'main':
-            debug_main = True
+            pass
         elif sys.argv[2] == 'buildExperiment':
             print "----------------------------------------------------------"
             print "----------- Testing buildExperiment Function -------------"
@@ -937,80 +952,83 @@ if __name__ == '__main__':
             print "\n"
         else:
             commandlineErrorMain(sys.argv, 'functionNameInvalid')
-        if sys.argv[-1] == "-v":
-            verbose = True
-        else:
-            if sys.argv[3] != '.':
-                try:
-                    if isinstance(int(sys.argv[3]),int):
-                        pass
-                except:
-                    commandlineErrorMain(sys.argv[3],'flagInvalid')
-            if sys.argv[4] != '.':
-                try:
-                    if isinstance(int(sys.argv[4]),int):
-                        block_number_Print_trigger_codes = int(sys.argv[4])
-                except:
-                    commandlineErrorMain(sys.argv[4],'flagInvalid')
-
-    elif len(sys.argv) == 6:
-
-        if sys.argv[2] == 'main':
-            debug_main = True
-        elif sys.argv[2] == 'buildExperiment':
-            print "----------------------------------------------------------"
-            print "----------- Testing buildExperiment Function -------------"
-            print "----------------------------------------------------------"
-            print "\n"
-            debug_buildExperiment = True
-        elif sys.argv[2] == 'readCollFile':
-            print "----------------------------------------------------------"
-            print "----------- Testing readCollFile Function -------------"
-            print "----------------------------------------------------------"
-            print "\n"
-            debug_readCollFile = True
-        elif sys.argv[2] == 'maxTrialsToBlocks':
-            print "----------------------------------------------------------"
-            print "----------- Testing maxTrialsToBlocks Function -------------"
-            print "----------------------------------------------------------"
-            print "\n"
-            debug_maxTrialsToBlocks = True
-        elif sys.argv[2] == 'parseMaxData':
-            print "----------------------------------------------------------"
-            print "------------- Testing parseMaxData Function --------------"
-            print "----------------------------------------------------------"
-            print "\n"
-            debug_parseMaxData = True
-        elif sys.argv[2] == 'removeBadTrials':
-            print "----------------------------------------------------------"
-            print "----------- Testing removeBadTrials Function -------------"
-            print "----------------------------------------------------------"
-            print "\n"
-            debug_removeBadTrials = True
-        elif sys.argv[2] == "curryBlockToTrials":
-            debug_curryBlockToTrials = True
-            print "------------------------------------------------------"
-            print "--------- Testing curryBlockToTrials Function --------"
-            print "------------------------------------------------------"
-            print "\n"
-        else:
-            commandlineErrorMain(sys.argv, 'functionNameInvalid')
-        if sys.argv[-1] == "-v":
-            verbose = True
-        else:
-                commandlineErrorMain(sys.argv[4],'flagInvalid')
         if sys.argv[3] != '.':
             try:
                 if isinstance(int(sys.argv[3]),int):
-                    pass
+                    trialsToPrint = int(sys.argv[3])
             except:
                 commandlineErrorMain(sys.argv[3],'flagInvalid')
+        else:
+            trialsToPrint = '.'
+        if sys.argv[-1] == "-v":
+            verbose = True
+        elif sys.argv[4] != '.':
+            try:
+                if isinstance(int(sys.argv[4]),int):
+                    blocksToPrint = int(sys.argv[4])
+            except:
+                commandlineErrorMain(sys.argv[4],'flagInvalid')
+
+    elif len(sys.argv) == 6:
+        if sys.argv[2] == 'main':
+            debug_main = True
+        elif sys.argv[2] == 'buildExperiment':
+            print "----------------------------------------------------------"
+            print "----------- Testing buildExperiment Function -------------"
+            print "----------------------------------------------------------"
+            print "\n"
+            debug_buildExperiment = True
+        elif sys.argv[2] == 'readCollFile':
+            print "----------------------------------------------------------"
+            print "----------- Testing readCollFile Function -------------"
+            print "----------------------------------------------------------"
+            print "\n"
+            debug_readCollFile = True
+        elif sys.argv[2] == 'maxTrialsToBlocks':
+            print "----------------------------------------------------------"
+            print "----------- Testing maxTrialsToBlocks Function -------------"
+            print "----------------------------------------------------------"
+            print "\n"
+            debug_maxTrialsToBlocks = True
+        elif sys.argv[2] == 'parseMaxData':
+            print "----------------------------------------------------------"
+            print "------------- Testing parseMaxData Function --------------"
+            print "----------------------------------------------------------"
+            print "\n"
+            debug_parseMaxData = True
+        elif sys.argv[2] == 'removeBadTrials':
+            print "----------------------------------------------------------"
+            print "----------- Testing removeBadTrials Function -------------"
+            print "----------------------------------------------------------"
+            print "\n"
+            debug_removeBadTrials = True
+        elif sys.argv[2] == "curryBlockToTrials":
+            debug_curryBlockToTrials = True
+            print "------------------------------------------------------"
+            print "--------- Testing curryBlockToTrials Function --------"
+            print "------------------------------------------------------"
+            print "\n"
+        else:
+            commandlineErrorMain(sys.argv, 'functionNameInvalid')
+        if sys.argv[-1] == "-v":
+            pass
+        else:
+                commandlineErrorMain(sys.argv[-1],'flagInvalid')
+        if sys.argv[3] != '.':
+            try:
+                if isinstance(int(sys.argv[3]),int):
+                    trialsToPrint = int(sys.argv[4])
+            except:
+                commandlineErrorMain(sys.argv[3],'argumentInvalid')
         if sys.argv[4] != '.':
             try:
                 if isinstance(int(sys.argv[4]),int):
-                    block_number_Print_trigger_codes = int(sys.argv[4])
+                    blocksToPrint = int(sys.argv[4])
             except:
-                commandlineErrorMain(sys.argv[4],'flagInvalid')
+                commandlineErrorMain(sys.argv[4],'argumentInvalid')
+        else:
+            trialsToPrint = '.'
+
     else:
         commandlineErrorMain(sys.argv,'tooManyArguments')
 
@@ -1029,10 +1047,31 @@ if __name__ == '__main__':
         ExperimentParams.number_of_blocks_per_subjectPair.append(len(curryDataPaths[pair]))
 
     #### DEBUG PRINT PARAMETERS ####
-    # blocks for printing
-    DebugPrintParams.blocks_to_print = block_number_Print_trigger_codes
     # subjects for printing
     DebugPrintParams.subjects_to_print = subjectsToPrint
+    # blocks for printing
+    DebugPrintParams.blocks_to_print = blocksToPrint
+    # trials for printing
+    DebugPrintParams.trials_to_print = trialsToPrint
+
+    if debug_local:
+        if verbose:
+            print "--------------------------------------------------------"
+            print "--------- Verbose (Debug Print Options) ----------------"
+            print "--------------------------------------------------------"
+            print "\n"
+            print "---------- Index of Subjects For Printing ----------"
+            print "\n"
+            print DebugPrintParams.subjects_to_print, "  print all subjects if value is '.'"
+            print "\n"
+            print "---------- Index of Block For Printing ----------"
+            print "\n"
+            print DebugPrintParams.blocks_to_print, "  print all blocks if value is '.'"
+            print "\n"
+            print "---------- Index of Trials For Printing ----------"
+            print "\n"
+            print DebugPrintParams.trials_to_print, "  print all trials if value is '.'"
+            print "\n"
 
     if debug_main:
         print "---------- Number of Subject Pairs in the File System ----------"
@@ -1067,6 +1106,10 @@ if __name__ == '__main__':
             print "---------- Index of Block For Printing ----------"
             print "\n"
             print DebugPrintParams.blocks_to_print, "  print all blocks if value is '.'"
+            print "\n"
+            print "---------- Index of Trials For Printing ----------"
+            print "\n"
+            print DebugPrintParams.trials_to_print, "  print all trials if value is '.'"
             print "\n"
 
     #### LETS BUILD AN EXPERIMENT ####
