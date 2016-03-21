@@ -34,6 +34,7 @@ def buildExperiment(subjectDataPaths, maxDataPaths, curryDataPaths, scoreDataPat
                 curryDataPaths: (string array of arrays) arrays of curry generated file paths
                 scoreDataPaths: (string array) array of score file paths
                 ExperimentParams: class for dynamically generated variables
+                DebugPrintParams: class for dynamically generated variables
 
         Return:
 
@@ -104,10 +105,10 @@ def buildExperiment(subjectDataPaths, maxDataPaths, curryDataPaths, scoreDataPat
         print "Number of Trials per Subject Pairing: "
         print listOfListLengths(max_trial_data)
         print "\n"
-        print "Total Number of Trials: ", sum(listOfListLengths(max_trial_data))
+        print "Total Number of Blocks: ", sum(listOfListLengths(max_trial_data))
         print "\n"
         print "First Trial for Subject Pairing", subjectDataPaths[0], ": "
-        print max_trial_data[0][0]
+        print max_trial_data[0][0][0]
         print "\n"
         print "-----------------------------------------------"
         print "---------------- Curry Parsing ----------------"
@@ -135,11 +136,11 @@ def buildExperiment(subjectDataPaths, maxDataPaths, curryDataPaths, scoreDataPat
             print "---------------- Verbose ----------------"
             print "-----------------------------------------"
             print "\n"
-            print "First Subject : First Trial (Max Raw Data): "
-            print max_trial_data[0][0]
+            print "First Subject : First Block : First Trial (Max Data): "
+            print max_trial_data[0][0][0]
             print "\n"
-            print "Last Subject : Last Trial (Max Raw Data): "
-            print max_trial_data[-1][-1]
+            print "Last Subject : Last Block : Last Trial (Max Raw Data): "
+            print max_trial_data[-1][-1][-1]
             print "\n"
             print "\n"
             print "----------------------------------------------"
@@ -209,7 +210,7 @@ def parseMaxData(maxDataPaths, ExperimentParams, DebugPrintParams):
     blockOrdering = [v for i, v in enumerate(blockOrdering) if i % 2 == 1]
 
     # re-structure into array[blocks][trials] and remove practice trials
-    restructured_trials = maxTrialsToBlocks(trials, maxDataPaths, ExperimentParams, DebugPrintParams)
+    trials = maxTrialsToBlocks(trials, maxDataPaths, ExperimentParams, DebugPrintParams)
 
     if debug_parseMaxData:
         print "-------- Number of Trials in the Block --------"
@@ -566,7 +567,7 @@ def blockToTrials(curryData, ExperimentParams, DebugPrintParams):
 
     if DebugPrintParams.current_subject_pair == subjectsToPrint:
         if DebugPrintParams.blocks_to_print != '.':
-            if DebugPrintParams.blocks_to_print == DebugPrintParams.current_block:
+            if DebugPrintParams.blocks_to_print == DebugPrintParams.current_block and debug_blockToTrials:
                 print "---------------------------------------------------------------------"
                 print "---------- Printing Subject Pair:", subjectPathsMax[DebugPrintParams.current_subject_pair], " Printing Block:", DebugPrintParams.current_block + 1, "----------"
                 print "---------------------------------------------------------------------"
