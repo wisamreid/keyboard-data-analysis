@@ -56,8 +56,9 @@ def buildExperiment(subjectDataPaths, maxDataPaths, curryDataPaths, scoreDataPat
     #### PARSE MAX ####
     # loop over subjects
     for subjectPair in range(len(subjectDataPaths)):
+        DebugPrintParams.current_subject_pair = subjectPair # set print options then pass to helper functions
         # parse max data files
-        max_trial_data_one_subject_pair, blockOrdering_one_subject_pair = parseMaxData(maxDataPaths[subjectPair])
+        max_trial_data_one_subject_pair, blockOrdering_one_subject_pair = parseMaxData(maxDataPaths[subjectPair], ExperimentParams, DebugPrintParams)
 
         max_trial_data.append(max_trial_data_one_subject_pair)
         blockOrdering.append(blockOrdering_one_subject_pair)
@@ -180,7 +181,7 @@ def buildExperiment(subjectDataPaths, maxDataPaths, curryDataPaths, scoreDataPat
 
     return experiment
 
-def parseMaxData(maxDataPaths):
+def parseMaxData(maxDataPaths, ExperimentParams, DebugPrintParams):
     """
         Argument(s):
 
@@ -207,7 +208,8 @@ def parseMaxData(maxDataPaths):
     # remove coll file syntax (leave just the block ordering)
     blockOrdering = [v for i, v in enumerate(blockOrdering) if i % 2 == 1]
 
-    restructured_trials = maxTrialsToBlocks(trials, maxDataPaths)
+    # re-structure into array[blocks][trials] and remove practice trials
+    restructured_trials = maxTrialsToBlocks(trials, maxDataPaths, ExperimentParams, DebugPrintParams)
 
     if debug_parseMaxData:
         print "-------- Number of Trials in the Block --------"
@@ -271,7 +273,7 @@ def readCollFile(filename):
 
     return trial
 
-def maxTrialsToBlocks(maxTrials, maxDataPaths):
+def maxTrialsToBlocks(maxTrials, maxDataPaths, ExperimentParams, DebugPrintParams):
     """
 
     Function used to organize our list of max trials by block into an array of arrays
@@ -283,12 +285,13 @@ def maxTrialsToBlocks(maxTrials, maxDataPaths):
 
         Return(s):
 
-            decision: (array of arrays) blocks of trial data
+            max_trials: (array of arrays) list[blocks][Trials] : dimensions -- [number of blocks][number of trials in block]
     """
 
     # debug variables
     global debug_maxTrialsToBlocks
     local_debug = False
+    subjectsToPrint = DebugPrintParams.subjects_to_print
 
     # make copies for manipulation
     max_trials = list(maxTrials)
@@ -314,30 +317,48 @@ def maxTrialsToBlocks(maxTrials, maxDataPaths):
     practice_trial_indices = practice_trial_indices[1::2]
 
     # partition list of trials into a list of blocks
-    # each block containing a lists of trials
+    # list[blocks][Trials] : dim[12][number of trials in block]
     max_trials = partitionList(max_trials,practice_trial_indices)
 
+    # pop off second practice trials
+    for index, block in enumerate(max_trials):
+        del block[0]
 
     if local_debug:
         debug_maxTrialsToBlocks = True
-        
-    if debug_maxTrialsToBlocks:
-        # print max_trials
-        if verbose:
+
+    if DebugPrintParams.subjects_to_print == ".":
+        subjectsToPrint = DebugPrintParams.current_subject_pair
+
+    if DebugPrintParams.current_subject_pair == subjectsToPrint:
+
+        if debug_maxTrialsToBlocks:
+            print "Current Subject Pair: ", subjectPathsMax[DebugPrintParams.current_subject_pair]
+            print "\n"
             print "Number of Parsed Max Files: "
             print len(max_trials)
             print "\n"
             print "Number of Max Coll Files: "
             print len(max_file_paths)
             print "\n"
-            print "Number of max trials: After Seperated into blocks"
-            print sum(listOfListLengths(max_trials)) # == len(max_file_paths)
+            print "max_trials[-1][-1]: "
+            print max_trials[-1][-1]
             print "\n"
-            print "Number of max trials: Before Seperated into blocks"
-            print len(max_file_paths)
+            print "max_trials[0][0]: "
+            print max_trials[0][0]
             print "\n"
+            if verbose:
+                print "Number of max trials: After Seperated into blocks"
+                print listOfListLengths(max_trials)
+                print "\n"
+                print "Total Number of max trials: After Seperated into blocks"
+                print sum(listOfListLengths(max_trials))
+                print "\n"
+                print "Total Number of max trials: Before Seperated into blocks"
+                print len(maxDataPaths)
+                print "\n"
 
-    return 0
+    return max_trials
 
 def parseCurryData(curryDataPaths):
     """
