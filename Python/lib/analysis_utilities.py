@@ -11,6 +11,7 @@ import sys
 import os
 from glob import glob
 import itertools
+from itertools import groupby
 # from itertools import izip, chain
 from inspect import currentframe, getframeinfo # We will use this to print line numbers
 from os import walk
@@ -22,6 +23,14 @@ class DebugPrintParams:
 
 def validateData(maxData,curryData):
     pass
+
+def findIndices(searchList,elem):
+    """ Return array of indices for a list of values"""
+    indices = [[i for i, x in enumerate(searchList) if x == e] for e in elem]
+    indices = filter(None,indices) # remove empty lists
+    # indices = reduce(add, map(lambda x: list(x), [i for i in indices]))
+    # indices = itertools.chain(indices)
+    return indices
 
 def listOfListLengths(listoflists):
     """ Return the lengths of a list of lists """

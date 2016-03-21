@@ -37,3 +37,7 @@ def get_linenumber():
     return cf.f_back.f_lineno
 
 print "This is line 7, python says line ", get_linenumber()
+
+# size 3 sliding window 
+nums = [1, 3, 5, 6, 7, 8, 9, 10, 15, 19, 20, 22, 23, 24, 26, 27, 28, 32, 33, 35, 37, 38, 39, 40, 41, 42, 43, 44, 47, 48]
+[nums[i:i+3] for i in xrange(len(nums))]

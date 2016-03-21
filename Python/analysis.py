@@ -42,12 +42,12 @@ def buildExperiment(subjectDataPaths, maxDataPaths, curryDataPaths, scoreDataPat
 
     # print variables
     global debug_buildExperiment
-    local_debug = True
+    local_debug = False
 
     numSubjects = len(subjectDataPaths)
     raw_curry_data = []
     curry_trial_data = []
-    raw_max_data = []
+    max_trial_data = []
     blockOrdering = []
 
     #### PARSE SCORE ####
@@ -57,13 +57,12 @@ def buildExperiment(subjectDataPaths, maxDataPaths, curryDataPaths, scoreDataPat
     # loop over subjects
     for subjectPair in range(len(subjectDataPaths)):
         # parse max data files
-        raw_max_data_one_subject_pair, blockOrdering_one_subject_pair = parseMaxData(maxDataPaths[subjectPair])
+        max_trial_data_one_subject_pair, blockOrdering_one_subject_pair = parseMaxData(maxDataPaths[subjectPair])
 
-        raw_max_data.append(raw_max_data_one_subject_pair)
+        max_trial_data.append(max_trial_data_one_subject_pair)
         blockOrdering.append(blockOrdering_one_subject_pair)
 
         raw_curry_data.append(parseCurryData(curryDataPaths[subjectPair]))
-
 
     #### PARSE CURRY ####
     # loop over subjects
@@ -102,12 +101,12 @@ def buildExperiment(subjectDataPaths, maxDataPaths, curryDataPaths, scoreDataPat
         print "---------------------------------------------"
         print "\n"
         print "Number of Trials per Subject Pairing: "
-        print listOfListLengths(raw_max_data)
+        print listOfListLengths(max_trial_data)
         print "\n"
-        print "Total Number of Trials: ", sum(listOfListLengths(raw_max_data))
+        print "Total Number of Trials: ", sum(listOfListLengths(max_trial_data))
         print "\n"
         print "First Trial for Subject Pairing", subjectDataPaths[0], ": "
-        print raw_max_data[0][0]
+        print max_trial_data[0][0]
         print "\n"
         print "-----------------------------------------------"
         print "---------------- Curry Parsing ----------------"
@@ -136,10 +135,10 @@ def buildExperiment(subjectDataPaths, maxDataPaths, curryDataPaths, scoreDataPat
             print "-----------------------------------------"
             print "\n"
             print "First Subject : First Trial (Max Raw Data): "
-            print raw_max_data[0][0]
+            print max_trial_data[0][0]
             print "\n"
             print "Last Subject : Last Trial (Max Raw Data): "
-            print raw_max_data[-1][-1]
+            print max_trial_data[-1][-1]
             print "\n"
             print "\n"
             print "----------------------------------------------"
@@ -150,15 +149,23 @@ def buildExperiment(subjectDataPaths, maxDataPaths, curryDataPaths, scoreDataPat
             print DebugPrintParams.current_block + 1
             print "Value: ", DebugPrintParams.current_block
             print "\n"
+            print "---- Blocks To Print ----"
+            print DebugPrintParams.blocks_to_print + 1
+            print "Value: ", DebugPrintParams.blocks_to_print
+            print "\n"
             print "---- Current Subject Pair ----"
             print subjectDataPaths[DebugPrintParams.current_subject_pair]
             print "Value: ", DebugPrintParams.current_subject_pair
+            print "\n"
+            print "---- Subject Pairs to Print ----"
+            print subjectDataPaths[DebugPrintParams.subjects_to_print]
+            print "Value: ", DebugPrintParams.subjects_to_print
             print "\n"
 
     #### MERGE AND CONCUR DATA ####
     #### TODO  # Code function below, call it here
     # throw out bad trials
-    raw_max_data = removeBadTrials(raw_max_data, curry_trial_data,ExperimentParams)
+    max_trial_data, curry_trial_data = removeBadTrials(max_trial_data, curry_trial_data, ExperimentParams, DebugPrintParams)
 
     #### BUILD EXPERIMENT OBJECT ####
     # create notes
@@ -197,8 +204,10 @@ def parseMaxData(maxDataPaths):
 
     # first coll file is the block ordering
     blockOrdering = trials.pop(0)
-    # remove coll file indexes (leave just the block ordering)
+    # remove coll file syntax (leave just the block ordering)
     blockOrdering = [v for i, v in enumerate(blockOrdering) if i % 2 == 1]
+
+    restructured_trials = maxTrialsToBlocks(trials, maxDataPaths)
 
     if debug_parseMaxData:
         print "-------- Number of Trials in the Block --------"
@@ -210,6 +219,7 @@ def parseMaxData(maxDataPaths):
             print "\n"
             print trials
             print "\n"
+
     return trials, blockOrdering
 
 def readCollFile(filename):
@@ -260,6 +270,74 @@ def readCollFile(filename):
         print "\n"
 
     return trial
+
+def maxTrialsToBlocks(maxTrials, maxDataPaths):
+    """
+
+    Function used to organize our list of max trials by block into an array of arrays
+    Throwing out practice trials
+
+        Argument(s):
+
+            maxTrials: array max trial data (parsed coll files)
+
+        Return(s):
+
+            decision: (array of arrays) blocks of trial data
+    """
+
+    # debug variables
+    global debug_maxTrialsToBlocks
+    local_debug = False
+
+    # make copies for manipulation
+    max_trials = list(maxTrials)
+    max_file_paths = list(maxDataPaths)
+    file_ids = []
+
+    # we dont need this, lest pop it off
+    blockOrdering = max_file_paths.pop(0)
+
+    # Grab trial numbers from the coll file names
+    for path in max_file_paths:
+        trial_number = int(''.join(list(path)[-11:-9]))
+        if trial_number < 0:
+            trial_number = 0
+        file_ids.append(trial_number)
+
+    # find the indices for practice trials
+    practice_trial_indices = findIndices(file_ids,[0])
+    practice_trial_indices = list(y for x in practice_trial_indices for y in x)
+
+    # we need to split by the second practice trial
+    # we remove even indices
+    practice_trial_indices = practice_trial_indices[1::2]
+
+    # partition list of trials into a list of blocks
+    # each block containing a lists of trials
+    max_trials = partitionList(max_trials,practice_trial_indices)
+
+
+    if local_debug:
+        debug_maxTrialsToBlocks = True
+        
+    if debug_maxTrialsToBlocks:
+        # print max_trials
+        if verbose:
+            print "Number of Parsed Max Files: "
+            print len(max_trials)
+            print "\n"
+            print "Number of Max Coll Files: "
+            print len(max_file_paths)
+            print "\n"
+            print "Number of max trials: After Seperated into blocks"
+            print sum(listOfListLengths(max_trials)) # == len(max_file_paths)
+            print "\n"
+            print "Number of max trials: Before Seperated into blocks"
+            print len(max_file_paths)
+            print "\n"
+
+    return 0
 
 def parseCurryData(curryDataPaths):
     """
@@ -403,15 +481,12 @@ def blockToTrials(curryData, ExperimentParams, DebugPrintParams):
     global debug_blockToTrials # Allows for dynamic debug print options
     subjectsToPrint = DebugPrintParams.subjects_to_print
 
-    # helper function for block parsing
-    find = lambda searchList, elem: [[i for i, x in enumerate(searchList) if x == e] for e in elem]
-
     curry_data = copy(curryData)
 
     # this is trigger code # 233 : metro tick
     metro_tick_trigger_code_233 = ExperimentParams.metronome_codes[-1]
     # these are the indices for all metro trigger codes (201 - 233)
-    metro_ticks = find(curry_data, ExperimentParams.metronome_codes)
+    metro_ticks = findIndices(curry_data, ExperimentParams.metronome_codes)
 
     metro_tick_trigger_code_indices = []
     # we now need to grab only the last metro ticks so we can use them to
@@ -460,7 +535,6 @@ def blockToTrials(curryData, ExperimentParams, DebugPrintParams):
     for index, trial in enumerate(curryTrials):
         # after cutting, delete all instances of 233 TCs for trials
         # that dont begin with 233
-        # if trial[0] != metro_tick_trigger_code_233:
         first_code = [trial[0]]
         filtered_codes = filter(lambda a: a != metro_tick_trigger_code_233, trial[1:]) # remove zeros
 
@@ -486,7 +560,7 @@ def blockToTrials(curryData, ExperimentParams, DebugPrintParams):
         if debug_blockToTrials:
             print "---- Number of Trials in the Block ----"
             print "\n"
-            print len(curryTrials)
+            print len(curryTrials) - 1
             print "\n"
             print "---- First Curry Trial ----"
             print curryTrials[0]
@@ -529,32 +603,37 @@ def blockToTrials(curryData, ExperimentParams, DebugPrintParams):
 
     return curryTrials
 
-def removeBadTrials(trials, curryData, ExperimentParams):
+def removeBadTrials(maxTrials, curryTrials, ExperimentParams, DebugPrintParams):
     """
 
     Function used to filter out bad trials before constructing the experiment
 
         Argument(s):
 
-            trials: (array of arrays) coll file data
+            maxTrials: (array of arrays) coll file data
 
         Return(s):
 
             decision: (array of arrays) containing only valid trial data
     """
 
-    valid = ones(len(trials), dtype=bool)
+    # debug variables
+    global debug_removeBadTrials
+    local_debug = False
+
+    valid = ones(len(maxTrials), dtype=bool)
 
     ###### TODO # Fill in code
 
     # look for prcatice trials
     # look for error codes
     # look for out of place shit (May need to look at block ordering)
-
+    if local_debug:
+        debug_removeBadTrials = True
     if debug_removeBadTrials:
         pass
 
-    return 0
+    return 0, 0
 
 if __name__ == '__main__':
 
@@ -573,6 +652,7 @@ if __name__ == '__main__':
     debug_removeBadTrials = False
     debug_readCollFile = False
     debug_parseMaxData = False
+    debug_maxTrialsToBlocks = False
 
     # testing variables
     number_of_trials_Print_trigger_codes = 0
@@ -688,6 +768,12 @@ if __name__ == '__main__':
             print "----------------------------------------------------------"
             print "\n"
             debug_parseMaxData = True
+        elif sys.argv[2] == 'maxTrialsToBlocks':
+            print "----------------------------------------------------------"
+            print "----------- Testing maxTrialsToBlocks Function -------------"
+            print "----------------------------------------------------------"
+            print "\n"
+            debug_maxTrialsToBlocks = True
         elif sys.argv[2] == 'removeBadTrials':
             print "----------------------------------------------------------"
             print "----------- Testing removeBadTrials Function -------------"
@@ -714,7 +800,6 @@ if __name__ == '__main__':
             print "----------------------------------------------------------"
             print "\n"
             debug_buildExperiment = True
-
         elif sys.argv[2] == 'readCollFile':
             print "----------------------------------------------------------"
             print "----------- Testing readCollFile Function -------------"
@@ -727,6 +812,12 @@ if __name__ == '__main__':
             print "----------------------------------------------------------"
             print "\n"
             debug_parseMaxData = True
+        elif sys.argv[2] == 'maxTrialsToBlocks':
+            print "----------------------------------------------------------"
+            print "----------- Testing maxTrialsToBlocks Function -------------"
+            print "----------------------------------------------------------"
+            print "\n"
+            debug_maxTrialsToBlocks = True
         elif sys.argv[2] == 'removeBadTrials':
             print "----------------------------------------------------------"
             print "----------- Testing removeBadTrials Function -------------"
@@ -774,6 +865,12 @@ if __name__ == '__main__':
             print "----------------------------------------------------------"
             print "\n"
             debug_parseMaxData = True
+        elif sys.argv[2] == 'maxTrialsToBlocks':
+            print "----------------------------------------------------------"
+            print "----------- Testing maxTrialsToBlocks Function -------------"
+            print "----------------------------------------------------------"
+            print "\n"
+            debug_maxTrialsToBlocks = True
         elif sys.argv[2] == 'removeBadTrials':
             print "----------------------------------------------------------"
             print "----------- Testing removeBadTrials Function -------------"
@@ -820,6 +917,12 @@ if __name__ == '__main__':
             print "----------------------------------------------------------"
             print "\n"
             debug_readCollFile = True
+        elif sys.argv[2] == 'maxTrialsToBlocks':
+            print "----------------------------------------------------------"
+            print "----------- Testing maxTrialsToBlocks Function -------------"
+            print "----------------------------------------------------------"
+            print "\n"
+            debug_maxTrialsToBlocks = True
         elif sys.argv[2] == 'parseMaxData':
             print "----------------------------------------------------------"
             print "------------- Testing parseMaxData Function --------------"
@@ -864,6 +967,8 @@ if __name__ == '__main__':
     ExperimentParams.metronome_codes = arange(33) + 201
     # error trigger codes (TCs: 240 - 246)
     ExperimentParams.error_codes = arange(7) + 240
+    # practice notes
+    ExperimentParams.practice_note_code = 234
     # number of subjects in our experiment
     ExperimentParams.number_of_subjectPairs = len(subjectPathsMax)
     # blocks per subject pair
