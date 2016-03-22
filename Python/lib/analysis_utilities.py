@@ -95,7 +95,7 @@ def printHelpMenu():
     print "-------------------------------------------------------"
     print "\n"
     print "@ Commandline type:"
-    print ">> python analysis.py Subjects blockToTrials Trial(s) Block(s)"
+    print ">> python analysis.py Subjects blockToTrials Block(s) Trial(s)"
     print "\n"
     print "Subjects: A subject pair by intials"
     print "\n"

@@ -98,10 +98,8 @@ def buildExperiment(subjectDataPaths, maxDataPaths, curryDataPaths, scoreDataPat
         curry_trial_data.append(curry_block_data)
         curry_block_data = [] # clear for new block data
 
-    #### MERGE AND CONCUR DATA ####
-    #### TODO  # Code function below, call it here
-    # throw out bad trials
-    max_trial_data, curry_trial_data = removeBadTrials(max_trial_data, curry_trial_data, ExperimentParams, DebugPrintParams)
+    # max_trial_data, curry_trial_data = removeBadTrials(max_trial_data, curry_trial_data, ExperimentParams, DebugPrintParams)
+
 
     if local_debug:
         print "----------------------------------------------------------"
@@ -132,10 +130,10 @@ def buildExperiment(subjectDataPaths, maxDataPaths, curryDataPaths, scoreDataPat
             print "\n"
             print "Number of Subjects: ", len(max_trial_data)
             print "\n"
-            print "Number of Blocks For Subject: ", subjectDataPaths[subjectsToPrint]
-            print listOfListLengths(max_trial_data[subjectsToPrint])
+            print "Number of Blocks: ", len(max_trial_data[subjectsToPrint]), "   For Subject: ", subjectDataPaths[subjectsToPrint]
             print "\n"
             print "Number of Trials: ", len(max_trial_data[subjectsToPrint][blocksToPrint]), "      For Block Number:", blocksToPrint + 1
+            print listOfListLengths(max_trial_data[subjectsToPrint])
             print "\n"
             print "----------------------------------------------------"
             print "---------------- Parsing Dimensions ----------------"
@@ -145,10 +143,10 @@ def buildExperiment(subjectDataPaths, maxDataPaths, curryDataPaths, scoreDataPat
             print "\n"
             print "Number of Subjects: ", len(curry_trial_data)
             print "\n"
-            print "Number of Blocks For Subject: ", subjectDataPaths[subjectsToPrint]
-            print listOfListLengths(curry_trial_data[subjectsToPrint])
+            print "Number of Blocks: ", len(curry_trial_data[subjectsToPrint]), "   For Subject: ", subjectDataPaths[subjectsToPrint]
             print "\n"
             print "Number of Trials: ", len(curry_trial_data[subjectsToPrint][blocksToPrint]), "        For Block Number:", blocksToPrint + 1
+            print listOfListLengths(curry_trial_data[subjectsToPrint])
             print "\n"
         if verbose:
             print "---------------------------------------------"
@@ -236,6 +234,10 @@ def buildExperiment(subjectDataPaths, maxDataPaths, curryDataPaths, scoreDataPat
                     print subjectDataPaths[i]
             print "\n"
 
+    #### MERGE AND CONCUR DATA ####
+    #### TODO  # Code function below, call it here
+    # throw out bad trials
+    # max_trial_data, curry_trial_data = removeBadTrials(max_trial_data, curry_trial_data, ExperimentParams, DebugPrintParams)
 
     #### BUILD EXPERIMENT OBJECT ####
     # create notes
@@ -709,14 +711,17 @@ def removeBadTrials(maxTrials, curryTrials, ExperimentParams, DebugPrintParams):
     """
 
     Function used to filter out bad trials before constructing the experiment
+    Trials that are too short or malformed and trials containing error codes
 
         Argument(s):
 
-            maxTrials: (array of arrays) coll file data
+            maxTrials: (array[subjects][blocks][trials]) coll file data
+            curryTrials: (array[subjects][blocks][trials]) curry file data
 
         Return(s):
 
-            decision: (array of arrays) containing only valid trial data
+            maxTrials: (array[subjects][blocks][trials]) coll file data
+            curryTrials: (array[subjects][blocks][trials]) curry file data
     """
 
     # debug variables
@@ -727,20 +732,48 @@ def removeBadTrials(maxTrials, curryTrials, ExperimentParams, DebugPrintParams):
     subjectsToPrint = DebugPrintParams.subjects_to_print
     blocksToPrint = DebugPrintParams.blocks_to_print
     trialsToPrint = DebugPrintParams.trials_to_print
-    print "subjectsToPrint", subjectsToPrint, "blocksToPrint", blocksToPrint, "trialsToPrint", trialsToPrint
-    print "\n"
+    # print "subjectsToPrint: ", subjectsToPrint, "   blocksToPrint: ", blocksToPrint, "  trialsToPrint: ", trialsToPrint
+    # print "\n"
+
+    lengthThreshold = 60
 
     valid = ones(len(maxTrials), dtype=bool)
-
-    ###### TODO # Fill in code
-
-    # look for prcatice trials
     # look for error codes
     # look for out of place shit (May need to look at block ordering)
+    # loop over subjects
+    for subjectPair in range(len(curryTrials)):
+        # loop over the blocks for each subject pair
+        for block in range(len(curryTrials[subjectPair])):
+            # get rid of short trials
+            deleted = 0 # keep track of shrinking index
+            for trial in range(len(curryTrials[subjectPair][block])):
+                trial -= deleted # keep track of shrinking index
+                # get rid of short trials
+                if  len(curryTrials[subjectPair][block][trial]) < lengthThreshold:
+                    # poop = curryTrials[subjectPair][block].pop(trial)
+                    if debug_removeBadTrials:
+                        print "subjectPair: ", subjectPair, "block: ", block, "trial: ", trial
+                        print curryTrials[subjectPair][block][trial]
+                        print "\n"
+                    curryTrials[subjectPair][block][trial] = 0
+                    # print poop
+                    # deleted +=1
+    ############ READ FIRST #############
+    #### TODO: play around with the order we clean the trials and the way we
+    #           are printing it the commandline for debugging
+    #
+    # For Example: try to place zeros for fragmented trials and collapse,
+    # then collapse consecutive zeros in order to place hold errant trials
+    # Followed by placing ones for trials containing error codes
+    # Try to tune the algorithm for denotng trial boundaries
+    ############ READ FIRST #############
+
     if local_debug:
         debug_removeBadTrials = True
     if debug_removeBadTrials:
         pass
+        if verbose:
+            pass
 
     return maxTrials, curryTrials
 
@@ -1015,7 +1048,7 @@ if __name__ == '__main__':
             except:
                 commandlineErrorMain(sys.argv[3],'flagInvalid')
         else:
-            trialsToPrint = '.'
+            blocksToPrint = '.'
         if sys.argv[-1] == "-v":
             verbose = True
         elif sys.argv[4] != '.':
@@ -1024,6 +1057,8 @@ if __name__ == '__main__':
                     trialsToPrint = int(sys.argv[4])
             except:
                 commandlineErrorMain(sys.argv[4],'flagInvalid')
+        else:
+            trialsToPrint = '.'
 
     elif len(sys.argv) == 6:
         if sys.argv[2] == 'main':
@@ -1076,6 +1111,8 @@ if __name__ == '__main__':
                     blocksToPrint = int(sys.argv[3])
             except:
                 commandlineErrorMain(sys.argv[3],'argumentInvalid')
+        else:
+            blocksToPrint = '.'
         if sys.argv[4] != '.':
             try:
                 if isinstance(int(sys.argv[4]),int):
