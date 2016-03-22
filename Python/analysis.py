@@ -45,6 +45,11 @@ def buildExperiment(subjectDataPaths, maxDataPaths, curryDataPaths, scoreDataPat
     global debug_buildExperiment
     local_debug = False
 
+    #### To Print ####
+    subjectsToPrint = DebugPrintParams.subjects_to_print
+    blocksToPrint = DebugPrintParams.blocks_to_print
+    trialsToPrint = DebugPrintParams.trials_to_print
+
     numSubjects = len(subjectDataPaths)
     raw_curry_data = []
     curry_trial_data = []
@@ -587,6 +592,13 @@ def curryBlockToTrials(curryData, ExperimentParams, DebugPrintParams):
         curryTrials[index] = first_code + filtered_codes
 
     if local_debug:
+        print "----------------------------------------------------------"
+        print "--------- Testing curryBlockToTrials Function ------------"
+        print "----------------------------------------------------------"
+        print "----------------------------------------------------------"
+        print "---------------- Local Printing Enabled ------------------"
+        print "----------------------------------------------------------"
+        print "\n"
         debug_curryBlockToTrials = True
 
     if debug_curryBlockToTrials:
@@ -627,10 +639,15 @@ def curryBlockToTrials(curryData, ExperimentParams, DebugPrintParams):
                         print "Number of Codes in Trial: ", len(curryTrials[i+1])
                         print "\n"
                 else:
-                    pass
+                    if trialsToPrint > 1:
+                        try:
+                            print "---- Trial Number:", trialsToPrint,"----"
+                            print curryTrials[trialsToPrint-1]
+                            print "Number of Codes in Trial: ", len(curryTrials[trialsToPrint])
+                            print "\n"
+                        except:
+                            commandlineErrorCurryBlockToTrials(trialsToPrint, "argumentInvalid")
 
-                    # print "WARNING: number out of bounds, Did not print extra trials"
-                    # print "\n"
                 print "---- Last Curry Trial ----"
                 print curryTrials[-1]
                 print "Number of Codes in Trial: ", len(curryTrials[-1])
