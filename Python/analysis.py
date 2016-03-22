@@ -89,13 +89,19 @@ def buildExperiment(subjectDataPaths, maxDataPaths, curryDataPaths, scoreDataPat
             # get rid of practice trials
             deleted = 0 # keep track of shrinking index
             for trial in range(len(curry_block_data_one_subject_pair)):
-                trial -= deleted
+                trial -= deleted # keep track of shrinking index
+                # get rid of trials containing practice_note_code = 234
                 if  ExperimentParams.practice_note_code in curry_block_data_one_subject_pair[trial]:
                     curry_block_data_one_subject_pair.pop(trial)
                     deleted +=1
             curry_block_data.append(curry_block_data_one_subject_pair)
         curry_trial_data.append(curry_block_data)
         curry_block_data = [] # clear for new block data
+
+    #### MERGE AND CONCUR DATA ####
+    #### TODO  # Code function below, call it here
+    # throw out bad trials
+    max_trial_data, curry_trial_data = removeBadTrials(max_trial_data, curry_trial_data, ExperimentParams, DebugPrintParams)
 
     if local_debug:
         print "----------------------------------------------------------"
@@ -126,7 +132,8 @@ def buildExperiment(subjectDataPaths, maxDataPaths, curryDataPaths, scoreDataPat
             print "\n"
             print "Number of Subjects: ", len(max_trial_data)
             print "\n"
-            print "Number of Blocks: ", len(max_trial_data[subjectsToPrint]), "     For Subject:", subjectDataPaths[subjectsToPrint]
+            print "Number of Blocks For Subject: ", subjectDataPaths[subjectsToPrint]
+            print listOfListLengths(max_trial_data[subjectsToPrint])
             print "\n"
             print "Number of Trials: ", len(max_trial_data[subjectsToPrint][blocksToPrint]), "      For Block Number:", blocksToPrint + 1
             print "\n"
@@ -138,7 +145,8 @@ def buildExperiment(subjectDataPaths, maxDataPaths, curryDataPaths, scoreDataPat
             print "\n"
             print "Number of Subjects: ", len(curry_trial_data)
             print "\n"
-            print "Number of Blocks: ", len(curry_trial_data[subjectsToPrint]), "       For Subject:", subjectDataPaths[subjectsToPrint]
+            print "Number of Blocks For Subject: ", subjectDataPaths[subjectsToPrint]
+            print listOfListLengths(curry_trial_data[subjectsToPrint])
             print "\n"
             print "Number of Trials: ", len(curry_trial_data[subjectsToPrint][blocksToPrint]), "        For Block Number:", blocksToPrint + 1
             print "\n"
@@ -162,9 +170,6 @@ def buildExperiment(subjectDataPaths, maxDataPaths, curryDataPaths, scoreDataPat
             print "Last Subject : Last Block : Last Trial (Max Raw Data): "
             print max_trial_data[-1][-1][-1]
             print "\n"
-            # print "Subject Pairing:", subjectDataPaths[subjectsToPrint], "  Block:", blocksToPrint + 1, "   Trial:", trialsToPrint + 1
-            # print max_trial_data[subjectsToPrint][trialsToPrint][blocksToPrint]
-            # print "\n"
             if blocksToPrint  == '.' or trialsToPrint == '.':
                 for block in range(len(max_trial_data[subjectsToPrint])):
                     for trial in range(len(max_trial_data[subjectsToPrint][block])):
@@ -173,7 +178,7 @@ def buildExperiment(subjectDataPaths, maxDataPaths, curryDataPaths, scoreDataPat
                         print "\n"
             else:
                 print "Subject Pairing:", subjectDataPaths[subjectsToPrint], "  Block:", blocksToPrint + 1, "   Trial:", trialsToPrint + 1
-                print max_trial_data[subjectsToPrint][trialsToPrint][blocksToPrint]
+                print max_trial_data[subjectsToPrint][blocksToPrint][trialsToPrint]
                 print "\n"
             print "-----------------------------------------------"
             print "---------------- Curry Parsing ----------------"
@@ -192,7 +197,7 @@ def buildExperiment(subjectDataPaths, maxDataPaths, curryDataPaths, scoreDataPat
                         print "\n"
             else:
                 print "Subject Pairing:", subjectDataPaths[subjectsToPrint], "  Block:", blocksToPrint + 1, "   Trial:", trialsToPrint + 1
-                print curry_trial_data[subjectsToPrint][trialsToPrint][blocksToPrint]
+                print curry_trial_data[subjectsToPrint][blocksToPrint][trialsToPrint]
                 print "\n"
             print "First Subject : Fist Block : First Trial (Curry Trigger Codes): "
             print curry_trial_data[0][0][0]
@@ -212,9 +217,11 @@ def buildExperiment(subjectDataPaths, maxDataPaths, curryDataPaths, scoreDataPat
             print "---- Blocks To Print ----"
             if DebugPrintParams.blocks_to_print != '.':
                 print DebugPrintParams.blocks_to_print + 1
-                print "Value: ", DebugPrintParams.subjects_to_print
+                print "Value: ", DebugPrintParams.blocks_to_print
+                print "\n"
             else:
                 print "All Blocks"
+                print "\n"
             print "---- Current Subject Pair ----"
             print subjectDataPaths[DebugPrintParams.current_subject_pair]
             print "Value: ", DebugPrintParams.current_subject_pair
@@ -223,15 +230,12 @@ def buildExperiment(subjectDataPaths, maxDataPaths, curryDataPaths, scoreDataPat
             if DebugPrintParams.subjects_to_print != '.':
                 print subjectDataPaths[DebugPrintParams.subjects_to_print]
                 print "Value: ", DebugPrintParams.subjects_to_print
+                print "\n"
             else:
                 for i in range(len(subjectDataPaths)):
                     print subjectDataPaths[i]
             print "\n"
 
-    #### MERGE AND CONCUR DATA ####
-    #### TODO  # Code function below, call it here
-    # throw out bad trials
-    max_trial_data, curry_trial_data = removeBadTrials(max_trial_data, curry_trial_data, ExperimentParams, DebugPrintParams)
 
     #### BUILD EXPERIMENT OBJECT ####
     # create notes
@@ -566,7 +570,7 @@ def curryBlockToTrials(curryData, ExperimentParams, DebugPrintParams):
     # this is trigger code # 233 : metro tick
     metro_tick_trigger_code_233 = ExperimentParams.metronome_codes[-1]
     # these are the indices for all metro trigger codes (201 - 233)
-    metro_ticks = findIndices(curry_data, ExperimentParams.metronome_codes)
+    metro_ticks = findIndices(curry_data, ExperimentParams.metronome_codes, False)
 
     metro_tick_trigger_code_indices = []
     # we now need to grab only the last metro ticks so we can use them to
@@ -693,10 +697,10 @@ def curryBlockToTrials(curryData, ExperimentParams, DebugPrintParams):
                     # we should have twelve instances of 4 different trigger codes
                     # Since each trigger code is a permutaion of 2 variables that determine
                     # the order of deviant phrases
+                    print final_indices
+                    print "\n"
                     print "---- Trigger Codes Associated with Metronome Ticks  : [Index of] ----"
                     print metro_ticks
-                    print "\n"
-                    print final_indices
                     print "\n"
 
     return curryTrials
@@ -719,6 +723,13 @@ def removeBadTrials(maxTrials, curryTrials, ExperimentParams, DebugPrintParams):
     global debug_removeBadTrials
     local_debug = False
 
+    #### To Print ####
+    subjectsToPrint = DebugPrintParams.subjects_to_print
+    blocksToPrint = DebugPrintParams.blocks_to_print
+    trialsToPrint = DebugPrintParams.trials_to_print
+    print "subjectsToPrint", subjectsToPrint, "blocksToPrint", blocksToPrint, "trialsToPrint", trialsToPrint
+    print "\n"
+
     valid = ones(len(maxTrials), dtype=bool)
 
     ###### TODO # Fill in code
@@ -731,7 +742,7 @@ def removeBadTrials(maxTrials, curryTrials, ExperimentParams, DebugPrintParams):
     if debug_removeBadTrials:
         pass
 
-    return 0, 0
+    return maxTrials, curryTrials
 
 def parseScore(scoreDataPaths):
     """
@@ -952,7 +963,7 @@ if __name__ == '__main__':
         else:
             try:
                 if isinstance(int(sys.argv[3]),int):
-                    trialsToPrint = int(sys.argv[3])
+                    blocksToPrint = int(sys.argv[3])
             except:
                 commandlineErrorMain(sys.argv[3],'flagInvalid')
 
@@ -1000,7 +1011,7 @@ if __name__ == '__main__':
         if sys.argv[3] != '.':
             try:
                 if isinstance(int(sys.argv[3]),int):
-                    trialsToPrint = int(sys.argv[3])
+                    blocksToPrint = int(sys.argv[3])
             except:
                 commandlineErrorMain(sys.argv[3],'flagInvalid')
         else:
@@ -1010,7 +1021,7 @@ if __name__ == '__main__':
         elif sys.argv[4] != '.':
             try:
                 if isinstance(int(sys.argv[4]),int):
-                    blocksToPrint = int(sys.argv[4])
+                    trialsToPrint = int(sys.argv[4])
             except:
                 commandlineErrorMain(sys.argv[4],'flagInvalid')
 
@@ -1062,13 +1073,13 @@ if __name__ == '__main__':
         if sys.argv[3] != '.':
             try:
                 if isinstance(int(sys.argv[3]),int):
-                    trialsToPrint = int(sys.argv[3])
+                    blocksToPrint = int(sys.argv[3])
             except:
                 commandlineErrorMain(sys.argv[3],'argumentInvalid')
         if sys.argv[4] != '.':
             try:
                 if isinstance(int(sys.argv[4]),int):
-                    blocksToPrint = int(sys.argv[4])
+                    trialsToPrint = int(sys.argv[4])
             except:
                 commandlineErrorMain(sys.argv[4],'argumentInvalid')
         else:

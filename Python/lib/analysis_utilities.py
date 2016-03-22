@@ -24,10 +24,11 @@ class DebugPrintParams:
 def validateData(maxData,curryData):
     pass
 
-def findIndices(searchList,elem):
+def findIndices(searchList,elem, removeEmptyList=True):
     """ Return array of indices for a list of values"""
     indices = [[i for i, x in enumerate(searchList) if x == e] for e in elem]
-    indices = filter(None,indices) # remove empty lists
+    if removeEmptyList:
+        indices = filter(None,indices) # remove empty lists
     # indices = reduce(add, map(lambda x: list(x), [i for i in indices]))
     # indices = itertools.chain(indices)
     return indices
@@ -101,14 +102,14 @@ def printHelpMenu():
     print "          (formatted as: 'XX_YY'): print subject pair, omit others"
     print "          ('.'): print all subjects"
     print "\n"
-    print "Trial(s): The first and last trials in a block are printed by default"
+    print "Block(s): The first and last blocks in a block are printed by default"
     print "\n"
-    print "          (Int): number of additional trials to print"
-    print "          ('.'): print all trials in a block"
+    print "          (Int): number of block to print"
+    print "          ('.'): print all blocks for a subject"
     print "\n"
-    print "Block(s): All blocks are printed by default"
+    print "Trial(s): All trials are printed by default"
     print "\n"
-    print "          (Int): number of block to print (all others will be omitted)"
+    print "          (Int): number of trial to print (all others will be omitted)"
     print "          ('.'): print all trials in a block"
     print "\n"
     print "\n"
