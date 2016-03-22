@@ -739,7 +739,7 @@ def removeBadTrials(maxTrials, curryTrials, ExperimentParams, DebugPrintParams):
 
     valid = ones(len(maxTrials), dtype=bool)
     # look for error codes
-    # look for out of place shit (May need to look at block ordering)
+    # look for out of place trigger codes (May need to look at block ordering)
     # loop over subjects
     for subjectPair in range(len(curryTrials)):
         # loop over the blocks for each subject pair
