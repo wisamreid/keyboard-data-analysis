@@ -1,0 +1,29 @@
+1,4; BC even
+2,3; BC odd
+3,2; AA even
+4,1; AA odd
+5,8; BC even
+6,7; BC odd
+7,6; AA even
+8,5; AA odd
+9,11; BC odd
+10,12; BC even
+11,9; AA odd
+12,10; AA even
+
+
+
+1 AA odd 1
+1 AA even 2
+1 BC odd 3
+1 BC even 4
+
+12 AA odd 5
+12 AA even 6
+12 BC odd 7
+12 BC even 8
+
+2 AA odd 9
+2 AA even 10
+2 BC odd 11
+2 BC even 12
