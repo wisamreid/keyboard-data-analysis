@@ -38,6 +38,21 @@ def get_linenumber():
 
 print "This is line 7, python says line ", get_linenumber()
 
-# size 3 sliding window 
+# size 3 sliding window
 nums = [1, 3, 5, 6, 7, 8, 9, 10, 15, 19, 20, 22, 23, 24, 26, 27, 28, 32, 33, 35, 37, 38, 39, 40, 41, 42, 43, 44, 47, 48]
 [nums[i:i+3] for i in xrange(len(nums))]
+
+def diff(lst):
+    return map(lambda x,y: y-x, lst[:-1],lst[1:])
+
+def remove_consecutive(lst):
+    previous = None
+    for i, current in enumerate(diff(lst)):
+        if previous != 1 and current != 1:
+            yield lst[i]
+        previous = current
+    if current != 1:
+        yield lst[-1]
+
+list(remove_consecutive([1, 5, 9, 22, 23, 24, 33, 37]))
+# [1, 5, 9, 33, 37]
