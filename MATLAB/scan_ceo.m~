@@ -81,34 +81,67 @@ nsubj = 2 * npair;
 
 curr_file = 'data/MH_CN/MH_CN_BC_2_evt.txt';
 
-[ev, evtime, evtype] = getCurryFileEvents(curr_file,100);
+[ev, evtime, evtype] = getCurryFileEvents(curr_file,1000);
 
 %% find the time 0 of each trial
 % last metronome click in the count in 
 
-curr_ev = 233;
-tmp = evtime(evtype == curr_ev); % time stamps for curr_ev
+curr_ev = 233; % the current event type (trigger code)
+time_stamps = evtime(evtype == curr_ev); % time stamps for curr_ev
+ntime_stamps = length(time_stamps); % number of time stamps
 
 % select the right one as the last click before people play the notes
 it_good = [];
-for it = 2:length(tmp)
-    if  it < length(tmp) & tmp(it)-tmp(it-1) <1 & (tmp(it+1)-tmp(it) > 17 )
-        it_good = [it_good;it]; 
-    elseif it==length(tmp) & tmp(it)-tmp(it-1) <1  % last trial
-        it_good = [it_good;it]; 
+
+% TODO: ask Takako about this logic
+
+% loop through timestamps for the current event type (Trigger Code 233: Metronome)
+% we are looking to find the trials with in the block
+for ith_event_time = 2:ntime_stamps % chop off first 2 (If we want to process files in batches, this is not general enough)
+    
+    % Check If:
+    %
+    %   1) ith_event_time is with in the range of ntime_stamps 
+    %     &
+    %   2) the current time stamp - the previous time stamp, is less than one
+    %     &
+    %   3) the next time stamp - the current time stamp, is greater than 17 << Why 17 ??? >>
+    %                                                                           
+    if  ith_event_time < ntime_stamps & time_stamps(ith_event_time) - time_stamps(ith_event_time - 1) < 1 & (time_stamps(ith_event_time + 1) - time_stamps(ith_event_time) > 17 )
+
+        % store event index
+        it_good = [it_good;ith_event_time]; 
+    
+    % Catch last trial
+    %
+    % Check If:
+    %
+    %   1) ith_event_time is with in the range of ntime_stamps
+    %     &
+    %   2) the current time stamp - the previous time stamp, is less than one
+    %   
+    elseif ith_event_time == ntime_stamps & time_stamps(ith_event_time)-time_stamps(ith_event_time-1) < 1  
+        
+        % store event index
+        it_good = [it_good;ith_event_time]; 
+        
     end
+    
 end
 
-% during the actual trials, the metronomes comes 500ms and 17second
-% alternatively, so if the trial number separates not by 2, then it's
+% during the actual trials, the metronomes comes 500 ms and 17 sec
+% alternatively, so if the trials are not separated by an index of 2, then it's
 % not good
+% 
+% Wisam's Notes:
+% 
 tmp2 = it_good;
-it_good2= tmp2(find(tmp2(2:end)-tmp2(1:end-1)==2));
+it_good2 = tmp2(find(tmp2(2:end)-tmp2(1:end-1)==2));
 % also the last one is OK
-it_good2 =[it_good2; it_good(length(it_good))];
+it_good2 = [it_good2; it_good(length(it_good))];
 
 % this is the metronome time just immediately before the player's notes
-trial_time0=tmp(it_good2);
+trial_time0 = time_stamps(it_good2);
 ntrial = length(trial_time0);
 
 

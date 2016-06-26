@@ -1,18 +1,20 @@
 function [events, evtimes, evtypes] = getCurryFileEvents( curr_file, nEvents)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
 %%% ARGUMENTS:
-%       curr_file: Name of curry file [string] 
-%       nEvents: Number of events to return [int] (optional argument for truncating data)
+%       curr_file: Name of curry file [Type: string] 
+%       nEvents: Number of events to return [Type: int] (Optional argument for truncating data)
 %
 %%% RETURN VALUES:
-%       events: Array (number of events in block X 2) [double]  
+%       events: Array (Dim: number of events in block X 2) [Type: double]  
 %           This contains a column of time stamps and a column of trigger codes for each event
 %
-%       evtimes: Array (number of events in block X 1) [double] (Optional)
+%       evtimes: Array (Dim: number of events in block X 1) [Type: double] (Optional)
 %           This contains a column of time stamps for each event
 %
-%       evtypes: Array (number of events in block X 1) [double] (Optional)
+%       evtypes: Array (Dim: number of events in block X 1) [Type: double] (Optional)
 %           This contains a column of trigger codes for each event 
+%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % boolean for truncating output
@@ -27,8 +29,8 @@ if nargin == 1
     truncate = 0;
 end 
 
-if ~exist(curr_file)
-    error(sprintf('%s : file does not exist',curr_file));
+if ~exist(curr_file,'file')
+    error('%s : file does not exist',curr_file);
 end
 
 display(sprintf('Currently Parsing : %s',curr_file))
@@ -37,8 +39,6 @@ display(sprintf('Currently Parsing : %s',curr_file))
 dat = load(curr_file);
 fs = 500; % sample rate
 
-% get samples
-evsample = dat(:,1);
 % set time zero (subtract first time value divide by sample rate)
 evtimes = (dat(:,1)-dat(1,1))/fs; 
 % get trigger codes
