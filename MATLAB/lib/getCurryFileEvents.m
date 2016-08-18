@@ -16,6 +16,14 @@ function [events, evtimes, evtypes] = getCurryFileEvents( curr_file, nEvents)
 %           This contains a column of trigger codes for each event 
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%%% EXAMPLES:
+%
+% [events, evtimes, evtypes] = getCurryFileEvents( 'data/MH_CN/MH_CN_BC_2_evt.txt', 100)
+% 
+% [events] = getCurryFileEvents('data/MH_CN/MH_CN_BC_2_evt.txt')
+% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % boolean for truncating output
 truncate = 1;
@@ -27,6 +35,7 @@ end
 if nargin == 1
     % dont truncate
     truncate = 0;
+    nEvents = intmax('int64'); 
 end 
 
 if ~exist(curr_file,'file')
@@ -36,7 +45,7 @@ end
 display(sprintf('Currently Parsing : %s',curr_file))
 
 % load curry file
-dat = load(curr_file);
+dat = load(curr_file); 
 fs = 500; % sample rate
 
 % set time zero (subtract first time value divide by sample rate)
@@ -48,8 +57,10 @@ events = [evtypes, evtimes];
 
 if nEvents > size(evtimes,1)
     nEvents = num2str(nEvents);
-    display('Warning: In Function: getCurryFileEvents')
-    display(sprintf('The number %s, exceeds number of events in the block. \n Output was not truncated',nEvents));
+    if nargin ~= 1
+        display('Warning: In Function: getCurryFileEvents')
+        display(sprintf('The number %s, exceeds number of events in the block. \n Output was not truncated',nEvents));
+    end
     truncate = 0; % do not truncate
 end
 

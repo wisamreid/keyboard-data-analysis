@@ -81,7 +81,12 @@ nsubj = 2 * npair;
 
 curr_file = 'data/MH_CN/MH_CN_BC_2_evt.txt';
 
-[ev, evtime, evtype] = getCurryFileEvents(curr_file,1000);
+% FUNCTION DEF: getCurryFileEvents
+% [events, evtimes, evtypes] = getCurryFileEvents( curr_file [string], nEvents [int]) 
+% use a second argument to truncate output
+% 
+% For details see lib/getCurryFileEvents.m
+[ev, evtime, evtype] = getCurryFileEvents(curr_file);
 
 %% find the time 0 of each trial
 % last metronome click in the count in 
@@ -95,7 +100,8 @@ it_good = [];
 
 % loop through timestamps for the current event type (Trigger Code 233: Metronome)
 % we are looking to find the trials with in the block
-% THIS LOGIC WILL SKIP ALL SPURIOUS (Trigger Code 233's)
+% THIS LOGIC WILL SKIP ALL SPURIOUS Trigger Codes (233)
+% 
 for ith_event_time = 2:ntime_stamps % chop off first 2 (If we want to process files in batches, this is not general enough)
     
     % Check If:
@@ -135,6 +141,7 @@ end
 % Wisam's Notes:
 % If the index distance is greater than 2, this means that we skipped a
 % SPURIOUS (Trigger Code 233's) in the loop above
+% 
 tmp2 = it_good;
 it_good2 = tmp2(find(tmp2(2:end)-tmp2(1:end-1)==2));
 % also the last one is OK
