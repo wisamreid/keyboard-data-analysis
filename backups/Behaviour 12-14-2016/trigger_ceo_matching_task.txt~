@@ -1,0 +1,48 @@
+% this is for Wisam and Takako's agenda to address
+% the matching of the Curry trigger files (.ceo) and
+% Max log single trial files (_coll.txt) that are
+% produced by Duet phase 1 (451C project 2016 Winter)
+
+
+% this note is created on Dec 9 2016
+
+% all the ceo files and its extracted event information are
+/user/t/takako/MATLAB/Duet/Behaviour/
+MH_CN
+IR_WR
+SM_RR
+TD_NG
+XZ_CO
+
+b[01 .. 12].ceo : original Curry file
+b[01 .. 12]_evt.txt : only the middle part with Trigger code and sample point that corresponds to EEG data files (fs = 500 Hz)  In this file, the first column represents the sample point (e.g., timing, but in 500Hz, so for example, in IR_WR/b01_evt, sample point (line 1) =  
+29910, (line 2) = 29915. If you define time zero at the first metronome beat, time point 2 (line2) = 29915-29910 = 5. 5 sampling points = 5 * 2ms = 10 ms.
+
+% all the Max log files are in the same directory for each pair.
+trial-[01 .. 12]_[-2, -1, (skip 0), 1,2...].coll.txt
+
+!!warning!!
+this includes the two practice trials (-2, -1) and the imcomplete/unsuccessful trials (MAX just wrote whatever)
+Takako has removed the log files which did not belong to the actual one session from this directory, based on the timestamp of the file generated on the mac. This information can be found ../PianoDuet_alllogs.xlsx
+
+!!warning!!
+Also when MAX wrote the files out, the trial number was not overwritten, meaning, if some files left over from the practice/pilot sessions for that directory (e.g., trial-01-06.coll.txt existed when you were doing some recording next day, it will skip and write out trial-01-07.coll.txt instead). Therefore, you have to read the trial number with an automated fasion. Now, because Takako removed manually the files that didn't belong to the actual recording, it should work, if you go to the next available trial numbered file, but if something is not OK, you should check that back track.
+
+
+
+
+
+% task (1)
+
+1.1
+we want to know which of the note (one for each player) in a single Max log file
+was the deviant.
+
+The deviant note location should be in the first trigger of the trial, which is coincided with the first metronome beat, and followed by two metronome trigger.
+- for the Trigger code definition, see /user/t/takako/Documents/Music451C/Setup/Trigger20160217.xls (Go Sheet 1, column G)
+In Column D, this defines the deviant note position for Player 1 (which is defined by the filename convention for each pair e.g., IR_WR means Player 1 is IR, Player 2 is WR)
+
+
+
+
+

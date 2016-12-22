@@ -1,0 +1,54 @@
+# ## ceo files (just the order of time stamps)
+# cp ./IR_WR/IR_AA_1.ceo   ./IR_WR/b01.ceo
+# cp ./IR_WR/IR_AA_2.ceo   ./IR_WR/b02.ceo
+# cp ./IR_WR/IR_BC_2.ceo   ./IR_WR/b03.ceo
+# cp ./IR_WR/IR_BC_1.ceo   ./IR_WR/b04.ceo
+
+# cp ./IR_WR/IR_WR_AA_1.ceo   ./IR_WR/b05.ceo
+# cp ./IR_WR/IR_WR_AA_2.ceo   ./IR_WR/b06.ceo
+# cp ./IR_WR/IR_WR_BC_1.ceo   ./IR_WR/b07.ceo
+# cp ./IR_WR/IR_WR_BC_2.ceo   ./IR_WR/b08.ceo
+
+# cp ./IR_WR/WR_AA_1.ceo   ./IR_WR/b09.ceo
+# cp ./IR_WR/WR_AA_2.ceo   ./IR_WR/b10.ceo
+# cp ./IR_WR/WR_BC_1.ceo   ./IR_WR/b11.ceo
+# cp ./IR_WR/WR_BC_2.ceo   ./IR_WR/b12.ceo
+
+# ### evt files
+# cp ./IR_WR/IR_AA_1_evt.txt   ./IR_WR/b01_evt.txt
+# cp ./IR_WR/IR_AA_2_evt.txt   ./IR_WR/b02_evt.txt
+# cp ./IR_WR/IR_BC_2_evt.txt   ./IR_WR/b03_evt.txt
+# cp ./IR_WR/IR_BC_1_evt.txt   ./IR_WR/b04_evt.txt
+
+# cp ./IR_WR/IR_WR_AA_1_evt.txt   ./IR_WR/b05_evt.txt
+# cp ./IR_WR/IR_WR_AA_2_evt.txt   ./IR_WR/b06_evt.txt
+# cp ./IR_WR/IR_WR_BC_1_evt.txt   ./IR_WR/b07_evt.txt
+# cp ./IR_WR/IR_WR_BC_2_evt.txt   ./IR_WR/b08_evt.txt
+
+# cp ./IR_WR/WR_AA_1_evt.txt   ./IR_WR/b09_evt.txt
+# cp ./IR_WR/WR_AA_2_evt.txt   ./IR_WR/b10_evt.txt
+# cp ./IR_WR/WR_BC_1_evt.txt   ./IR_WR/b11_evt.txt
+# cp ./IR_WR/WR_BC_2_evt.txt   ./IR_WR/b12_evt.txt
+
+# cnt files
+mv /scratch/Piano_Duet/IR_WR/IR_AA_1_Data.cnt   /scratch/Piano_Duet/IR_WR/IR_AA2.cnt
+mv /scratch/Piano_Duet/IR_WR/IR_AA_2_Data.cnt   /scratch/Piano_Duet/IR_WR/IR_AA1.cnt
+mv /scratch/Piano_Duet/IR_WR/IR_BC_2_Data.cnt   /scratch/Piano_Duet/IR_WR/IR_BC2.cnt
+mv /scratch/Piano_Duet/IR_WR/IR_BC_1_Data.cnt   /scratch/Piano_Duet/IR_WR/IR_BC1.cnt
+
+
+mv /scratch/Piano_Duet/IR_WR/IR_WR_AA_1_SubA_Data.cnt   /scratch/Piano_Duet/IR_WR/IR_WR_AA1_SubA.cnt
+mv /scratch/Piano_Duet/IR_WR/IR_WR_AA_2_SubA_Data.cnt   /scratch/Piano_Duet/IR_WR/IR_WR_AA2_SubA.cnt
+mv /scratch/Piano_Duet/IR_WR/IR_WR_BC_1_SubA_Data.cnt   /scratch/Piano_Duet/IR_WR/IR_WR_BC1_SubA.cnt
+mv /scratch/Piano_Duet/IR_WR/IR_WR_BC_2_SubA_Data.cnt   /scratch/Piano_Duet/IR_WR/IR_WR_BC2_SubA.cnt
+
+mv /scratch/Piano_Duet/IR_WR/IR_WR_AA_1_SubB_Data.cnt   /scratch/Piano_Duet/IR_WR/IR_WR_AA1_SubB.cnt
+mv /scratch/Piano_Duet/IR_WR/IR_WR_AA_2_SubB_Data.cnt   /scratch/Piano_Duet/IR_WR/IR_WR_AA2_SubB.cnt
+mv /scratch/Piano_Duet/IR_WR/IR_WR_BC_1_SubB_Data.cnt   /scratch/Piano_Duet/IR_WR/IR_WR_BC1_SubB.cnt
+mv /scratch/Piano_Duet/IR_WR/IR_WR_BC_2_SubB_Data.cnt   /scratch/Piano_Duet/IR_WR/IR_WR_BC2_SubB.cnt
+
+
+mv /scratch/Piano_Duet/IR_WR/WR_AA_1_Data.cnt   /scratch/Piano_Duet/IR_WR/WR_AA1.cnt
+mv /scratch/Piano_Duet/IR_WR/WR_AA_2_Data.cnt   /scratch/Piano_Duet/IR_WR/WR_AA2.cnt
+mv /scratch/Piano_Duet/IR_WR/WR_BC_1_Data.cnt   /scratch/Piano_Duet/IR_WR/WR_BC2.cnt
+mv /scratch/Piano_Duet/IR_WR/WR_BC_2_Data.cnt   /scratch/Piano_Duet/IR_WR/WR_BC1.cnt

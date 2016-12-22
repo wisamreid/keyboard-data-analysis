@@ -1,0 +1,219 @@
+About <#>
+takako@ccrma.stanford.edu Logout <./?_task=logout>
+Mail <./?_task=mail> Address Book <./?_task=addressbook> Settings
+<./?_task=settings> Logout <./?_task=logout>
+Logo
+
+Back <./?_task=mail&_action=list> Compose
+<./?_task=mail&_action=compose> Reply <#> Reply all <#> Forward <#>
+Delete <#> Move <#> Print <#> Mark <#> More <#>
+
+  *
+    Forward inline
+
+    <#>
+  *
+    Forward as attachment
+
+    <#>
+
+  *
+    Reply all
+
+    <#>
+  *
+    Reply list
+
+    <#>
+
+  *
+    Print this message
+
+    <#>
+  *
+    Download (.eml)
+
+    <#>
+  *
+    Edit as new
+
+    <#>
+  *
+    Show source
+
+    <#>
+  *
+    Move to...
+
+    <#>
+  *
+    Copy to...
+
+    <#>
+  *
+    Open in new window
+
+    <#>
+  *
+    Create filter
+
+    <#>
+
+  *
+    As read
+
+    <#>
+  *
+    As unread
+
+    <#>
+  *
+    As flagged
+
+    <#>
+  *
+    As unflagged
+
+    <#>
+
+  *
+    Inbox7704
+
+    <./?_task=mail&_mbox=INBOX>
+  *
+    Drafts
+
+    <./?_task=mail&_mbox=Drafts>
+  *
+    Sent
+
+    <./?_task=mail&_mbox=Sent>
+  *
+    AuditoryList319
+
+    <./?_task=mail&_mbox=AuditoryList>
+  *
+    Auris5
+
+    <./?_task=mail&_mbox=Auris>
+  *
+    mail-trash
+
+    <./?_task=mail&_mbox=mail-trash>
+
+
+    scores
+
+From 	Madeline Huberth <mailto:mhuberth@ccrma.Stanford.EDU>Add contact
+<#add>
+Sender 	madelinehuberth@gmail.com <mailto:madelinehuberth@gmail.com>Add
+contact <#add>
+To 	Takako Fujioka <mailto:takako@ccrma.Stanford.EDU>Add contact <#add>
+Date 	2016-07-20 12:19
+
+Message 266 of 28298 < <#> > <#>
+change-format <#>change-format <#>
+
+  *
+    orders_2sets.zip
+
+    <./?_task=mail&_uid=28684&_mbox=INBOX&_action=get&_part=2>
+  *
+    stim-two-staff-midi.png
+
+    <./?_task=mail&_uid=28684&_mbox=INBOX&_action=get&_part=3>
+
+To protect your privacy, remote images are blocked in this
+message. Display images <#loadimages>
+Hi Takako,
+
+Attached are the scores. Apologies for any part of the web of detective
+work on this I may have caused. I feel compelled to help demystify a
+bit... if Chryssie does the same, I hope our accounts will confirm each
+other!
+
+This is my understanding of how the system was supposed to work. The
+experimenter had two settings at the top level Max patch. The drop-down
+on the left determined which set of scores score would be played by the
+human pair and the human/computer duet (the first AA/BC pair on the
+attached scores, or the second pair). The drop-down on the right
+determined if the AA blocks or the BC blocks would be run first (Block
+Order 1, Block Order 2, respectively) in each part of the experiment
+(Human1/Max2, Human1/Human2, or Human2/Max1, each 4 blocks).
+
+Inline image 3
+
+Then, the order of which player would play first for each part was
+determined 'randomly' by picking one of the 'order_*' files (selecting
+from order_1* if Block Order 1 was set, or order_2* if Block Order 2 was
+set). The eight files in each order_1* and order_2* set represented the
+eight possibilities that in each of the three 4-block sets, either
+player 1 or player 2 could start. These mappings are as follows:
+
+*Which player played first?*
+Order 	Human 1/Max 2 	Human 1/Human 2 	Max 1/Human 2
+order_*A 	1 	1 	1
+order_*B 	1 	1 	2
+order_*C 	1 	2 	1
+order_*D 	1 	2 	2
+order_*E 	2 	1 	1
+order_*F 	2 	1 	2
+order_*G 	2 	2 	1
+order_*H 	2 	2 	2
+
+
+Thus at this point, the block order for the entire experiment (12
+blocks, corresponding to the 12 numbers listed in the second column of
+each of the order_* files) was effectively determined. A rerun of the
+settings (loading a block order and clicking through the block labels
+that came up in the screen shot below) confirmed the following original
+mapping of numbers to stimulus type:
+
+Inline image 4
+
+(I've changed odd/even to first/second below - I think its easier to
+understand!)
+1: Player 1 first - AA - Human 1/Max 2
+2: Player 1 second - AA - Human 1/Max 2
+3: Player 1 first - BC - Human 1/Max 2
+4: Player 1 second - BC - Human 1/Max 2
+5: Player 1 first - AA - Human 1/Human 2
+6: Player 1 second - AA - Human 1/Human 2
+7: Player 1 first - BC - Human 1/Human 2
+8: Player 1 second - BC - Human 1/Human 2
+9: Player 1 first - AA - Max 1/Human 2
+10: Player 1 second - AA - Max 1/Human 2
+11: Player 1 first - BC - Max 1/Human 2
+12: Player 1 second - BC - Max 1/Human 2
+
+Again, that is my understanding... One potential issue was if Max was
+restarted, this would cause a different ordering of who plays first and
+second, even if the two top-level settings were the same. Unless the
+block-order.txt file (which is a saved version of the order_* file
+selected at the beginning) was renamed or moved, I think would be
+overwritten...
+
+The reasoning behind randomizing the ordering (who goes first/second in
+each set) was that counter-balancing two settings was thought to be
+easier to manage for the experimenter rather than three, though perhaps
+this should be simplified, or mistake-proofed.
+
+Best,
+Madeline
+
+stim-two-staff-midi.png
+
+<./?_task=mail&_uid=28684&_mbox=INBOX&_action=get&_part=3>stim-two-staff-midi.png~974
+KBShow
+<./?_task=mail&_uid=28684&_mbox=INBOX&_action=get&_part=3> Download
+<./?_task=mail&_uid=28684&_mbox=INBOX&_action=get&_part=3&_download=1>
+
+  *
+    Open
+
+    <#>
+  *
+    Download
+
+    <#>
+

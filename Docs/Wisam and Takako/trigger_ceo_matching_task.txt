@@ -1,0 +1,182 @@
+% this is for Wisam and Takako's agenda to address
+% the matching of the Curry trigger files (.ceo) and
+% Max log single trial files (_coll.txt) that are
+% produced by Duet phase 1 (451C project 2016 Winter)
+
+
+% this note is created on Dec 9 2016
+
+% all the ceo files and its extracted event information are
+/user/t/takako/MATLAB/Duet/Behaviour/
+MH_CN
+IR_WR
+SM_RR
+TD_NG
+XZ_CO
+
+b[01 .. 12].ceo : original Curry file
+b[01 .. 12]_evt.txt : only the middle part with Trigger code and sample point that corresponds to EEG data files (fs = 500 Hz)  In this file, the first column represents the sample point (e.g., timing, but in 500Hz, so for example, in IR_WR/b01_evt, sample point (line 1) =  
+29910, (line 2) = 29915. If you define time zero at the first metronome beat, time point 2 (line2) = 29915-29910 = 5. 5 sampling points = 5 * 2ms = 10 ms.
+
+% all the Max log files are in the same directory for each pair.
+trial-[01 .. 12]_[-2, -1, (skip 0), 1,2...].coll.txt
+
+!!warning!!
+this includes the two practice trials (-2, -1) and the incomplete/unsuccessful trials (MAX just wrote whatever)
+Takako has removed the log files which did not belong to the actual one session from this directory, based on the timestamp of the file generated on the mac. This information can be found ../PianoDuet_alllogs.xlsx
+
+!!warning!!
+Also when MAX wrote the files out, the trial number was not overwritten, meaning, if some files left over from the practice/pilot sessions for that directory (e.g., trial-01-06.coll.txt existed when you were doing some recording next day, it will skip and write out trial-01-07.coll.txt instead). Therefore, you have to read the trial number with an automated fashion. Now, because Takako removed manually the files that didn't belong to the actual recording, it should work, if you go to the next available trial numbered file, but if something is not OK, you should check that back track. So, this resulted in the trial numbers time to time to skip. 
+
+% Max log file contents
+
+(1) the block 01-04 belong to Player 1 playing with Computer (as Player 2).
+
+the note log starts from the  note 1, in the case of Player 1 starts first,
+    or the note 7, in the case of Player 2(Computer) starts first.
+    Hence, the two scenarios result in two different number of notes in total.
+    the first column indicate the designated note in the score (note 1 to 31)
+
+
+(2) the block 05-08 belong to Player 1 playing with Player 2.
+
+the note log contains 31 notes if all the notes were played. This does not mean this trial was successful, because the score notes might not have been played correctly and/or the timing was too slow or fast. But, if the number of notes in total was not 31, then clearly this is unsuccessful trial.
+
+$1: note number
+$2: IOI inter onset interval of the current note from the previous note in (ms)
+$3: the player number
+$4: the MIDI note number
+$5: the MIDI velocity
+$6: the length of the current note in (ms)
+
+The unison part in the measure 5 (starting with note 25) are, actually only logged from the player 1 part. Actual performance was 25,26,27 were played by the Player 1 and 28,29,30,31 were played by both. However, the MAX log does not provide the information of the Player 2.
+
+
+
+(3) the block 09-12 belong to Player 2 playing with Computer (which is Player 1).
+
+The configuration and two types of the number of the notes are same as the other 4 blocks (01-04). Note that the 3rd field indicates the player 2.
+
+
+% Our task (1)
+
+1.1
+we want to know which of the note (one for each player) in a single Max log file
+was the deviant.
+
+The deviant note location should be in the first trigger of the trial, which is coincided with the first metronome beat, and followed by two metronome trigger.
+- for the Trigger code definition, see /user/t/takako/Documents/Music451C/Setup/Trigger20160217.xls (Go Sheet 1, column G)
+
+In Column D, this defines the deviant note position for Player 1 (which is defined by the filename convention for each pair e.g., IR_WR means Player 1 is IR, Player 2 is WR)
+
+For example, Trigger code 201 means that the deviant note were planned at 1st phrase for the Player 1, and the deviant note were planned for Player 2 was 2. (0 means 1st phrase, 1 means 3rd phrase for Player 1, and 0 means 2nd phrase for Player 2, 1 means 4th)
+This means Trigger for identifying the deviant position as well as the order of the part and combination of the players will go to 201-232.
+
+
+% definition of feedback triggers
+
+each note is played, and the trigger code (Sheet 2) will be sent to the Curry.
+But, immediately, this will be followed by the feedback trigger whether or not the note was correctly played or deviant-altered (Sheet 3)
+In Sheet 3, 240-6 indicate the different error types.
+237: correctly played note (which is a feed back trigger, sent from Max) and standard note
+235 or 239: successfully played deviant note, and auditory-feedback was altered,
+
+first phrase with no deviant
+11 
+237
+12
+237
+13
+237
+14
+237
+15
+237
+16
+237
+first phrase with a deviant
+11 
+237
+12
+237
+13
+237
+54
+235 or 239
+15
+237
+16
+237
+
+note that the deviant only occurs at 4th or 5th note in one phrase.
+
+Therefore, in the end, your deivant notes are one of (54, 55, 64, 65) for player 1, and one of (154, 155, 164, 165) for Player 2.
+One trial always contain one deviant for each Player.
+
+233: metronome. (Sheet 6, practice trial)
+
+
+
+Now, look in to the ceo file, and the block order is in 
+
+
+Trigger20160212_ceo_updated_20160813.xls for chronological file order where b01_evt.txt etc. are produced
+
+also see rename_blocks_ceo_(pairname).sh for the actual block order, and the condition.
+
+
+1.2
+Which trials were successful?
+
+look in to the calc_diff_IOI_blocknum_ceo.m
+there are routines for veryfying and identifying the MIDI note sequences and the reading the IOI files from the MAX trial files
+
+ARE ALL TRIALS in one block match to the entire curry ceo information?
+
+WHICH ONE is the deviant note...??
+
+
+—————————————————————
+
+% this note is created on Dec 13 2016
+
+Wisam’s Notes:
+
+In the end we want to know which trials where successful, in successful trials which notes are deviant
+
+Start by trial reconstruction from ceo files
+
+
+finding the matching trial files (max) for the .ceo files 
+
+Maybe we can reconstruct what was played from the curry files, setting the max files aside 
+Velocity and note duration is not possible 
+but IOI is 
+
+IOI is of interest
+
+organize all of it for successful trials 
+
+then try aligning to max data 
+
+—————————————————————
+
+
+By Dec 24th I plan to have at least the ceo reconstruction done (Maybe the alignment with Max as well)
+
+Ask Iran about data Mat format 
+
+
+Task (2)
+
+IOI Analysis - Dump to Christie and Madeline
+
+Takako has updated stuff from 
+
+Once we have IOI engendered, then we will have some newer data 
+
+
+
+
+
+

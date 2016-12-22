@@ -1,0 +1,9 @@
+cp ./MH_CN/MH_BC_2.ceo   ./MH_CN/b1.ceo
+cp ./MH_CN/MH_BC_1.ceo   ./MH_CN/b2.ceo
+cp ./MH_CN/MH_AA_2.ceo   ./MH_CN/b3.ceo
+cp ./MH_CN/MH_AA_1.ceo   ./MH_CN/b4.ceo
+
+cp ./MH_CN/MH_CN_BC_1.ceo   ./MH_CN/b5.ceo
+cp ./MH_CN/MH_CN_BC_2.ceo   ./MH_CN/b2.ceo
+cp ./MH_CN/MH_CN_AA_1.ceo   ./MH_CN/.ceo
+cp ./MH_CN/MH_CN_AA_2.ceo   ./MH_CN/MH_b4.ceo
