@@ -223,15 +223,8 @@ deviant_note_time_stamps = curry_file_event_times(curry_file_event_trigger_codes
  
 % grab the deviant note time indices
 [~,deviant_note_time_idx] = ismember(deviant_note_time_stamps,curry_file_event_times);
-% grab the times for the actual note trigger codes
+% grab the timeactual note trigger codes
 deviant_note_time_idx = deviant_note_time_idx - 1;
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Should I be using the 'deviant_note_time_stamps' to caluclate the IOI
-% or should I use 'curry_file_event_times' indexed by the notes
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % store the deviant note positions for the odd and even player (1st or 3rd column)
 % store the deviant note IOIs for the odd and even player (2nd or 4th column)

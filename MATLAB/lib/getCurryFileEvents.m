@@ -1,11 +1,12 @@
 function [events, evtimes, evtypes] = getCurryFileEvents( curr_file, nEvents)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
-%%% ARGUMENTS:
-%       curr_file: Name of curry file [Type: string] 
-%       nEvents: Number of events to return [Type: int] (Optional argument for truncating data)
+%%%     ARGUMENTS:
+% 
+%           curr_file: Name of curry file [Type: string] 
+%           nEvents: Number of events to return [Type: int] (Optional argument for truncating data)
 %
 %%% RETURN VALUES:
+% 
 %       events: Array (Dim: number of events in block X 2) [Type: double]  
 %           This contains a column of time stamps and a column of trigger codes for each event
 %
@@ -17,11 +18,18 @@ function [events, evtimes, evtypes] = getCurryFileEvents( curr_file, nEvents)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%%% EXAMPLES:
+%%%      EXAMPLES:
 %
-% [events, evtimes, evtypes] = getCurryFileEvents( 'data/MH_CN/MH_CN_BC_2_evt.txt', 100)
+% [events, evtimes, evtypes] = getCurryFileEvents( 'data/IR_WR/b01_evt.txt', 100)
 % 
-% [events] = getCurryFileEvents('data/MH_CN/MH_CN_BC_2_evt.txt')
+% [events] = getCurryFileEvents('data/IR_WR/b01_evt.txt')
+% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 
+%%%        AUTHOR:
+% 
+%               Wisam Reid
+%               wisam@ccrma.stanford.edu
 % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
