@@ -7,21 +7,27 @@ function [events, evtimes, evtypes] = getCurryFileEvents( curr_file, nEvents)
 %
 %%% RETURN VALUES:
 % 
-%       events: Array (Dim: number of events in block X 2) [Type: double]  
+%       events: Array (Dim: number of events in block X 2) [Type: double] 
+%           
+%           [evtimes, evtypes]
 %           This contains a column of time stamps and a column of trigger codes for each event
 %
 %       evtimes: Array (Dim: number of events in block X 1) [Type: double] (Optional)
+%           
 %           This contains a column of time stamps for each event
 %
 %       evtypes: Array (Dim: number of events in block X 1) [Type: double] (Optional)
+% 
 %           This contains a column of trigger codes for each event 
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %%%      EXAMPLES:
-%
-% [events, evtimes, evtypes] = getCurryFileEvents( 'data/IR_WR/b01_evt.txt', 100)
 % 
+% Truncate to 100 values:
+%       [events, evtimes, evtypes] = getCurryFileEvents( 'data/IR_WR/b01_evt.txt', 100)
+% 
+% No Truncation:
 % [events] = getCurryFileEvents('data/IR_WR/b01_evt.txt')
 % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -61,8 +67,10 @@ evtimes = (dat(:,1)-dat(1,1))/fs;
 % get trigger codes
 evtypes = dat(:,3);
 
-events = [evtypes, evtimes];
+events = [evtimes, evtypes];
 
+% check to see if nEvents was set by the user
+% Are we going to truncate or not?
 if nEvents > size(evtimes,1)
     nEvents = num2str(nEvents);
     if nargin ~= 1
