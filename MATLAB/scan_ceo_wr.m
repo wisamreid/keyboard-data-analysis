@@ -78,7 +78,7 @@ nSubj = 2 * nPair;
 %% Grab a curry file
 % each curry file contains a block of trials 
 % 
-curr_file = 'data/IR_WR/b08_evt.txt';
+curr_file = 'data/IR_WR/b05_evt.txt';
 
 % FUNCTION DEF: getCurryFileEvents
 % [events, evtimes, evtypes] = getCurryFileEvents( curr_file [string], nEvents [int]) 
@@ -115,7 +115,7 @@ for ith_event_time_idx = 2:nCurry_metronome_events
     %   2) the current time stamp - the previous time stamp, is less than one second
     %     &
     %   3) the next time stamp - the current time stamp, is greater than 17 seconds
-    %                                                                           
+    %
     if  ith_event_time_idx < nCurry_metronome_events & ...
         metronome_event_time_stamps(ith_event_time_idx) - metronome_event_time_stamps(ith_event_time_idx - 1) < 1 & ...
         (metronome_event_time_stamps(ith_event_time_idx + 1) - metronome_event_time_stamps(ith_event_time_idx) > 17 )
@@ -150,10 +150,31 @@ end
 % SPURIOUS (Trigger Code 233's) in the loop above
 % 
 tmp = good_trial_idx;
+% nTmp = length(tmp)
 good_trial_idx = tmp(find(tmp(2:end)-tmp(1:end-1)==2));
+% nGT = length(good_trial_idx)
 
-% clean out redundant indices
-good_trial_idx = [tmp(1); unique(good_trial_idx)]; % include first trial
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% diff = tmp(2:end)-tmp(1:end-1)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% include first trial (the second practice trial has 3 233 TCs)
+if tmp(2) - tmp(1) == 3 
+    good_trial_idx = [tmp(1); unique(good_trial_idx)]; % clean out redundant indices
+
+else
+    good_trial_idx = unique(good_trial_idx); % clean out redundant indices
+end
+
+% include final trial?
+if tmp(end) - tmp(end - 1) == 2
+    good_trial_idx = [good_trial_idx; tmp(end)];
+end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% poop = [good_trial_idx; zeros(length(tmp) - length(good_trial_idx),1)];
+% dater = [tmp,poop]
+% size(dater)
 
 % this is the metronome time just immediately before the player's notes
 trial_time_stamps = metronome_event_time_stamps(good_trial_idx);
@@ -179,8 +200,8 @@ nTrials = length(trial_time_stamps);
 error_TRIGGER_CODE_time_stamps = curry_file_event_time_stamps(curry_file_event_trigger_codes >= 240 & ...
          curry_file_event_trigger_codes <= 246 | ...
          curry_file_event_trigger_codes == 234);
-% error TCs
-error_TRIGGER_CODES = curry_file_event_trigger_codes(curry_file_event_trigger_codes == 234);
+% practice TCs
+practice_TRIGGER_CODES = curry_file_event_trigger_codes(curry_file_event_trigger_codes == 234);
      
 % store error trial indices
 error_trial_idx =[];
@@ -208,8 +229,8 @@ for ith_trial = 2:nTrials
             % add error trial index
             error_trial_idx = [error_trial_idx;ith_trial - 1];
              % loop over 234 trigger codes
-            if curr_error_TC <= length(error_TRIGGER_CODES)
-                if error_TRIGGER_CODES(curr_error_TC) == 234
+            if curr_error_TC <= length(practice_TRIGGER_CODES)
+                if practice_TRIGGER_CODES(curr_error_TC) == 234
                     practice_trial_idx = [practice_trial_idx;ith_trial - 1];
                 end
             end            
@@ -218,8 +239,8 @@ for ith_trial = 2:nTrials
             % add error trial index
             error_trial_idx = [error_trial_idx;ith_trial - 1];
              % loop over 234 trigger codes
-            if curr_error_TC <= length(error_TRIGGER_CODES)
-                if error_TRIGGER_CODES(curr_error_TC) == 234
+            if curr_error_TC <= length(practice_TRIGGER_CODES)
+                if practice_TRIGGER_CODES(curr_error_TC) == 234
                     practice_trial_idx = [practice_trial_idx;ith_trial - 1];
                 end
             end            
@@ -258,12 +279,12 @@ end
 
 %%%%%%%%%%%%% END CATCH FINAL TRIAL %%%%%%%%%%%%%%
 
-% clear redundant 
-error_trial_idx = unique(error_trial_idx);
-nErrors = length(error_trial_idx);
-
 % get number of practice trials
 nPracticeTrials = length(practice_trial_idx);
+
+% clear redundant 
+error_trial_idx = unique(error_trial_idx);
+nErrors = length(error_trial_idx) - nPracticeTrials;
 
 %% Correct Trials
 
@@ -280,7 +301,8 @@ nGoodTrials = length(good_trial_time_stamps);
 % grab the time stamps for all deviant notes in the block  
 deviant_note_confirmation_time_stamps = curry_file_event_time_stamps(curry_file_event_trigger_codes == 235 | ...
                                                   curry_file_event_trigger_codes == 239);
- 
+% num_dev = length(deviant_note_confirmation_time_stamps) 
+
 % grab the deviant note time indices
 [~,deviant_note_time_idx] = ismember(deviant_note_confirmation_time_stamps,curry_file_event_time_stamps);
 % grab the times for the actual note trigger codes
@@ -295,8 +317,8 @@ next_note_time_stamps = curry_file_event_time_stamps(next_note_played_time_idx);
 
 % calculate IOIs
 deviant_IOIs = next_note_time_stamps - deviant_note_time_stamps;
-deviant_IOIs = [zeros(nPracticeTrials, 1); deviant_IOIs];
-% deviant_IOIs = [zeros(2, 1); deviant_IOIs];
+deviant_IOIs = [zeros(nPracticeTrials*2, 1); deviant_IOIs];
+nIOIs = length(deviant_IOIs);
 
 %% Create an empty array for the deviant note data 
 
@@ -333,7 +355,6 @@ for ith_trial = 2:nTrials
     % deviant note indexes
     curr_trial_deviant_idx = find(tmp_TCs == 235 | tmp_TCs == 239);
     % get the actual note numbers  
-%     curr_trial_deviant_note_numbers = int8(curr_trial_deviant_idx./2); % cast to int
     curr_trial_deviant_note_numbers = floor(curr_trial_deviant_idx./2); 
    
     % grab the event codes
@@ -346,7 +367,6 @@ for ith_trial = 2:nTrials
         % grab the deviant IOIs for the current trial
         curr_trial_IOIs = [deviant_IOIs((ith_trial - 1)*2 - 1), deviant_IOIs((ith_trial - 1)*2)];
         
-        tmp_TCs
         if ~ismember(ith_trial - 1, error_trial_idx)
             %%%%%%%%%%%%%%%%%%%%%%%%%% SANITY CHECK %%%%%%%%%%%%%%%%%%%%%%%%%%
             % assert that there are exactly 2 deviant notes 
@@ -463,9 +483,10 @@ deviant_note_data(error_trial_idx,:) = [];
 
 nTrials
 nGoodTrials
-nErrors 
+nErrors
+nPracticeTrials
 
 
 deviant_note_data
-length(deviant_note_data)
+size(deviant_note_data)
 
