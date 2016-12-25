@@ -28,7 +28,7 @@ function [events, evtimes, evtypes] = getCurryFileEvents( curr_file, nEvents)
 %       [events, evtimes, evtypes] = getCurryFileEvents( 'data/IR_WR/b01_evt.txt', 100)
 % 
 % No Truncation:
-% [events] = getCurryFileEvents('data/IR_WR/b01_evt.txt')
+%       [events] = getCurryFileEvents('data/IR_WR/b01_evt.txt')
 % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 
