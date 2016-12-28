@@ -78,7 +78,7 @@ nSubj = 2 * nPair;
 %% Grab a curry file
 % each curry file contains a block of trials 
 % 
-curr_file = 'data/IR_WR/b01_evt.txt';
+curr_file = 'data/IR_WR/b05_evt.txt';
 
 % FUNCTION DEF: getCurryFileEvents
 % [events, evtimes, evtypes] = getCurryFileEvents( curr_file [string], nEvents [int]) 
@@ -109,9 +109,7 @@ good_trial_idx = [];
 % we are looking to find the trials with in the block
 % THIS LOGIC WILL SKIP ALL SPURIOUS Trigger Codes (233)
 % 
-ith_event_time_idx = 2;
-
-while ith_event_time_idx <= nCurry_metronome_events 
+for ith_event_time_idx = 2:nCurry_metronome_events 
    
     % Check If:
     %
@@ -132,22 +130,17 @@ while ith_event_time_idx <= nCurry_metronome_events
 
             % store event indices
             good_trial_idx = [good_trial_idx;ith_event_time_idx]; 
-            ith_event_time_idx = ith_event_time_idx + 1
-            continue
+
         % is this a spurious trigger code? (failing both conditions above)
         elseif curr_metronome_time_stamp - prev_metronome_time_stamp > 1 & ...
-               (next_metronome_time_stamp - curr_metronome_time_stamp) < 16.5 & ...
-               ... % make sure it is also not consecutive
-               (next_metronome_time_stamp - curr_metronome_time_stamp) > 1 
+               (next_metronome_time_stamp - curr_metronome_time_stamp) < 16.5
             
             % time stamp in the current trial
             curr_time = curr_metronome_time_stamp - prev_metronome_time_stamp;
-            % if all TC233's are spurious through the  entire current 
+            % if all TC233's are  true through the  entire current 
             % trial we will store the previous metronome 
             % tick as a good trial idx
-            
-            spurious_count = 1; % count for spurious metronome ticks 
-            
+            spurious_count = 1; % count for spurious metronome ticks: 
             % get the idx for the current metronome from the curry time stamp data              
             [~,time_stamp_idx] = ismember(curr_metronome_time_stamp,...
                                           curry_file_event_time_stamps);                            
@@ -158,42 +151,22 @@ while ith_event_time_idx <= nCurry_metronome_events
                 if curry_file_event_trigger_codes(time_stamp_idx + 1) == TC233 & ...
                    curr_metronome_time_stamp - prev_metronome_time_stamp > 1 & ...
                    (next_metronome_time_stamp - curr_metronome_time_stamp) < 16.5
-                    display('Scanning trial')
+                   
                     % add to spurious count 
                     spurious_count = spurious_count + 1;
                     time_stamp_idx = time_stamp_idx + 1;
                     curr_time = curry_file_event_time_stamps(time_stamp_idx) ...
-                                - prev_metronome_time_stamp
-                else 
-                    display('you are stuck')
-                    time_stamp_idx = time_stamp_idx + 1;
-                    curr_time = curry_file_event_time_stamps(time_stamp_idx) ...
                                 - prev_metronome_time_stamp;
-                
+                else 
+                    break
                 end
             end
             
-            % did we make it to the end of the trial?
             if curr_time >= 16.5
                 % store the previous event idx              
                 good_trial_idx = [good_trial_idx;ith_event_time_idx - 1];
-                
-                % make sure we are still in range (sanity check) 
-                if ith_event_time_idx + spurious_count <= nCurry_metronome_events
-                   ith_event_time_idx = ith_event_time_idx + spurious_count;
-                   continue
-                else 
-                    error('Something is wrong')
-                end
-                
-            else 
-                ith_event_time_idx = ith_event_time_idx + 1;
             end 
-            
-        else 
-            ith_event_time_idx = ith_event_time_idx + 1;
         end
-        
     % Catch last trial
     %
     % Check If:
@@ -206,9 +179,7 @@ while ith_event_time_idx <= nCurry_metronome_events
            metronome_event_time_stamps(ith_event_time_idx) - metronome_event_time_stamps(ith_event_time_idx - 1) < 1  
         
         % store event index
-        good_trial_idx = [good_trial_idx; ith_event_time_idx];
-%         ith_event_time_idx = ith_event_time_idx + 1;
-        break
+        good_trial_idx = [good_trial_idx; ith_event_time_idx]; 
         
     end
     
