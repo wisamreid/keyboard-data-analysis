@@ -122,7 +122,7 @@ while ith_event_time_idx <= nCurry_metronome_events
     %   3) the next time stamp - the current time stamp, is greater than 17 seconds
     %
     if  ith_event_time_idx < nCurry_metronome_events 
-            
+                    
             curr_metronome_time_stamp = metronome_event_time_stamps(ith_event_time_idx);
             prev_metronome_time_stamp = metronome_event_time_stamps(ith_event_time_idx - 1);
             next_metronome_time_stamp = metronome_event_time_stamps(ith_event_time_idx + 1);
@@ -132,7 +132,7 @@ while ith_event_time_idx <= nCurry_metronome_events
 
             % store event indices
             good_trial_idx = [good_trial_idx;ith_event_time_idx]; 
-            ith_event_time_idx = ith_event_time_idx + 1
+            ith_event_time_idx = ith_event_time_idx + 1;
             continue
         % is this a spurious trigger code? (failing both conditions above)
         elseif curr_metronome_time_stamp - prev_metronome_time_stamp > 1 & ...
@@ -158,14 +158,16 @@ while ith_event_time_idx <= nCurry_metronome_events
                 if curry_file_event_trigger_codes(time_stamp_idx + 1) == TC233 & ...
                    curr_metronome_time_stamp - prev_metronome_time_stamp > 1 & ...
                    (next_metronome_time_stamp - curr_metronome_time_stamp) < 16.5
-                    display('Scanning trial')
+                    display('Scanning trial: ')
+                    display('Found a metronome TC, and it is spurious')
                     % add to spurious count 
                     spurious_count = spurious_count + 1;
                     time_stamp_idx = time_stamp_idx + 1;
                     curr_time = curry_file_event_time_stamps(time_stamp_idx) ...
-                                - prev_metronome_time_stamp
+                                - prev_metronome_time_stamp;
                 else 
-                    display('you are stuck')
+                    display('Scanning trial: ')
+                    display('There are no metronome codes here')
                     time_stamp_idx = time_stamp_idx + 1;
                     curr_time = curry_file_event_time_stamps(time_stamp_idx) ...
                                 - prev_metronome_time_stamp;
@@ -216,11 +218,8 @@ end
 
 % during the actual trials, the metronomes come 500 ms and 17 sec
 % alternatively, so if the trials are not separated by an index of 2, then it's
-% not good
+% the trial has a spurious 233 trigger code, but it is not necessarily a bad trial
 % 
-% Wisam's Notes:
-% The above note is not true, it means that the trial has a spurious 233
-% trigger code, but it is not necessarily a bad trial
 % If the index distance is greater than 2, this means that we skipped a
 % SPURIOUS (Trigger Code 233's) in the loop above
 
@@ -495,79 +494,79 @@ for ith_trial = 2:nTrials
     
 end
 
-% % %%%%%%%%%%%%%%%%%%%%%%%%%% LAST TRIAL %%%%%%%%%%%%%%%%%%%%%%%%%%
-% % % size(deviant_IOIs)
-% % % ith_trial
-% % 
-% % % grab the deviant IOIs for the current trial
-% % curr_trial_IOIs = [deviant_IOIs(ith_trial*2 - 1), deviant_IOIs(ith_trial*2)];
-% %     
-% % % set the time range for the last trial
-% % curr_BEGIN_time = trial_time_stamps(nTrials);
-% % last_END_time = curry_file_event_time_stamps(end);
-% % 
-% % % catch Last trial trigger codes 
-% % tmp_TCs = curry_file_event_trigger_codes((curry_file_event_time_stamps > curr_BEGIN_time & ...
-% %                                          curry_file_event_time_stamps < last_END_time), :);
-% %                                      
-% % % make sure of the file length
-% % % before we chop off the last measure
-% % if length(tmp_TCs) > 48                        
-% %     % we are going to chop off the last measure
-% %     % the data is too corrupted and the last measure 
-% %     % does not have deviants
-% %     tmp_TCs = tmp_TCs(1:48); 
-% % else
-% %     tmp_TCs = tmp_TCs(1:length(tmp_TCs));
-% % end
-% % 
-% % % deviant note indexes
-% % curr_trial_deviant_idx = find(tmp_TCs == 235 | tmp_TCs == 239);
-% % % get the actual note numbers  
-% % curr_trial_deviant_note_numbers = int8(curr_trial_deviant_idx./2); % cast to int
-% % 
-% % % grab the event codes
-% % deviant_event_codes = tmp_TCs(curr_trial_deviant_idx - 1);
-% % 
-% % % if there are no deviants 
-% % if isempty(deviant_event_codes) 
-% %     % do nothing
-% % else
-% % 
-% %     if ~ismember(ith_trial - 1, error_trial_idx)
-% %         %%%%%%%%%%%%%%%%%%%%%%%%%% SANITY CHECK %%%%%%%%%%%%%%%%%%%%%%%%%%
-% %         % assert that there are exactly 2 deviant notes 
-% %         assert(length(curr_trial_deviant_note_numbers) == 2, ...
-% %                [' Each trial must have 2 deviant notes.  Currently there are ', ...
-% %                int2str(length(curr_trial_deviant_idx)), ' at index: ', int2str(curr_trial_deviant_idx'),...
-% %                ' with note number(s): ', int2str(curr_trial_deviant_note_numbers')])
-% %         %%%%%%%%%%%%%%%%%%%%%%%%%% SANITY CHECK %%%%%%%%%%%%%%%%%%%%%%%%%%
-% %     end
-% % 
-% %     % loop through the deviant codes
-% %     for ith_deviant = 1:length(deviant_event_codes)
-% % 
-% %         % deviant is in an odd phrase  
-% %         if ismember(deviant_event_codes(ith_deviant), [54,55,64,65]) 
-% %              deviant_player = 1;
-% % 
-% %              deviant_note_data(ith_trial, deviant_player) = curr_trial_deviant_note_numbers(ith_deviant);
-% %              deviant_note_data(ith_trial, deviant_player + 1) = curr_trial_IOIs(1);
-% %         else % deviant in an even phrase
-% % 
-% %     %%%%%%%%%%%%%%%%%%%%%%%%%% SANITY CHECK %%%%%%%%%%%%%%%%%%%%%%%%%%                
-% %             assert(ismember(deviant_event_codes(ith_deviant),[154,155,164,165]) == 1, ...
-% %                   [' Unknown deviant Trigger code: ', ...
-% %                   int2str(deviant_event_codes(ith_deviant))])
-% %     %%%%%%%%%%%%%%%%%%%%%%%%%% SANITY CHECK %%%%%%%%%%%%%%%%%%%%%%%%%%
-% % 
-% %             deviant_player = 2;
-% % 
-% %             deviant_note_data(ith_trial, deviant_player + 1) = curr_trial_deviant_note_numbers(ith_deviant);
-% %             deviant_note_data(ith_trial, deviant_player + 2) = curr_trial_IOIs(2);
-% %         end    
-% %     end
-% % end
+%%%%%%%%%%%%%%%%%%%%%%%%%% LAST TRIAL %%%%%%%%%%%%%%%%%%%%%%%%%%
+% size(deviant_IOIs)
+% ith_trial
+
+% grab the deviant IOIs for the current trial
+curr_trial_IOIs = [deviant_IOIs(ith_trial*2 - 1), deviant_IOIs(ith_trial*2)];
+    
+% set the time range for the last trial
+curr_BEGIN_time = trial_time_stamps(nTrials);
+last_END_time = curry_file_event_time_stamps(end);
+
+% catch Last trial trigger codes 
+tmp_TCs = curry_file_event_trigger_codes((curry_file_event_time_stamps > curr_BEGIN_time & ...
+                                         curry_file_event_time_stamps < last_END_time), :);
+                                     
+% make sure of the file length
+% before we chop off the last measure
+if length(tmp_TCs) > 48                        
+    % we are going to chop off the last measure
+    % the data is too corrupted and the last measure 
+    % does not have deviants
+    tmp_TCs = tmp_TCs(1:48); 
+else
+    tmp_TCs = tmp_TCs(1:length(tmp_TCs));
+end
+
+% deviant note indexes
+curr_trial_deviant_idx = find(tmp_TCs == 235 | tmp_TCs == 239);
+% get the actual note numbers  
+curr_trial_deviant_note_numbers = int8(curr_trial_deviant_idx./2); % cast to int
+
+% grab the event codes
+deviant_event_codes = tmp_TCs(curr_trial_deviant_idx - 1);
+
+% if there are no deviants 
+if isempty(deviant_event_codes) 
+    % do nothing
+else
+
+    if ~ismember(ith_trial - 1, error_trial_idx)
+        %%%%%%%%%%%%%%%%%%%%%%%%%% SANITY CHECK %%%%%%%%%%%%%%%%%%%%%%%%%%
+        % assert that there are exactly 2 deviant notes 
+        assert(length(curr_trial_deviant_note_numbers) == 2, ...
+               [' Each trial must have 2 deviant notes.  Currently there are ', ...
+               int2str(length(curr_trial_deviant_idx)), ' at index: ', int2str(curr_trial_deviant_idx'),...
+               ' with note number(s): ', int2str(curr_trial_deviant_note_numbers')])
+        %%%%%%%%%%%%%%%%%%%%%%%%%% SANITY CHECK %%%%%%%%%%%%%%%%%%%%%%%%%%
+    end
+
+    % loop through the deviant codes
+    for ith_deviant = 1:length(deviant_event_codes)
+
+        % deviant is in an odd phrase  
+        if ismember(deviant_event_codes(ith_deviant), [54,55,64,65]) 
+             deviant_player = 1;
+
+             deviant_note_data(ith_trial, deviant_player) = curr_trial_deviant_note_numbers(ith_deviant);
+             deviant_note_data(ith_trial, deviant_player + 1) = curr_trial_IOIs(1);
+        else % deviant in an even phrase
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%% SANITY CHECK %%%%%%%%%%%%%%%%%%%%%%%%%%                
+            assert(ismember(deviant_event_codes(ith_deviant),[154,155,164,165]) == 1, ...
+                  [' Unknown deviant Trigger code: ', ...
+                  int2str(deviant_event_codes(ith_deviant))])
+    %%%%%%%%%%%%%%%%%%%%%%%%%% SANITY CHECK %%%%%%%%%%%%%%%%%%%%%%%%%%
+
+            deviant_player = 2;
+
+            deviant_note_data(ith_trial, deviant_player + 1) = curr_trial_deviant_note_numbers(ith_deviant);
+            deviant_note_data(ith_trial, deviant_player + 2) = curr_trial_IOIs(2);
+        end    
+    end
+end
     
 %% REMOVE BAD TRIALS 
 
